@@ -284,7 +284,7 @@ func show_province_info(prov: Dictionary) -> void:
 		if demographics_label:
 			demographics_label.text = "  • Nam: %s | Nữ: %s" % [format_number(m_pop), format_number(f_pop)]
 		if manpower_label:
-			manpower_label.text = "  • Nam nhập ngũ: %s" % format_number(m_work)
+			manpower_label.text = "  • Nam độ tuổi lao động (15-64): %s" % format_number(m_work)
 		
 		troops_label.text = "⚔️ Quân khởi đầu: " + format_number(int(prov.get("troops", 0)))
 		start_button.text = "⚔️ VÀO TRẬN (LÃNH ĐẠO " + str(prov.get("faction")) + ")"

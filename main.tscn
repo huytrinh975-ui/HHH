@@ -89,9 +89,9 @@ text = "Nam: -- | Nữ: --"
 
 [node name="ManpowerLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=198301003]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.85, 1.0, 1)
+theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
 theme_override_font_sizes/font_size = 11
-text = "Nam nhập ngũ (18-59): --"
+text = "Nam độ tuổi lao động (15-64): --"
 
 [node name="TroopsLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=1300955317]
 layout_mode = 2
@@ -100,7 +100,66 @@ text = "Quân đội: --"
 [node name="RecruitButton" type="Button" parent="UI/ProvincePanel/VBoxContainer" unique_id=876189340]
 layout_mode = 2
 focus_mode = 0
-text = "Tuyển quân (+10 | 20💰)"
+text = "Tuyển quân..."
+
+[node name="RecruitContainer" type="VBoxContainer" parent="UI/ProvincePanel/VBoxContainer" unique_id=2058862140]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="RecruitHeader" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/RecruitContainer" unique_id=2058862141]
+layout_mode = 2
+
+[node name="RecruitCostLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitHeader" unique_id=2058862142]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.9, 0.35, 1)
+theme_override_font_sizes/font_size = 12
+text = "Tuyển: 0 lính (Tốn: 0 Vàng)"
+
+[node name="RecruitSlider" type="HSlider" parent="UI/ProvincePanel/VBoxContainer/RecruitContainer" unique_id=2058862143]
+layout_mode = 2
+focus_mode = 0
+min_value = 1.0
+value = 25.0
+
+[node name="RecruitPresetHBox" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/RecruitContainer" unique_id=2058862144]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="RecruitPreset25Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox" unique_id=2058862145]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "25%"
+
+[node name="RecruitPreset50Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox" unique_id=2058862146]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "50%"
+
+[node name="RecruitPreset75Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox" unique_id=2058862147]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "75%"
+
+[node name="RecruitPresetMaxButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox" unique_id=2058862148]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "Tối đa"
+
+[node name="ConfirmRecruitButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/RecruitContainer" unique_id=2058862149]
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.95, 0.5, 1)
+text = "✅ Xác nhận tuyển quân"
 
 [node name="ActionButtonsHBox" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer" unique_id=1911805176]
 layout_mode = 2

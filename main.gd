@@ -14,6 +14,14 @@ extends Node2D
 @onready var manpower_label: Label = $UI/ProvincePanel/VBoxContainer/ManpowerLabel
 @onready var troops_label: Label = $UI/ProvincePanel/VBoxContainer/TroopsLabel
 @onready var recruit_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitButton
+@onready var recruit_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/RecruitContainer
+@onready var recruit_cost_label: Label = $UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitHeader/RecruitCostLabel
+@onready var recruit_slider: HSlider = $UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitSlider
+@onready var recruit_preset_25_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox/RecruitPreset25Button
+@onready var recruit_preset_50_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox/RecruitPreset50Button
+@onready var recruit_preset_75_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox/RecruitPreset75Button
+@onready var recruit_preset_max_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox/RecruitPresetMaxButton
+@onready var confirm_recruit_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitContainer/ConfirmRecruitButton
 @onready var move_button: Button = $UI/ProvincePanel/VBoxContainer/ActionButtonsHBox/MoveButton
 @onready var sweep_button: Button = $UI/ProvincePanel/VBoxContainer/ActionButtonsHBox/SweepButton
 @onready var dispatch_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/DispatchContainer
@@ -82,7 +90,8 @@ const SPEED_DURATIONS = {
 
 # Kinh tế: Tiền vàng
 var player_gold: int = 100
-const RECRUIT_COST: int = 20           # Chi phí tuyển +10 quân
+const COST_PER_TROOP: int = 2          # Chi phí mỗi lính = 2 Vàng
+const RECRUIT_COST: int = 20           # Chi phí cũ (+10 lính)
 const INCOME_PER_PROVINCE: int = 25    # Thuế thu về mỗi tỉnh vào ngày đầu tháng
 
 # Trạng thái di chuyển quân & Double-click
@@ -158,6 +167,18 @@ func _ready() -> void:
 		menu_button.pressed.connect(func(): get_tree().change_scene_to_file("res://MainMenu.tscn"))
 	if recruit_button:
 		recruit_button.pressed.connect(_on_recruit_button_pressed)
+	if recruit_slider:
+		recruit_slider.value_changed.connect(_on_recruit_slider_value_changed)
+	if recruit_preset_25_button:
+		recruit_preset_25_button.pressed.connect(func(): set_recruit_preset(0.25))
+	if recruit_preset_50_button:
+		recruit_preset_50_button.pressed.connect(func(): set_recruit_preset(0.50))
+	if recruit_preset_75_button:
+		recruit_preset_75_button.pressed.connect(func(): set_recruit_preset(0.75))
+	if recruit_preset_max_button:
+		recruit_preset_max_button.pressed.connect(func(): set_recruit_preset(1.00))
+	if confirm_recruit_button:
+		confirm_recruit_button.pressed.connect(_on_confirm_recruit_pressed)
 	if move_button:
 		move_button.pressed.connect(_on_move_button_pressed)
 	if sweep_button:
@@ -756,11 +777,24 @@ func get_male_working_age(prov: Dictionary) -> int:
 func has_recruited_this_month(prov: Dictionary) -> bool:
 	return prov.get("last_recruited_month", -1) == current_month and prov.get("last_recruited_year", -1) == current_year
 
+func get_remaining_pop_quota(prov: Dictionary) -> int:
+	var male_working = get_male_working_age(prov)
+	var max_by_population = int(male_working * 0.03)
+	if prov.get("last_recruited_month", -1) != current_month or prov.get("last_recruited_year", -1) != current_year:
+		prov["recruited_this_month"] = 0
+	var recruited_so_far = prov.get("recruited_this_month", 0)
+	return max(0, max_by_population - recruited_so_far)
+
+func get_max_recruitable(prov: Dictionary) -> int:
+	var remaining_pop = get_remaining_pop_quota(prov)
+	var max_by_money = int(player_gold / COST_PER_TROOP)
+	return min(remaining_pop, max_by_money)
+
 func update_province_panel_size() -> void:
 	if not province_panel:
 		return
-	if dispatch_container and dispatch_container.visible:
-		province_panel.offset_top = -430.0
+	if (dispatch_container and dispatch_container.visible) or (recruit_container and recruit_container.visible):
+		province_panel.offset_top = -450.0
 	else:
 		province_panel.offset_top = -290.0
 
@@ -772,6 +806,134 @@ func close_dispatch_container() -> void:
 	if confirm_target_button:
 		confirm_target_button.text = "🎯 Chọn mục tiêu"
 	update_province_panel_size()
+
+func close_recruit_container() -> void:
+	if recruit_container:
+		recruit_container.visible = false
+	if recruit_button and not selected_province.is_empty() and can_recruit(selected_province):
+		var remaining_quota = get_remaining_pop_quota(selected_province)
+		var max_rec = get_max_recruitable(selected_province)
+		if remaining_quota <= 0:
+			recruit_button.disabled = true
+			recruit_button.text = "Đã tuyển hết hạn ngạch tháng %02d" % current_month
+		elif player_gold < COST_PER_TROOP:
+			recruit_button.disabled = true
+			recruit_button.text = "Không đủ Vàng (Cần ≥ %d💰)" % COST_PER_TROOP
+		else:
+			recruit_button.disabled = false
+			recruit_button.text = "🎖️ Tuyển quân (Tối đa: %s)" % format_number(max_rec)
+	update_province_panel_size()
+
+func open_recruit_container() -> void:
+	if selected_province.is_empty() or not can_recruit(selected_province) or is_paused:
+		return
+	close_dispatch_container()
+	var remaining_quota = get_remaining_pop_quota(selected_province)
+	var max_by_money = int(player_gold / COST_PER_TROOP)
+	var max_rec = min(remaining_quota, max_by_money)
+	
+	if remaining_quota <= 0:
+		show_notification("⚠️ %s đã tuyển hết chỉ tiêu 3%% của tháng %02d/%d! Chờ tháng sau." % [
+			selected_province.get("name"), current_month, current_year
+		])
+		return
+	
+	if max_by_money <= 0:
+		show_notification("⚠️ Không đủ Vàng để tuyển quân! (Cần ít nhất %d Vàng/lính)" % COST_PER_TROOP)
+		return
+	
+	if recruit_slider:
+		recruit_slider.min_value = 1
+		recruit_slider.max_value = max_rec
+		recruit_slider.step = 1
+		# Mặc định khi mở: Đặt ở mức tương ứng với 50% số tiền người chơi hiện có
+		var default_by_gold = int((player_gold * 0.5) / COST_PER_TROOP)
+		recruit_slider.value = clamp(default_by_gold, 1, max_rec)
+		_update_recruit_cost_label(recruit_slider.value)
+	
+	if recruit_container:
+		recruit_container.visible = true
+	if recruit_button:
+		recruit_button.text = "Đóng tuyển quân ✖"
+	update_province_panel_size()
+
+func _update_recruit_cost_label(val: float) -> void:
+	var count = int(val)
+	var cost = count * COST_PER_TROOP
+	if recruit_cost_label:
+		recruit_cost_label.text = "Tuyển: %s lính (Tốn: %s Vàng)" % [format_number(count), format_number(cost)]
+
+func _on_recruit_slider_value_changed(val: float) -> void:
+	_update_recruit_cost_label(val)
+
+func set_recruit_preset(ratio: float) -> void:
+	if selected_province.is_empty():
+		return
+	var max_rec = get_max_recruitable(selected_province)
+	if max_rec <= 0 or not recruit_slider:
+		return
+	var target_val = int(round(max_rec * ratio))
+	recruit_slider.value = clamp(target_val, 1, max_rec)
+	_update_recruit_cost_label(recruit_slider.value)
+
+func _on_confirm_recruit_pressed() -> void:
+	if selected_province.is_empty():
+		return
+	if is_paused:
+		show_notification("⏸ Thời gian đang dừng, hãy tiếp tục thời gian để thực hiện hành động!")
+		return
+	if not can_recruit(selected_province):
+		show_notification("⚠️ Không thể tuyển quân tại tỉnh khác phe!")
+		return
+	
+	var count = int(recruit_slider.value) if recruit_slider else 0
+	if count <= 0:
+		show_notification("⚠️ Số lượng tân binh cần tuyển phải lớn hơn 0!")
+		return
+	
+	var cost = count * COST_PER_TROOP
+	if player_gold < cost:
+		show_notification("⚠️ Không đủ Vàng để tuyển %s lính (Cần %s Vàng)!" % [format_number(count), format_number(cost)])
+		return
+	
+	var remaining_quota = get_remaining_pop_quota(selected_province)
+	if count > remaining_quota:
+		show_notification("⚠️ Vượt quá chỉ tiêu nhân lực còn lại (%s lính) của tháng này!" % format_number(remaining_quota))
+		return
+	
+	# Trừ tiền
+	player_gold -= cost
+	update_gold_display()
+	
+	# Trừ dân số nam độ tuổi lao động và tổng dân số
+	if selected_province.has("demographics") and selected_province["demographics"].has("male"):
+		selected_province["demographics"]["male"]["working_age"] = max(0, selected_province["demographics"]["male"]["working_age"] - count)
+	selected_province["total_population"] = max(0, selected_province.get("total_population", 0) - count)
+	
+	# Cộng quân vào tỉnh
+	selected_province["troops"] = int(selected_province.get("troops", 0)) + count
+	
+	# Cập nhật hạn ngạch tháng
+	selected_province["recruited_this_month"] = selected_province.get("recruited_this_month", 0) + count
+	selected_province["last_recruited_month"] = current_month
+	selected_province["last_recruited_year"] = current_year
+	
+	update_troop_label(selected_province)
+	close_recruit_container()
+	show_province_info(selected_province)
+	
+	show_notification("🎖️ Đã tuyển +%s tân binh tại %s (Chi phí: %s Vàng)!" % [
+		format_number(count),
+		selected_province.get("name"),
+		format_number(cost)
+	])
+	print("Tuyển quân thành công (+%d) tại %s - Tốn %d Vàng (Vàng còn: %d) - Quân số: %d" % [
+		count,
+		selected_province.get("name"),
+		cost,
+		player_gold,
+		selected_province["troops"]
+	])
 
 func show_province_info(prov: Dictionary) -> void:
 	selected_province = prov
@@ -791,15 +953,15 @@ func show_province_info(prov: Dictionary) -> void:
 		if demographics_label:
 			demographics_label.text = "  • Nam: %s | Nữ: %s" % [format_number(m_pop), format_number(f_pop)]
 		if manpower_label:
-			manpower_label.text = "  • Nam nhập ngũ (18-59): %s" % format_number(m_work)
+			manpower_label.text = "  • Nam độ tuổi lao động (15-64): %s" % format_number(m_work)
 		
 		troops_label.text = "⚔️ Quân đồn trú: %s quân" % format_number(current_troops)
 		
 		var is_player_prov = can_recruit(prov)
 		var has_troops = current_troops > 0
 		var can_sweep = is_player_prov and current_troops >= 10
-		var already_recruited = has_recruited_this_month(prov)
-		var recruit_amount = int(m_work * 0.03)
+		var remaining_quota = get_remaining_pop_quota(prov)
+		var max_rec = get_max_recruitable(prov)
 		
 		if is_paused:
 			recruit_button.disabled = true
@@ -810,16 +972,22 @@ func show_province_info(prov: Dictionary) -> void:
 				sweep_button.disabled = true
 				sweep_button.text = "Đang dừng"
 			close_dispatch_container()
+			close_recruit_container()
 		elif is_player_prov:
-			if already_recruited:
+			if remaining_quota <= 0:
 				recruit_button.disabled = true
-				recruit_button.text = "Đã tuyển tháng %02d (Chờ tháng sau)" % current_month
-			elif m_work < 100 or recruit_amount <= 0:
+				recruit_button.text = "Đã tuyển hết hạn ngạch tháng %02d" % current_month
+				close_recruit_container()
+			elif player_gold < COST_PER_TROOP:
 				recruit_button.disabled = true
-				recruit_button.text = "Thiếu nhân lực nhập ngũ (<100)"
+				recruit_button.text = "Không đủ Vàng (Cần ≥ %d💰)" % COST_PER_TROOP
+				close_recruit_container()
 			else:
 				recruit_button.disabled = false
-				recruit_button.text = "🎖️ Tuyển quân (+%s | 3%% nam)" % format_number(recruit_amount)
+				if recruit_container and recruit_container.visible:
+					recruit_button.text = "Đóng tuyển quân ✖"
+				else:
+					recruit_button.text = "🎖️ Tuyển quân (Tối đa: %s)" % format_number(max_rec)
 			
 			move_button.disabled = not has_troops
 			if not has_troops:
@@ -846,6 +1014,7 @@ func show_province_info(prov: Dictionary) -> void:
 				sweep_button.disabled = true
 				sweep_button.text = "Khác phe"
 			close_dispatch_container()
+			close_recruit_container()
 			
 		province_panel.visible = true
 		update_province_panel_size()
@@ -858,6 +1027,7 @@ func show_province_info(prov: Dictionary) -> void:
 func hide_province_panel() -> void:
 	selected_province = {}
 	close_dispatch_container()
+	close_recruit_container()
 	cancel_move_mode()
 	if province_panel:
 		province_panel.visible = false
@@ -875,49 +1045,10 @@ func _on_recruit_button_pressed() -> void:
 		show_notification("⏸ Thời gian đang dừng, hãy tiếp tục thời gian để thực hiện hành động!")
 		return
 	
-	if can_recruit(selected_province):
-		var male_work = get_male_working_age(selected_province)
-		if male_work < 100:
-			show_notification("⚠️ %s không đủ nam trong độ tuổi nhập ngũ (< 100 người)!" % selected_province.get("name"))
-			return
-		
-		if has_recruited_this_month(selected_province):
-			show_notification("⚠️ %s đã tuyển quân trong tháng %02d/%d rồi! Hãy chờ sang tháng sau." % [
-				selected_province.get("name"), current_month, current_year
-			])
-			return
-		
-		var recruited_amount = int(male_work * 0.03)
-		if recruited_amount <= 0:
-			show_notification("⚠️ Số lượng tân binh quá ít để tuyển quân!")
-			return
-		
-		# Trừ trực tiếp số lượng vừa tuyển vào dân số
-		selected_province["demographics"]["male"]["working_age"] -= recruited_amount
-		selected_province["total_population"] -= recruited_amount
-		
-		# Cộng quân vào số đồn trú
-		var current_troops = int(selected_province.get("troops", 0))
-		selected_province["troops"] = current_troops + recruited_amount
-		
-		# Đánh dấu đã tuyển tháng này
-		selected_province["last_recruited_month"] = current_month
-		selected_province["last_recruited_year"] = current_year
-		
-		update_troop_label(selected_province)
-		show_province_info(selected_province)
-		show_notification("🎖️ Đã tuyển +%s tân binh tại %s (Dân số còn: %s)!" % [
-			format_number(recruited_amount),
-			selected_province.get("name"),
-			format_number(selected_province.get("total_population", 0))
-		])
-		print("Tuyển quân thành công (+%d) tại %s - Quân số: %d - Nam nhập ngũ còn: %d - Dân số còn: %d" % [
-			recruited_amount,
-			selected_province.get("name"),
-			selected_province["troops"],
-			selected_province["demographics"]["male"]["working_age"],
-			selected_province["total_population"]
-		])
+	if recruit_container and recruit_container.visible:
+		close_recruit_container()
+	else:
+		open_recruit_container()
 
 func _on_move_button_pressed() -> void:
 	if selected_province.is_empty():
@@ -937,6 +1068,7 @@ func _on_move_button_pressed() -> void:
 			close_dispatch_container()
 			cancel_move_mode()
 		else:
+			close_recruit_container()
 			dispatch_container.visible = true
 			move_button.text = "Đóng điều quân"
 			_refresh_dispatch_slider()

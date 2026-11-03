@@ -93,24 +93,9 @@ body {
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 
-<style>
-		html, body {
-			touch-action: none;
-			-webkit-user-select: none;
-			user-select: none;
-			overscroll-behavior: none;
-			overflow: hidden;
-			position: fixed;
-			width: 100%;
-			height: 100%;
-		}
-		#canvas {
-			touch-action: none !important;
-		}
-	</style>
 	</head>
 	<body>
-		<canvas id="canvas" style="touch-action: none;">
+		<canvas id="canvas">
 			Your browser does not support the canvas tag.
 		</canvas>
 
@@ -126,7 +111,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":329036,"index.wasm":37902138},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":330860,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -230,19 +215,6 @@ const engine = new Engine(GODOT_CONFIG);
 	}
 }());
 		</script>
-		<script>
-		document.addEventListener('touchstart', function(e) {
-			if (e.touches.length > 1) {
-				e.preventDefault();
-			}
-		}, { passive: false });
-
-		document.addEventListener('touchmove', function(e) {
-			if (e.touches.length > 1) {
-				e.preventDefault();
-			}
-		}, { passive: false });
-	</script>
 	</body>
 </html>
 

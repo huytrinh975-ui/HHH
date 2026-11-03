@@ -273,21 +273,39 @@ func update_active_armies(dt: float) -> void:
 	var i = active_armies.size() - 1
 	while i >= 0:
 		var army = active_armies[i]
-		army["progress"] += dt / army["duration"]
+		var path: Array = army.get("path", [])
+		var curr_leg: int = int(army.get("current_leg", 0))
+		var total_legs: int = int(army.get("total_legs", 1))
+		var leg_duration: float = float(army.get("leg_duration", 1.6))
 		
-		if army["progress"] >= 1.0:
-			army["progress"] = 1.0
-			_resolve_army_arrival(army)
-			if is_instance_valid(army["badge_root"]):
-				army["badge_root"].queue_free()
-			if is_instance_valid(army["line"]):
-				army["line"].queue_free()
-			active_armies.remove_at(i)
-		else:
-			var t = army["progress"]
-			var current_pos = army["start_pos"].lerp(army["end_pos"], t)
-			if is_instance_valid(army["badge_root"]):
-				army["badge_root"].position = current_pos
+		army["leg_progress"] = float(army.get("leg_progress", 0.0)) + (dt / leg_duration)
+		
+		if army["leg_progress"] >= 1.0:
+			if curr_leg + 1 < total_legs:
+				# Vượt qua 1 chặng tỉnh trung gian an toàn (tuyệt đối KHÔNG kích hoạt giao tranh hay chiếm đất)
+				curr_leg += 1
+				army["current_leg"] = curr_leg
+				army["leg_progress"] = 0.0
+			else:
+				# Đã đến tỉnh đích cuối cùng (Target)!
+				army["leg_progress"] = 1.0
+				_resolve_army_arrival(army)
+				if is_instance_valid(army.get("badge_root")):
+					army["badge_root"].queue_free()
+				if is_instance_valid(army.get("line")):
+					army["line"].queue_free()
+				active_armies.remove_at(i)
+				i -= 1
+				continue
+		
+		# Cập nhật vị trí hiển thị lerp mượt mà giữa 2 đỉnh của chặng hiện tại
+		if curr_leg + 1 < path.size():
+			var p_from = get_province_local_pos(path[curr_leg])
+			var p_to = get_province_local_pos(path[curr_leg + 1])
+			var t = clamp(float(army["leg_progress"]), 0.0, 1.0)
+			if is_instance_valid(army.get("badge_root")):
+				army["badge_root"].position = p_from.lerp(p_to, t)
+		
 		i -= 1
 
 func load_provinces_json() -> void:
@@ -351,16 +369,25 @@ func get_province_neighbors(prov: Dictionary) -> Array:
 			result.append(provinces_by_id[sid])
 	return result
 
-func find_province_path(source: Dictionary, target: Dictionary) -> Array:
-	var start_id = str(source.get("id"))
-	var end_id = str(target.get("id"))
-	if start_id == end_id:
-		return [source]
+# ==============================================================================
+# THUẬT TOÁN TÌM ĐƯỜNG THEO ĐỒ THỊ LÁNG GIỀNG (GRAPH PATHFINDING - BFS)
+# ==============================================================================
+func find_path(from_province: Dictionary, to_province: Dictionary, mover_faction: String = "") -> Array:
+	if from_province.is_empty() or to_province.is_empty():
+		return []
 	
-	var queue = [start_id]
-	var visited = {start_id: true}
-	var parent = {}
-	var found = false
+	var start_id = str(from_province.get("id"))
+	var end_id = str(to_province.get("id"))
+	if start_id == end_id:
+		return [from_province]
+	
+	if mover_faction == "":
+		mover_faction = from_province.get("faction", player_faction)
+	
+	var queue: Array = [start_id]
+	var visited: Dictionary = {start_id: true}
+	var parent: Dictionary = {}
+	var found: bool = false
 	
 	while queue.size() > 0:
 		var curr_id = queue.pop_front()
@@ -375,24 +402,56 @@ func find_province_path(source: Dictionary, target: Dictionary) -> Array:
 		var neighbors = curr_prov.get("neighbors", [])
 		for nid in neighbors:
 			var sid = str(nid)
-			if not visited.has(sid) and provinces_by_id.has(sid):
+			if visited.has(sid):
+				continue
+			
+			var next_prov = provinces_by_id.get(sid)
+			if next_prov == null:
+				continue
+			
+			# 1. Đích đến cuối cùng (Target): Luôn là điểm đến hợp lệ để tấn công hoặc tiếp viện
+			if sid == end_id:
 				visited[sid] = true
 				parent[sid] = curr_id
 				queue.append(sid)
+				continue
+			
+			# 2. Tỉnh trung gian: Bắt buộc phải có quyền đi qua an toàn (phe ta, đồng minh, hoặc có quyền hành quân)
+			var next_fac = next_prov.get("faction", next_prov.get("owner", ""))
+			var is_passable = false
+			
+			if next_fac == mover_faction:
+				is_passable = true
+			elif DiplomacyManager:
+				if DiplomacyManager.is_allied(mover_faction, next_fac) or DiplomacyManager.has_military_access(mover_faction, next_fac):
+					is_passable = true
+			
+			# Tỉnh trung lập không có quyền đi, hoặc tỉnh địch -> Bị coi là vật cản không thể đi xuyên qua
+			if not is_passable:
+				continue
+			
+			visited[sid] = true
+			parent[sid] = curr_id
+			queue.append(sid)
 	
 	if not found:
 		return []
 	
-	var path_ids = []
+	var path_ids: Array = []
 	var curr = end_id
 	while curr != "":
 		path_ids.push_front(curr)
 		curr = parent.get(curr, "")
 	
-	var result = []
+	var result: Array = []
 	for pid in path_ids:
-		result.append(provinces_by_id[pid])
+		var p = provinces_by_id.get(pid)
+		if p != null:
+			result.append(p)
 	return result
+
+func find_province_path(source: Dictionary, target: Dictionary, mover_faction: String = "") -> Array:
+	return find_path(source, target, mover_faction)
 
 # ==============================================================================
 # QUẢN LÝ THỜI GIAN & CHU KỲ KINH TẾ
@@ -798,10 +857,13 @@ func handle_left_click(click_pos: Vector2, is_godot_double_click: bool = false) 
 				show_notification("⏸ Thời gian đang dừng, hãy tiếp tục thời gian để thực hiện hành động!")
 				return
 			
-			dispatch_army(source_prov, clicked_prov, source_troops)
-			show_notification("⚡ [Double-click] Đã điều toàn bộ 100% (%s quân) từ %s sang %s!" % [
-				format_number(source_troops), source_prov.get("name"), clicked_prov.get("name")
-			])
+			var dispatched = dispatch_army(source_prov, clicked_prov, source_troops, false)
+			if dispatched:
+				show_notification("⚡ [Double-click] Đã điều toàn bộ 100% (%s quân) từ %s sang %s!" % [
+					format_number(source_troops), source_prov.get("name"), clicked_prov.get("name")
+				])
+			else:
+				show_notification("⚠️ Không có đường đi an toàn từ %s đến %s!" % [source_prov.get("name"), clicked_prov.get("name")])
 			potential_double_click_source = {}
 			last_click_prov_id = ""
 			last_click_timestamp = 0.0
@@ -1601,69 +1663,32 @@ func execute_troop_action(source: Dictionary, target: Dictionary, troop_amount: 
 		count = int(troop_amount)
 	dispatch_army(source, target, count)
 
-func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, show_notify: bool = true) -> void:
+func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, show_notify: bool = true) -> bool:
 	if source.is_empty() or target.is_empty():
-		return
+		return false
 	
 	var source_id = str(source.get("id"))
 	var target_id = str(target.get("id"))
 	if source_id == target_id:
-		return
+		return false
 	
 	var source_troops = int(source.get("troops", 0))
 	if source_troops <= 0:
 		if show_notify:
 			show_notification("⚠️ %s không có quân để điều động!" % source.get("name"))
-		return
+		return false
 	
-	var moving_troops: int = clamp(troop_count, 1, source_troops)
 	var source_faction: String = source.get("faction", player_faction)
 	var target_faction: String = target.get("faction", target.get("owner", ""))
 	
-	# Kiểm tra trực tiếp giáp ranh hay qua tỉnh trung gian
-	var actual_target = target
-	var is_direct = false
-	var neighbors = source.get("neighbors", [])
-	for nid in neighbors:
-		if str(nid) == target_id:
-			is_direct = true
-			break
+	# Tìm đường đi an toàn theo đồ thị láng giềng (Graph Pathfinding)
+	var path: Array = find_path(source, target, source_faction)
+	if path.is_empty() or path.size() < 2:
+		if show_notify:
+			show_notification("⚠️ Không có đường đi an toàn đến mục tiêu!")
+		return false
 	
-	if not is_direct:
-		var path = find_province_path(source, target)
-		if path.is_empty() or path.size() < 2:
-			if show_notify:
-				show_notification("⚠️ Không tìm thấy đường hành quân từ %s đến %s!" % [source.get("name"), target.get("name")])
-			return
-		
-		# Kiểm tra từng tỉnh trung gian trên lộ trình
-		if path.size() > 2:
-			var intermediates = path.slice(1, path.size() - 1)
-			for inter_prov in intermediates:
-				var inter_fac = inter_prov.get("faction", inter_prov.get("owner", ""))
-				
-				# 1. Phe mình, đồng minh, hoặc đã cấp quyền hành quân: Cho phép đi xuyên qua an toàn
-				if inter_fac == source_faction:
-					continue
-				if DiplomacyManager and (DiplomacyManager.is_allied(source_faction, inter_fac) or DiplomacyManager.has_military_access(source_faction, inter_fac)):
-					continue
-				
-				# 2. Phe đang có chiến tranh: Quân buộc phải dừng lại tấn công tỉnh trung gian này trước!
-				if DiplomacyManager and DiplomacyManager.is_at_war(source_faction, inter_fac):
-					actual_target = inter_prov
-					if show_notify:
-						show_notification("⚔️ Tuyến đường bị chặn bởi quân địch tại %s (%s)! Quân đội chuyển hướng công kích %s!" % [
-							inter_prov.get("name"), inter_fac, inter_prov.get("name")
-						])
-					break
-				
-				# 3. Phe trung lập chưa cấp quyền: Chặn lệnh hành quân hoàn toàn
-				if show_notify:
-					show_notification("⚠️ Không có quyền hành quân qua địa phận của [%s] (%s)!" % [
-						inter_fac, inter_prov.get("name")
-					])
-				return
-	
+	var moving_troops: int = clamp(troop_count, 1, source_troops)
 	var remaining_in_source: int = source_troops - moving_troops
 	
 	# Trừ quân ở tỉnh xuất phát ngay lập tức
@@ -1674,24 +1699,22 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 	if not selected_province.is_empty() and selected_province.get("id") == source.get("id"):
 		show_province_info(source)
 	
-	var start_pos = get_province_local_pos(source)
-	var end_pos = get_province_local_pos(actual_target)
-	
-	# 1. Đường hành quân (Line2D nối từ tâm xuất phát đến tâm đích)
+	# 1. Đường hành quân (Line2D nối qua TẤT CẢ các chặng waypoints trên lộ trình)
 	var line = Line2D.new()
-	line.name = "MarchLine_%s_%s" % [str(source.get("id")), str(actual_target.get("id"))]
+	line.name = "MarchLine_%s_%s" % [source_id, target_id]
 	line.width = 2.5
 	line.default_color = Color(1.0, 0.85, 0.25, 0.65)
 	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
 	line.end_cap_mode = Line2D.LINE_CAP_ROUND
-	line.add_point(start_pos)
-	line.add_point(end_pos)
+	for prov in path:
+		line.add_point(get_province_local_pos(prov))
 	if armies_container:
 		armies_container.add_child(line)
 	
 	# 2. Node hiển thị đơn vị lính hành quân trên bản đồ
+	var start_pos = get_province_local_pos(path[0])
 	var badge_root = Node2D.new()
-	badge_root.name = "ArmyBadge_%s_%s" % [str(source.get("id")), str(actual_target.get("id"))]
+	badge_root.name = "ArmyBadge_%s_%s" % [source_id, target_id]
 	badge_root.position = start_pos
 	badge_root.scale = Vector2(0.65, 0.65) # Đồng bộ thu nhỏ nhãn hành quân
 	badge_root.z_index = 10
@@ -1728,28 +1751,41 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 	if armies_container:
 		armies_container.add_child(badge_root)
 	
+	var total_legs = path.size() - 1
 	var army_data = {
+		"path": path,
+		"current_leg": 0,
+		"total_legs": total_legs,
+		"leg_progress": 0.0,
+		"leg_duration": 1.6, # 1.6 giây cho mỗi chặng tỉnh liền kề (ở tốc độ 1x)
 		"source": source,
-		"target": actual_target,
+		"target": target,
 		"troops": moving_troops,
 		"faction": source_faction,
-		"start_pos": start_pos,
-		"end_pos": end_pos,
-		"progress": 0.0,
-		"duration": 3.5, # 3.5 giây ở tốc độ 1x
 		"badge_root": badge_root,
 		"line": line
 	}
 	active_armies.append(army_data)
 	
 	if show_notify:
-		show_notification("🚩 %d quân xuất phát từ %s tiến về %s (còn lại: %d quân)!" % [
-			moving_troops, source.get("name"), actual_target.get("name"), remaining_in_source
-		])
-	print("--- XUẤT QUÂN HÀNH QUÂN ---")
-	print("Xuất phát: %d quân từ %s -> %s (còn lại tại tỉnh gốc: %d)" % [
-		moving_troops, source.get("name"), actual_target.get("name"), remaining_in_source
-	])
+		if path.size() > 2:
+			var waypoints_names: Array = []
+			for p in path.slice(1, path.size() - 1):
+				waypoints_names.append(p.get("name", ""))
+			show_notification("🚩 %d quân từ %s tiến về %s (qua an toàn: %s, còn lại: %d quân)!" % [
+				moving_troops, source.get("name"), target.get("name"), ", ".join(waypoints_names), remaining_in_source
+			])
+		else:
+			show_notification("🚩 %d quân từ %s tiến về %s (còn lại: %d quân)!" % [
+				moving_troops, source.get("name"), target.get("name"), remaining_in_source
+			])
+	
+	print("--- XUẤT QUÂN HÀNH QUÂN THEO ĐỒ THỊ ---")
+	var path_names: Array = []
+	for p in path:
+		path_names.append(p.get("name", ""))
+	print("Lộ trình: %s (%d lính). Số chặng: %d" % [" -> ".join(path_names), moving_troops, total_legs])
+	return true
 
 func _resolve_army_arrival(army: Dictionary) -> void:
 	var source = army["source"]

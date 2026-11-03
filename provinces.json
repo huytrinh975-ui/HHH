@@ -15,7 +15,21 @@
       "VN30",
       "VN27",
       "VN29"
-    ]
+    ],
+    "area_km2": 9677.3,
+    "total_population": 591300,
+    "demographics": {
+      "male": {
+        "under_18": 78004,
+        "working_age": 204406,
+        "senior": 12547
+      },
+      "female": {
+        "under_18": 70974,
+        "working_age": 205175,
+        "senior": 20194
+      }
+    }
   },
   {
     "id": "VN72",
@@ -33,7 +47,21 @@
       "VN33",
       "VN58",
       "VN35"
-    ]
+    ],
+    "area_km2": 6509.3,
+    "total_population": 689100,
+    "demographics": {
+      "male": {
+        "under_18": 90906,
+        "working_age": 238215,
+        "senior": 14623
+      },
+      "female": {
+        "under_18": 82713,
+        "working_age": 239111,
+        "senior": 23532
+      }
+    }
   },
   {
     "id": "VN33",
@@ -53,7 +81,21 @@
       "VN34",
       "VN32",
       "VN35"
-    ]
+    ],
+    "area_km2": 13070.4,
+    "total_population": 1928700,
+    "demographics": {
+      "male": {
+        "under_18": 254434,
+        "working_age": 666732,
+        "senior": 40927
+      },
+      "female": {
+        "under_18": 231502,
+        "working_age": 669240,
+        "senior": 65865
+      }
+    }
   },
   {
     "id": "VN30",
@@ -73,7 +115,21 @@
       "VN32",
       "VN31",
       "VN29"
-    ]
+    ],
+    "area_km2": 15511.0,
+    "total_population": 1613900,
+    "demographics": {
+      "male": {
+        "under_18": 212906,
+        "working_age": 557909,
+        "senior": 34247
+      },
+      "female": {
+        "under_18": 193716,
+        "working_age": 560007,
+        "senior": 55115
+      }
+    }
   },
   {
     "id": "VN58",
@@ -93,7 +149,21 @@
       "VN39",
       "VN57",
       "VN35"
-    ]
+    ],
+    "area_km2": 6873.6,
+    "total_population": 1046200,
+    "demographics": {
+      "male": {
+        "under_18": 138015,
+        "working_age": 361661,
+        "senior": 22200
+      },
+      "female": {
+        "under_18": 125575,
+        "working_age": 363021,
+        "senior": 35728
+      }
+    }
   },
   {
     "id": "VN37",
@@ -112,7 +182,21 @@
       "VN41",
       "VNSG",
       "VN57"
-    ]
+    ],
+    "area_km2": 4041.7,
+    "total_population": 1201200,
+    "demographics": {
+      "male": {
+        "under_18": 158462,
+        "working_age": 415243,
+        "senior": 25489
+      },
+      "female": {
+        "under_18": 144180,
+        "working_age": 416804,
+        "senior": 41022
+      }
+    }
   },
   {
     "id": "VN41",
@@ -131,7 +215,21 @@
       "VN45",
       "VN46",
       "VNSG"
-    ]
+    ],
+    "area_km2": 4494.9,
+    "total_population": 1782800,
+    "demographics": {
+      "male": {
+        "under_18": 235187,
+        "working_age": 616296,
+        "senior": 37831
+      },
+      "female": {
+        "under_18": 213989,
+        "working_age": 618614,
+        "senior": 60883
+      }
+    }
   },
   {
     "id": "VN45",
@@ -150,7 +248,21 @@
       "VN44",
       "VN46",
       "VNCT"
-    ]
+    ],
+    "area_km2": 3383.8,
+    "total_population": 1604100,
+    "demographics": {
+      "male": {
+        "under_18": 211613,
+        "working_age": 554521,
+        "senior": 34039
+      },
+      "female": {
+        "under_18": 192540,
+        "working_age": 556607,
+        "senior": 54780
+      }
+    }
   },
   {
     "id": "VN44",
@@ -168,7 +280,21 @@
       "VN45",
       "VN47",
       "VNCT"
-    ]
+    ],
+    "area_km2": 3536.7,
+    "total_population": 1914500,
+    "demographics": {
+      "male": {
+        "under_18": 252561,
+        "working_age": 661824,
+        "senior": 40626
+      },
+      "female": {
+        "under_18": 229797,
+        "working_age": 664312,
+        "senior": 65380
+      }
+    }
   },
   {
     "id": "VN47",
@@ -188,7 +314,21 @@
       "VN55",
       "VN73",
       "VNCT"
-    ]
+    ],
+    "area_km2": 6352.0,
+    "total_population": 1754700,
+    "demographics": {
+      "male": {
+        "under_18": 231480,
+        "working_age": 606582,
+        "senior": 37235
+      },
+      "female": {
+        "under_18": 210617,
+        "working_age": 608863,
+        "senior": 59923
+      }
+    }
   },
   {
     "id": "VN71",
@@ -205,7 +345,21 @@
     "neighbors": [
       "VN05",
       "VN01"
-    ]
+    ],
+    "area_km2": 9539.9,
+    "total_population": 646600,
+    "demographics": {
+      "male": {
+        "under_18": 85299,
+        "working_age": 223523,
+        "senior": 13721
+      },
+      "female": {
+        "under_18": 77611,
+        "working_age": 224364,
+        "senior": 22082
+      }
+    }
   },
   {
     "id": "VN05",
@@ -227,7 +381,21 @@
       "VN14",
       "VN06",
       "VN68"
-    ]
+    ],
+    "area_km2": 14109.8,
+    "total_population": 1317000,
+    "demographics": {
+      "male": {
+        "under_18": 173739,
+        "working_age": 455274,
+        "senior": 27947
+      },
+      "female": {
+        "under_18": 158080,
+        "working_age": 456986,
+        "senior": 44974
+      }
+    }
   },
   {
     "id": "VN21",
@@ -246,7 +414,21 @@
       "VN22",
       "VN18",
       "VN14"
-    ]
+    ],
+    "area_km2": 11114.7,
+    "total_population": 3751200,
+    "demographics": {
+      "male": {
+        "under_18": 494858,
+        "working_age": 1296752,
+        "senior": 79600
+      },
+      "female": {
+        "under_18": 450257,
+        "working_age": 1301629,
+        "senior": 128104
+      }
+    }
   },
   {
     "id": "VN22",
@@ -263,7 +445,21 @@
     "neighbors": [
       "VN21",
       "VN23"
-    ]
+    ],
+    "area_km2": 16486.5,
+    "total_population": 3458700,
+    "demographics": {
+      "male": {
+        "under_18": 456272,
+        "working_age": 1195638,
+        "senior": 73394
+      },
+      "female": {
+        "under_18": 415148,
+        "working_age": 1200134,
+        "senior": 118114
+      }
+    }
   },
   {
     "id": "VN23",
@@ -280,7 +476,21 @@
     "neighbors": [
       "VN22",
       "VN24"
-    ]
+    ],
+    "area_km2": 5994.4,
+    "total_population": 1329800,
+    "demographics": {
+      "male": {
+        "under_18": 175427,
+        "working_age": 459699,
+        "senior": 28218
+      },
+      "female": {
+        "under_18": 159616,
+        "working_age": 461427,
+        "senior": 45413
+      }
+    }
   },
   {
     "id": "VN24",
@@ -297,7 +507,21 @@
     "neighbors": [
       "VN23",
       "VN25"
-    ]
+    ],
+    "area_km2": 7998.8,
+    "total_population": 922300,
+    "demographics": {
+      "male": {
+        "under_18": 121670,
+        "working_age": 318830,
+        "senior": 19571
+      },
+      "female": {
+        "under_18": 110704,
+        "working_age": 320029,
+        "senior": 31496
+      }
+    }
   },
   {
     "id": "VN25",
@@ -314,7 +538,21 @@
     "neighbors": [
       "VN24",
       "VN26"
-    ]
+    ],
+    "area_km2": 4701.2,
+    "total_population": 656700,
+    "demographics": {
+      "male": {
+        "under_18": 86632,
+        "working_age": 227015,
+        "senior": 13935
+      },
+      "female": {
+        "under_18": 78824,
+        "working_age": 227868,
+        "senior": 22426
+      }
+    }
   },
   {
     "id": "VN26",
@@ -332,7 +570,21 @@
       "VN25",
       "VN27",
       "VNDN"
-    ]
+    ],
+    "area_km2": 4947.1,
+    "total_population": 1166500,
+    "demographics": {
+      "male": {
+        "under_18": 153885,
+        "working_age": 403247,
+        "senior": 24753
+      },
+      "female": {
+        "under_18": 140015,
+        "working_age": 404764,
+        "senior": 39836
+      }
+    }
   },
   {
     "id": "VN27",
@@ -351,7 +603,21 @@
       "VN26",
       "VN29",
       "VNDN"
-    ]
+    ],
+    "area_km2": 10574.9,
+    "total_population": 1526500,
+    "demographics": {
+      "male": {
+        "under_18": 201376,
+        "working_age": 527696,
+        "senior": 32392
+      },
+      "female": {
+        "under_18": 183226,
+        "working_age": 529680,
+        "senior": 52130
+      }
+    }
   },
   {
     "id": "VN03",
@@ -371,7 +637,21 @@
       "VN07",
       "VN06",
       "VN53"
-    ]
+    ],
+    "area_km2": 7927.5,
+    "total_population": 903600,
+    "demographics": {
+      "male": {
+        "under_18": 119203,
+        "working_age": 312365,
+        "senior": 19174
+      },
+      "female": {
+        "under_18": 108459,
+        "working_age": 313540,
+        "senior": 30859
+      }
+    }
   },
   {
     "id": "VN04",
@@ -390,7 +670,21 @@
       "VN09",
       "VN07",
       "VN53"
-    ]
+    ],
+    "area_km2": 6700.4,
+    "total_population": 550800,
+    "demographics": {
+      "male": {
+        "under_18": 72662,
+        "working_age": 190406,
+        "senior": 11688
+      },
+      "female": {
+        "under_18": 66113,
+        "working_age": 191122,
+        "senior": 18809
+      }
+    }
   },
   {
     "id": "VN02",
@@ -409,7 +703,21 @@
       "VN03",
       "VN01",
       "VN06"
-    ]
+    ],
+    "area_km2": 6364.2,
+    "total_population": 779600,
+    "demographics": {
+      "male": {
+        "under_18": 102845,
+        "working_age": 269500,
+        "senior": 16543
+      },
+      "female": {
+        "under_18": 93575,
+        "working_age": 270513,
+        "senior": 26624
+      }
+    }
   },
   {
     "id": "VN01",
@@ -427,7 +735,21 @@
       "VN71",
       "VN05",
       "VN02"
-    ]
+    ],
+    "area_km2": 9068.8,
+    "total_population": 492300,
+    "demographics": {
+      "male": {
+        "under_18": 64944,
+        "working_age": 170183,
+        "senior": 10447
+      },
+      "female": {
+        "under_18": 59091,
+        "working_age": 170823,
+        "senior": 16812
+      }
+    }
   },
   {
     "id": "VN09",
@@ -447,7 +769,21 @@
       "VN53",
       "VN54",
       "VN69"
-    ]
+    ],
+    "area_km2": 8310.2,
+    "total_population": 807500,
+    "demographics": {
+      "male": {
+        "under_18": 106525,
+        "working_age": 279145,
+        "senior": 17135
+      },
+      "female": {
+        "under_18": 96924,
+        "working_age": 280194,
+        "senior": 27577
+      }
+    }
   },
   {
     "id": "VN13",
@@ -466,7 +802,21 @@
       "VNHP",
       "VN54",
       "VN61"
-    ]
+    ],
+    "area_km2": 6207.9,
+    "total_population": 1381200,
+    "demographics": {
+      "male": {
+        "under_18": 182208,
+        "working_age": 477467,
+        "senior": 29309
+      },
+      "female": {
+        "under_18": 165785,
+        "working_age": 479263,
+        "senior": 47168
+      }
+    }
   },
   {
     "id": "VN52",
@@ -484,7 +834,21 @@
       "VN55",
       "VN73",
       "VN51"
-    ]
+    ],
+    "area_km2": 3311.9,
+    "total_population": 1205800,
+    "demographics": {
+      "male": {
+        "under_18": 159069,
+        "working_age": 416833,
+        "senior": 25587
+      },
+      "female": {
+        "under_18": 144732,
+        "working_age": 418401,
+        "senior": 41178
+      }
+    }
   },
   {
     "id": "VN46",
@@ -505,7 +869,21 @@
       "VN49",
       "VN50",
       "VNCT"
-    ]
+    ],
+    "area_km2": 2559.4,
+    "total_population": 1786100,
+    "demographics": {
+      "male": {
+        "under_18": 235622,
+        "working_age": 617437,
+        "senior": 37901
+      },
+      "female": {
+        "under_18": 214386,
+        "working_age": 619759,
+        "senior": 60995
+      }
+    }
   },
   {
     "id": "VN43",
@@ -523,7 +901,21 @@
       "VNSG",
       "VN39",
       "VN40"
-    ]
+    ],
+    "area_km2": 1982.6,
+    "total_population": 1184800,
+    "demographics": {
+      "male": {
+        "under_18": 156299,
+        "working_age": 409574,
+        "senior": 25141
+      },
+      "female": {
+        "under_18": 142212,
+        "working_age": 411114,
+        "senior": 40460
+      }
+    }
   },
   {
     "id": "VNSG",
@@ -544,7 +936,21 @@
       "VN43",
       "VN39",
       "VN57"
-    ]
+    ],
+    "area_km2": 2096.6,
+    "total_population": 9465700,
+    "demographics": {
+      "male": {
+        "under_18": 1248715,
+        "working_age": 3272198,
+        "senior": 200862
+      },
+      "female": {
+        "under_18": 1136168,
+        "working_age": 3284503,
+        "senior": 323254
+      }
+    }
   },
   {
     "id": "VN34",
@@ -563,7 +969,21 @@
       "VN36",
       "VN32",
       "VN35"
-    ]
+    ],
+    "area_km2": 5137.8,
+    "total_population": 1261200,
+    "demographics": {
+      "male": {
+        "under_18": 166378,
+        "working_age": 435984,
+        "senior": 26763
+      },
+      "female": {
+        "under_18": 151382,
+        "working_age": 437624,
+        "senior": 43069
+      }
+    }
   },
   {
     "id": "VN59",
@@ -580,7 +1000,21 @@
     "neighbors": [
       "VN47",
       "VN55"
-    ]
+    ],
+    "area_km2": 5274.5,
+    "total_population": 1218400,
+    "demographics": {
+      "male": {
+        "under_18": 160731,
+        "working_age": 421189,
+        "senior": 25854
+      },
+      "female": {
+        "under_18": 146245,
+        "working_age": 422773,
+        "senior": 41608
+      }
+    }
   },
   {
     "id": "VN55",
@@ -599,7 +1033,21 @@
       "VN52",
       "VN59",
       "VN73"
-    ]
+    ],
+    "area_km2": 2669.0,
+    "total_population": 927700,
+    "demographics": {
+      "male": {
+        "under_18": 122382,
+        "working_age": 320697,
+        "senior": 19686
+      },
+      "female": {
+        "under_18": 111352,
+        "working_age": 321903,
+        "senior": 31680
+      }
+    }
   },
   {
     "id": "VN73",
@@ -619,7 +1067,21 @@
       "VN55",
       "VN49",
       "VNCT"
-    ]
+    ],
+    "area_km2": 1622.2,
+    "total_population": 734000,
+    "demographics": {
+      "male": {
+        "under_18": 96829,
+        "working_age": 253736,
+        "senior": 15575
+      },
+      "female": {
+        "under_18": 88102,
+        "working_age": 254691,
+        "senior": 25067
+      }
+    }
   },
   {
     "id": "VN49",
@@ -639,7 +1101,21 @@
       "VN51",
       "VN50",
       "VNCT"
-    ]
+    ],
+    "area_km2": 1525.7,
+    "total_population": 1029000,
+    "demographics": {
+      "male": {
+        "under_18": 135746,
+        "working_age": 355715,
+        "senior": 21835
+      },
+      "female": {
+        "under_18": 123511,
+        "working_age": 357053,
+        "senior": 35140
+      }
+    }
   },
   {
     "id": "VN51",
@@ -657,7 +1133,21 @@
       "VN52",
       "VN49",
       "VN50"
-    ]
+    ],
+    "area_km2": 2391.0,
+    "total_population": 1020800,
+    "demographics": {
+      "male": {
+        "under_18": 134664,
+        "working_age": 352880,
+        "senior": 21661
+      },
+      "female": {
+        "under_18": 122527,
+        "working_age": 354207,
+        "senior": 34861
+      }
+    }
   },
   {
     "id": "VN50",
@@ -675,7 +1165,21 @@
       "VN46",
       "VN49",
       "VN51"
-    ]
+    ],
+    "area_km2": 2394.8,
+    "total_population": 1300200,
+    "demographics": {
+      "male": {
+        "under_18": 171522,
+        "working_age": 449466,
+        "senior": 27590
+      },
+      "female": {
+        "under_18": 156063,
+        "working_age": 451156,
+        "senior": 44403
+      }
+    }
   },
   {
     "id": "VN39",
@@ -696,7 +1200,21 @@
       "VN40",
       "VN57",
       "VN35"
-    ]
+    ],
+    "area_km2": 5863.6,
+    "total_population": 3314600,
+    "demographics": {
+      "male": {
+        "under_18": 437262,
+        "working_age": 1145824,
+        "senior": 70336
+      },
+      "female": {
+        "under_18": 397851,
+        "working_age": 1150133,
+        "senior": 113194
+      }
+    }
   },
   {
     "id": "VN40",
@@ -715,7 +1233,21 @@
       "VN39",
       "VN36",
       "VN35"
-    ]
+    ],
+    "area_km2": 7942.3,
+    "total_population": 1259900,
+    "demographics": {
+      "male": {
+        "under_18": 166206,
+        "working_age": 435535,
+        "senior": 26735
+      },
+      "female": {
+        "under_18": 151226,
+        "working_age": 437173,
+        "senior": 43025
+      }
+    }
   },
   {
     "id": "VN36",
@@ -733,7 +1265,21 @@
       "VN34",
       "VN40",
       "VN35"
-    ]
+    ],
+    "area_km2": 3356.3,
+    "total_population": 600400,
+    "demographics": {
+      "male": {
+        "under_18": 79205,
+        "working_age": 207552,
+        "senior": 12740
+      },
+      "female": {
+        "under_18": 72066,
+        "working_age": 208333,
+        "senior": 20504
+      }
+    }
   },
   {
     "id": "VN32",
@@ -752,7 +1298,21 @@
       "VN30",
       "VN34",
       "VN31"
-    ]
+    ],
+    "area_km2": 5025.9,
+    "total_population": 878600,
+    "demographics": {
+      "male": {
+        "under_18": 115905,
+        "working_age": 303723,
+        "senior": 18644
+      },
+      "female": {
+        "under_18": 105458,
+        "working_age": 304865,
+        "senior": 30005
+      }
+    }
   },
   {
     "id": "VN31",
@@ -770,7 +1330,21 @@
       "VN30",
       "VN32",
       "VN29"
-    ]
+    ],
+    "area_km2": 6071.3,
+    "total_population": 1506300,
+    "demographics": {
+      "male": {
+        "under_18": 198711,
+        "working_age": 520713,
+        "senior": 31964
+      },
+      "female": {
+        "under_18": 180801,
+        "working_age": 522671,
+        "senior": 51440
+      }
+    }
   },
   {
     "id": "VN29",
@@ -789,7 +1363,21 @@
       "VN30",
       "VN27",
       "VN31"
-    ]
+    ],
+    "area_km2": 5155.8,
+    "total_population": 1245600,
+    "demographics": {
+      "male": {
+        "under_18": 164320,
+        "working_age": 430591,
+        "senior": 26432
+      },
+      "female": {
+        "under_18": 149509,
+        "working_age": 432211,
+        "senior": 42537
+      }
+    }
   },
   {
     "id": "VNDN",
@@ -806,7 +1394,21 @@
     "neighbors": [
       "VN26",
       "VN27"
-    ]
+    ],
+    "area_km2": 1284.7,
+    "total_population": 1252000,
+    "demographics": {
+      "male": {
+        "under_18": 165164,
+        "working_age": 432804,
+        "senior": 26567
+      },
+      "female": {
+        "under_18": 150278,
+        "working_age": 434431,
+        "senior": 42756
+      }
+    }
   },
   {
     "id": "VN18",
@@ -825,7 +1427,21 @@
       "VN67",
       "VN14",
       "VN63"
-    ]
+    ],
+    "area_km2": 1411.8,
+    "total_population": 1022400,
+    "demographics": {
+      "male": {
+        "under_18": 134875,
+        "working_age": 353433,
+        "senior": 21695
+      },
+      "female": {
+        "under_18": 122719,
+        "working_age": 354763,
+        "senior": 34915
+      }
+    }
   },
   {
     "id": "VN67",
@@ -843,7 +1459,21 @@
       "VN18",
       "VN20",
       "VN63"
-    ]
+    ],
+    "area_km2": 1668.8,
+    "total_population": 1891800,
+    "demographics": {
+      "male": {
+        "under_18": 249566,
+        "working_age": 653976,
+        "senior": 40144
+      },
+      "female": {
+        "under_18": 227073,
+        "working_age": 656436,
+        "senior": 64605
+      }
+    }
   },
   {
     "id": "VN20",
@@ -863,7 +1493,21 @@
       "VN66",
       "VN61",
       "VN63"
-    ]
+    ],
+    "area_km2": 1584.6,
+    "total_population": 1892400,
+    "demographics": {
+      "male": {
+        "under_18": 249645,
+        "working_age": 654184,
+        "senior": 40157
+      },
+      "female": {
+        "under_18": 227145,
+        "working_age": 656644,
+        "senior": 64625
+      }
+    }
   },
   {
     "id": "VNHP",
@@ -881,7 +1525,21 @@
       "VN13",
       "VN20",
       "VN61"
-    ]
+    ],
+    "area_km2": 1526.5,
+    "total_population": 2105000,
+    "demographics": {
+      "male": {
+        "under_18": 277692,
+        "working_age": 727677,
+        "senior": 44668
+      },
+      "female": {
+        "under_18": 252663,
+        "working_age": 730414,
+        "senior": 71886
+      }
+    }
   },
   {
     "id": "VN14",
@@ -902,7 +1560,21 @@
       "VN68",
       "VNHN",
       "VN63"
-    ]
+    ],
+    "area_km2": 4590.3,
+    "total_population": 878000,
+    "demographics": {
+      "male": {
+        "under_18": 115826,
+        "working_age": 303516,
+        "senior": 18631
+      },
+      "female": {
+        "under_18": 105386,
+        "working_age": 304657,
+        "senior": 29984
+      }
+    }
   },
   {
     "id": "VN07",
@@ -924,7 +1596,21 @@
       "VN68",
       "VN53",
       "VN69"
-    ]
+    ],
+    "area_km2": 5868.0,
+    "total_population": 810700,
+    "demographics": {
+      "male": {
+        "under_18": 106948,
+        "working_age": 280251,
+        "senior": 17203
+      },
+      "female": {
+        "under_18": 97308,
+        "working_age": 281305,
+        "senior": 27685
+      }
+    }
   },
   {
     "id": "VN06",
@@ -944,7 +1630,21 @@
       "VN02",
       "VN07",
       "VN68"
-    ]
+    ],
+    "area_km2": 6892.7,
+    "total_population": 856200,
+    "demographics": {
+      "male": {
+        "under_18": 112950,
+        "working_age": 295980,
+        "senior": 18169
+      },
+      "female": {
+        "under_18": 102770,
+        "working_age": 297093,
+        "senior": 29238
+      }
+    }
   },
   {
     "id": "VN70",
@@ -963,7 +1663,21 @@
       "VN68",
       "VNHN",
       "VN69"
-    ]
+    ],
+    "area_km2": 1236.0,
+    "total_population": 1211300,
+    "demographics": {
+      "male": {
+        "under_18": 159795,
+        "working_age": 418734,
+        "senior": 25704
+      },
+      "female": {
+        "under_18": 145392,
+        "working_age": 420309,
+        "senior": 41366
+      }
+    }
   },
   {
     "id": "VN68",
@@ -984,7 +1698,21 @@
       "VN06",
       "VN70",
       "VNHN"
-    ]
+    ],
+    "area_km2": 3534.6,
+    "total_population": 1517400,
+    "demographics": {
+      "male": {
+        "under_18": 200175,
+        "working_age": 524550,
+        "senior": 32199
+      },
+      "female": {
+        "under_18": 182134,
+        "working_age": 526523,
+        "senior": 51819
+      }
+    }
   },
   {
     "id": "VNHN",
@@ -1007,7 +1735,21 @@
       "VN54",
       "VN69",
       "VN63"
-    ]
+    ],
+    "area_km2": 3359.8,
+    "total_population": 8587100,
+    "demographics": {
+      "male": {
+        "under_18": 1132810,
+        "working_age": 2968475,
+        "senior": 182218
+      },
+      "female": {
+        "under_18": 1030710,
+        "working_age": 2979638,
+        "senior": 293249
+      }
+    }
   },
   {
     "id": "VN53",
@@ -1027,7 +1769,21 @@
       "VN09",
       "VN07",
       "VN69"
-    ]
+    ],
+    "area_km2": 4859.9,
+    "total_population": 328700,
+    "demographics": {
+      "male": {
+        "under_18": 43362,
+        "working_age": 113628,
+        "senior": 6975
+      },
+      "female": {
+        "under_18": 39454,
+        "working_age": 114056,
+        "senior": 11225
+      }
+    }
   },
   {
     "id": "VN66",
@@ -1047,7 +1803,21 @@
       "VN56",
       "VN61",
       "VN63"
-    ]
+    ],
+    "area_km2": 930.2,
+    "total_population": 1303800,
+    "demographics": {
+      "male": {
+        "under_18": 171997,
+        "working_age": 450711,
+        "senior": 27667
+      },
+      "female": {
+        "under_18": 156495,
+        "working_age": 452406,
+        "senior": 44524
+      }
+    }
   },
   {
     "id": "VN56",
@@ -1066,7 +1836,21 @@
       "VN66",
       "VN54",
       "VN61"
-    ]
+    ],
+    "area_km2": 822.7,
+    "total_population": 1517400,
+    "demographics": {
+      "male": {
+        "under_18": 200175,
+        "working_age": 524550,
+        "senior": 32199
+      },
+      "female": {
+        "under_18": 182134,
+        "working_age": 526523,
+        "senior": 51819
+      }
+    }
   },
   {
     "id": "VN54",
@@ -1087,7 +1871,21 @@
       "VN56",
       "VN69",
       "VN61"
-    ]
+    ],
+    "area_km2": 3895.9,
+    "total_population": 1922800,
+    "demographics": {
+      "male": {
+        "under_18": 253656,
+        "working_age": 664693,
+        "senior": 40802
+      },
+      "female": {
+        "under_18": 230794,
+        "working_age": 667192,
+        "senior": 65663
+      }
+    }
   },
   {
     "id": "VN69",
@@ -1108,7 +1906,21 @@
       "VNHN",
       "VN53",
       "VN54"
-    ]
+    ],
+    "area_km2": 3526.6,
+    "total_population": 1360500,
+    "demographics": {
+      "male": {
+        "under_18": 179477,
+        "working_age": 470311,
+        "senior": 28870
+      },
+      "female": {
+        "under_18": 163301,
+        "working_age": 472080,
+        "senior": 46461
+      }
+    }
   },
   {
     "id": "VN61",
@@ -1129,7 +1941,21 @@
       "VN66",
       "VN56",
       "VN54"
-    ]
+    ],
+    "area_km2": 1668.3,
+    "total_population": 1956900,
+    "demographics": {
+      "male": {
+        "under_18": 258154,
+        "working_age": 676481,
+        "senior": 41525
+      },
+      "female": {
+        "under_18": 234887,
+        "working_age": 679025,
+        "senior": 66828
+      }
+    }
   },
   {
     "id": "VN63",
@@ -1150,7 +1976,21 @@
       "VN14",
       "VNHN",
       "VN66"
-    ]
+    ],
+    "area_km2": 861.9,
+    "total_population": 888600,
+    "demographics": {
+      "male": {
+        "under_18": 117224,
+        "working_age": 307180,
+        "senior": 18856
+      },
+      "female": {
+        "under_18": 106659,
+        "working_age": 308335,
+        "senior": 30346
+      }
+    }
   },
   {
     "id": "VN57",
@@ -1169,7 +2009,21 @@
       "VN37",
       "VNSG",
       "VN39"
-    ]
+    ],
+    "area_km2": 2694.6,
+    "total_population": 2832800,
+    "demographics": {
+      "male": {
+        "under_18": 373703,
+        "working_age": 979271,
+        "senior": 60112
+      },
+      "female": {
+        "under_18": 340021,
+        "working_age": 982953,
+        "senior": 96740
+      }
+    }
   },
   {
     "id": "VN35",
@@ -1191,7 +2045,21 @@
       "VN39",
       "VN40",
       "VN36"
-    ]
+    ],
+    "area_km2": 9781.2,
+    "total_population": 1338400,
+    "demographics": {
+      "male": {
+        "under_18": 176562,
+        "working_age": 462671,
+        "senior": 28401
+      },
+      "female": {
+        "under_18": 160648,
+        "working_age": 464411,
+        "senior": 45707
+      }
+    }
   },
   {
     "id": "VNCT",
@@ -1212,6 +2080,20 @@
       "VN46",
       "VN73",
       "VN49"
-    ]
+    ],
+    "area_km2": 1440.4,
+    "total_population": 1257600,
+    "demographics": {
+      "male": {
+        "under_18": 165903,
+        "working_age": 434740,
+        "senior": 26686
+      },
+      "female": {
+        "under_18": 150950,
+        "working_age": 436375,
+        "senior": 42946
+      }
+    }
   }
 ]

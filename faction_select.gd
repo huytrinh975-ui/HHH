@@ -6,6 +6,9 @@ extends Node2D
 @onready var nation_label: Label = $UI/ProvincePanel/VBoxContainer/NationLabel
 @onready var faction_label: Label = $UI/ProvincePanel/VBoxContainer/FactionLabel
 @onready var troops_label: Label = $UI/ProvincePanel/VBoxContainer/TroopsLabel
+@onready var population_label: Label = $UI/ProvincePanel/VBoxContainer/PopulationLabel
+@onready var demographics_label: Label = $UI/ProvincePanel/VBoxContainer/DemographicsLabel
+@onready var manpower_label: Label = $UI/ProvincePanel/VBoxContainer/ManpowerLabel
 @onready var start_button: Button = $UI/ProvincePanel/VBoxContainer/StartButton
 @onready var mode_label: Label = $UI/HeaderPanel/MarginContainer/VBoxContainer/ModeLabel
 @onready var back_button: Button = $UI/BackButton
@@ -242,13 +245,48 @@ func get_province_at_local_pos(local_pos: Vector2) -> Dictionary:
 						return provinces_by_id_num[nb]
 	return {}
 
+func format_number(n: int) -> String:
+	var s = str(abs(n))
+	var res = ""
+	var count = 0
+	for i in range(s.length() - 1, -1, -1):
+		res = s[i] + res
+		count += 1
+		if count % 3 == 0 and i > 0:
+			res = "," + res
+	if n < 0:
+		res = "-" + res
+	return res
+
 func show_province_info(prov: Dictionary) -> void:
 	selected_province = prov
 	if province_panel:
-		name_label.text = "Tên: " + str(prov.get("name", "Không rõ"))
+		name_label.text = "🏛️ " + str(prov.get("name", "Không rõ"))
 		nation_label.text = "Quốc gia: " + str(prov.get("nation", "Việt Nam"))
 		faction_label.text = "Phe: " + str(prov.get("faction", "Vô chủ"))
-		troops_label.text = "Quân khởi đầu: " + str(int(prov.get("troops", 0)))
+		
+		var tot_pop = int(prov.get("total_population", 0))
+		var m_work = 0
+		var m_pop = 0
+		var f_pop = 0
+		if prov.has("demographics"):
+			var d = prov["demographics"]
+			if d.has("male"):
+				var m = d["male"]
+				m_work = int(m.get("working_age", 0))
+				m_pop = int(m.get("under_18", 0)) + m_work + int(m.get("senior", 0))
+			if d.has("female"):
+				var f = d["female"]
+				f_pop = int(f.get("under_18", 0)) + int(f.get("working_age", 0)) + int(f.get("senior", 0))
+		
+		if population_label:
+			population_label.text = "👥 Dân số: %s người" % format_number(tot_pop)
+		if demographics_label:
+			demographics_label.text = "  • Nam: %s | Nữ: %s" % [format_number(m_pop), format_number(f_pop)]
+		if manpower_label:
+			manpower_label.text = "  • Nam nhập ngũ: %s" % format_number(m_work)
+		
+		troops_label.text = "⚔️ Quân khởi đầu: " + format_number(int(prov.get("troops", 0)))
 		start_button.text = "⚔️ VÀO TRẬN (LÃNH ĐẠO " + str(prov.get("faction")) + ")"
 		province_panel.visible = true
 	var id_hex = prov.get("id_color", prov.get("original_color", prov.get("color", "")))

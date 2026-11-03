@@ -1,0 +1,256 @@
+[gd_scene format=3 uid="uid://6dlybdi48ux3"]
+
+[ext_resource type="Script" uid="uid://ckg5bc8aqy2ym" path="res://main.gd" id="1_0xm2m"]
+[ext_resource type="Texture2D" uid="uid://cmubth7bkdsep" path="res://VN_display_map.png" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://k5eq5r5bfm38" path="res://camera_controller.gd" id="3_camera"]
+[ext_resource type="Shader" uid="uid://dyeioxf78dqwi" path="res://province_selection.gdshader" id="4_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_map"]
+shader = ExtResource("4_shader")
+shader_parameter/province_border_color = Color(0.08, 0.08, 0.08, 1)
+shader_parameter/province_border_width = 1.0
+shader_parameter/is_selected = false
+shader_parameter/target_color = Color(0, 0, 0, 0)
+shader_parameter/outline_color = Color(1, 1, 1, 1)
+shader_parameter/outline_width = 2.0
+shader_parameter/tint_factor = 0.35
+
+[node name="Node2D" type="Node2D" unique_id=2043726747]
+script = ExtResource("1_0xm2m")
+
+[node name="Test" type="Sprite2D" parent="." unique_id=1457063845]
+texture_filter = 1
+material = SubResource("ShaderMaterial_map")
+texture = ExtResource("2_h2yge")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=-1153374643]
+zoom = Vector2(0.65, 0.65)
+script = ExtResource("3_camera")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=463821979]
+
+[node name="MenuButton" type="Button" parent="UI" unique_id=1982736460]
+offset_left = 20.0
+offset_top = 18.0
+offset_right = 140.0
+offset_bottom = 54.0
+focus_mode = 0
+text = "🏠 Menu Chính"
+
+[node name="ProvincePanel" type="Panel" parent="UI" unique_id=799651786]
+visible = false
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -240.0
+offset_right = 300.0
+offset_bottom = -20.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/ProvincePanel" unique_id=295600387]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="NameLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=1856165401]
+layout_mode = 2
+text = "Tên: --"
+
+[node name="NationLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=2110119486]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+theme_override_font_sizes/font_size = 12
+text = "Quốc gia: --"
+
+[node name="FactionLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=906614679]
+layout_mode = 2
+text = "Phe: --"
+
+[node name="TroopsLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=1300955317]
+layout_mode = 2
+text = "Quân đội: --"
+
+[node name="RecruitButton" type="Button" parent="UI/ProvincePanel/VBoxContainer" unique_id=876189340]
+layout_mode = 2
+focus_mode = 0
+text = "Tuyển quân (+10 | 20💰)"
+
+[node name="ActionButtonsHBox" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer" unique_id=1911805176]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MoveButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/ActionButtonsHBox" unique_id=2012770976]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Điều quân..."
+
+[node name="SweepButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/ActionButtonsHBox" unique_id=658755934]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+text = "⚡ Càn quét"
+
+[node name="DispatchContainer" type="VBoxContainer" parent="UI/ProvincePanel/VBoxContainer" unique_id=2058862127]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DispatchHeader" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer" unique_id=2058862128]
+layout_mode = 2
+
+[node name="DispatchTitleLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer/DispatchHeader" unique_id=2058862129]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "Số quân điều:"
+
+[node name="DispatchCountLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer/DispatchHeader" unique_id=2058862130]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "50 / 100 (50%)"
+horizontal_alignment = 2
+
+[node name="TroopSlider" type="HSlider" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer" unique_id=2058862131]
+layout_mode = 2
+focus_mode = 0
+min_value = 1.0
+value = 50.0
+
+[node name="PresetHBox" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer" unique_id=2058862132]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Preset25Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer/PresetHBox" unique_id=2058862133]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "25%"
+
+[node name="Preset50Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer/PresetHBox" unique_id=2058862134]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "50%"
+
+[node name="Preset75Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer/PresetHBox" unique_id=2058862135]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "75%"
+
+[node name="Preset100Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer/PresetHBox" unique_id=2058862136]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "100%"
+
+[node name="ConfirmTargetButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/DispatchContainer" unique_id=2058862137]
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.95, 0.7, 1)
+text = "🎯 Chọn mục tiêu"
+
+[node name="NotificationPanel" type="PanelContainer" parent="UI" unique_id=1426641856]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -260.0
+offset_top = 15.0
+offset_right = 260.0
+offset_bottom = 60.0
+grow_horizontal = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/NotificationPanel" unique_id=876933844]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 5
+
+[node name="NotificationLabel" type="Label" parent="UI/NotificationPanel/MarginContainer" unique_id=1601745923]
+layout_mode = 2
+text = "Thông báo..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimePanel" type="Panel" parent="UI" unique_id=1982736450]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -310.0
+offset_top = 15.0
+offset_right = -20.0
+offset_bottom = 95.0
+grow_horizontal = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/TimePanel" unique_id=1982736451]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 8.0
+offset_right = -10.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopRow" type="HBoxContainer" parent="UI/TimePanel/VBoxContainer" unique_id=1982736452]
+layout_mode = 2
+
+[node name="GoldLabel" type="Label" parent="UI/TimePanel/VBoxContainer/TopRow" unique_id=1982736453]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "💰 100 (+25/thg)"
+
+[node name="DateLabel" type="Label" parent="UI/TimePanel/VBoxContainer/TopRow" unique_id=1982736454]
+layout_mode = 2
+text = "📅 01/01/2026"
+horizontal_alignment = 2
+
+[node name="BottomRow" type="HBoxContainer" parent="UI/TimePanel/VBoxContainer" unique_id=1982736455]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PauseButton" type="Button" parent="UI/TimePanel/VBoxContainer/BottomRow" unique_id=1982736456]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "⏸ Tạm dừng"
+
+[node name="Speed1Button" type="Button" parent="UI/TimePanel/VBoxContainer/BottomRow" unique_id=1982736457]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+focus_mode = 0
+text = "1x"
+
+[node name="Speed2Button" type="Button" parent="UI/TimePanel/VBoxContainer/BottomRow" unique_id=1982736458]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+focus_mode = 0
+text = "2x"
+
+[node name="Speed3Button" type="Button" parent="UI/TimePanel/VBoxContainer/BottomRow" unique_id=1982736459]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+focus_mode = 0
+text = "3x"

@@ -1,0 +1,129 @@
+[gd_scene format=3 uid="uid://b7fsselect001"]
+
+[ext_resource type="Script" uid="uid://d1fsselectsc" path="res://faction_select.gd" id="1_fs"]
+[ext_resource type="Texture2D" path="res://VN_display_map.png" id="2_map"]
+[ext_resource type="Script" uid="uid://k5eq5r5bfm38" path="res://camera_controller.gd" id="3_cam"]
+[ext_resource type="Shader" path="res://province_selection.gdshader" id="4_sh"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_map"]
+shader = ExtResource("4_sh")
+shader_parameter/target_color = Color(0, 0, 0, 0)
+shader_parameter/is_selected = false
+shader_parameter/outline_color = Color(1, 1, 1, 1)
+shader_parameter/outline_width = 2.0
+shader_parameter/tint_factor = 0.35
+
+[node name="FactionSelect" type="Node2D"]
+script = ExtResource("1_fs")
+
+[node name="Test" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_map")
+position = Vector2(0, 0)
+texture = ExtResource("2_map")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 0)
+zoom = Vector2(0.65, 0.65)
+script = ExtResource("3_cam")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HeaderPanel" type="PanelContainer" parent="UI"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -280.0
+offset_top = 15.0
+offset_right = 280.0
+offset_bottom = 90.0
+grow_horizontal = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HeaderPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="TitleLabel" type="Label" parent="UI/HeaderPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+theme_override_font_sizes/font_size = 15
+text = "⚔️ CHỌN PHE / LÃNH THỔ KHỞI ĐẦU ⚔️"
+horizontal_alignment = 1
+
+[node name="ModeLabel" type="Label" parent="UI/HeaderPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "Chế độ: Đang tải..."
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="UI/HeaderPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.72, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Click vào một tỉnh trên bản đồ để xem thông tin và chọn lãnh đạo"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="UI"]
+offset_left = 20.0
+offset_top = 18.0
+offset_right = 160.0
+offset_bottom = 54.0
+focus_mode = 0
+text = "⬅ Menu Chính"
+
+[node name="ProvincePanel" type="Panel" parent="UI"]
+visible = false
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -240.0
+offset_right = 320.0
+offset_bottom = -20.0
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/ProvincePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer"]
+layout_mode = 2
+text = "Tên: --"
+
+[node name="NationLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+theme_override_font_sizes/font_size = 12
+text = "Quốc gia: --"
+
+[node name="FactionLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer"]
+layout_mode = 2
+text = "Phe: --"
+
+[node name="TroopsLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer"]
+layout_mode = 2
+text = "Quân khởi đầu: --"
+
+[node name="StartButton" type="Button" parent="UI/ProvincePanel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.95, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "⚔️ VÀO TRẬN (LÃNH ĐẠO)"

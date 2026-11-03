@@ -1,0 +1,1217 @@
+[
+  {
+    "id": "VN28",
+    "name": "Kon Tum",
+    "color": "#000001",
+    "id_color": "#000001",
+    "nation": "VIE",
+    "faction": "Quân Phiệt Cao Nguyên",
+    "troops": 0,
+    "center": [
+      624.0,
+      586.8
+    ],
+    "neighbors": [
+      "VN30",
+      "VN27",
+      "VN29"
+    ]
+  },
+  {
+    "id": "VN72",
+    "name": "Đắk Nông",
+    "color": "#000002",
+    "id_color": "#000002",
+    "nation": "VIE",
+    "faction": "Quân Phiệt Cao Nguyên",
+    "troops": 0,
+    "center": [
+      611.6,
+      739.5
+    ],
+    "neighbors": [
+      "VN33",
+      "VN58",
+      "VN35"
+    ]
+  },
+  {
+    "id": "VN33",
+    "name": "Đắk Lắk",
+    "color": "#000003",
+    "id_color": "#000003",
+    "nation": "VIE",
+    "faction": "Quân Phiệt Cao Nguyên",
+    "troops": 60,
+    "center": [
+      641.4,
+      699.2
+    ],
+    "neighbors": [
+      "VN72",
+      "VN30",
+      "VN34",
+      "VN32",
+      "VN35"
+    ]
+  },
+  {
+    "id": "VN30",
+    "name": "Gia Lai",
+    "color": "#000004",
+    "id_color": "#000004",
+    "nation": "VIE",
+    "faction": "Quân Phiệt Cao Nguyên",
+    "troops": 0,
+    "center": [
+      643.1,
+      637.1
+    ],
+    "neighbors": [
+      "VN28",
+      "VN33",
+      "VN32",
+      "VN31",
+      "VN29"
+    ]
+  },
+  {
+    "id": "VN58",
+    "name": "Bình Phước",
+    "color": "#000005",
+    "id_color": "#000005",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      565.5,
+      765.6
+    ],
+    "neighbors": [
+      "VN72",
+      "VN37",
+      "VN39",
+      "VN57",
+      "VN35"
+    ]
+  },
+  {
+    "id": "VN37",
+    "name": "Tây Ninh",
+    "color": "#000006",
+    "id_color": "#000006",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      518.3,
+      784.3
+    ],
+    "neighbors": [
+      "VN58",
+      "VN41",
+      "VNSG",
+      "VN57"
+    ]
+  },
+  {
+    "id": "VN41",
+    "name": "Long An",
+    "color": "#000007",
+    "id_color": "#000007",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      531.7,
+      823.2
+    ],
+    "neighbors": [
+      "VN37",
+      "VN45",
+      "VN46",
+      "VNSG"
+    ]
+  },
+  {
+    "id": "VN45",
+    "name": "Đồng Tháp",
+    "color": "#000008",
+    "id_color": "#000008",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      488.2,
+      830.0
+    ],
+    "neighbors": [
+      "VN41",
+      "VN44",
+      "VN46",
+      "VNCT"
+    ]
+  },
+  {
+    "id": "VN44",
+    "name": "An Giang",
+    "color": "#000009",
+    "id_color": "#000009",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      463.3,
+      838.7
+    ],
+    "neighbors": [
+      "VN45",
+      "VN47",
+      "VNCT"
+    ]
+  },
+  {
+    "id": "VN47",
+    "name": "Kiên Giang",
+    "color": "#00000a",
+    "id_color": "#00000a",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      469.6,
+      873.8
+    ],
+    "neighbors": [
+      "VN44",
+      "VN59",
+      "VN55",
+      "VN73",
+      "VNCT"
+    ]
+  },
+  {
+    "id": "VN71",
+    "name": "Điện Biên",
+    "color": "#00000b",
+    "id_color": "#00000b",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      350.8,
+      148.5
+    ],
+    "neighbors": [
+      "VN05",
+      "VN01"
+    ]
+  },
+  {
+    "id": "VN05",
+    "name": "Sơn La",
+    "color": "#00000c",
+    "id_color": "#00000c",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      386.3,
+      177.1
+    ],
+    "neighbors": [
+      "VN71",
+      "VN21",
+      "VN02",
+      "VN01",
+      "VN14",
+      "VN06",
+      "VN68"
+    ]
+  },
+  {
+    "id": "VN21",
+    "name": "Thanh Hóa",
+    "color": "#00000d",
+    "id_color": "#00000d",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      481.1,
+      258.6
+    ],
+    "neighbors": [
+      "VN05",
+      "VN22",
+      "VN18",
+      "VN14"
+    ]
+  },
+  {
+    "id": "VN22",
+    "name": "Nghệ An",
+    "color": "#00000e",
+    "id_color": "#00000e",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      448.0,
+      307.1
+    ],
+    "neighbors": [
+      "VN21",
+      "VN23"
+    ]
+  },
+  {
+    "id": "VN23",
+    "name": "Hà Tĩnh",
+    "color": "#00000f",
+    "id_color": "#00000f",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      495.7,
+      364.4
+    ],
+    "neighbors": [
+      "VN22",
+      "VN24"
+    ]
+  },
+  {
+    "id": "VN24",
+    "name": "Quảng Bình",
+    "color": "#000010",
+    "id_color": "#000010",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      526.3,
+      412.5
+    ],
+    "neighbors": [
+      "VN23",
+      "VN25"
+    ]
+  },
+  {
+    "id": "VN25",
+    "name": "Quảng Trị",
+    "color": "#000011",
+    "id_color": "#000011",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      566.6,
+      459.5
+    ],
+    "neighbors": [
+      "VN24",
+      "VN26"
+    ]
+  },
+  {
+    "id": "VN26",
+    "name": "Thừa Thiên - Huế",
+    "color": "#000012",
+    "id_color": "#000012",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      595.3,
+      484.3
+    ],
+    "neighbors": [
+      "VN25",
+      "VN27",
+      "VNDN"
+    ]
+  },
+  {
+    "id": "VN27",
+    "name": "Quảng Nam",
+    "color": "#000013",
+    "id_color": "#000013",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      629.3,
+      530.4
+    ],
+    "neighbors": [
+      "VN28",
+      "VN26",
+      "VN29",
+      "VNDN"
+    ]
+  },
+  {
+    "id": "VN03",
+    "name": "Hà Giang",
+    "color": "#000014",
+    "id_color": "#000014",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      446.6,
+      92.0
+    ],
+    "neighbors": [
+      "VN04",
+      "VN02",
+      "VN07",
+      "VN06",
+      "VN53"
+    ]
+  },
+  {
+    "id": "VN04",
+    "name": "Cao Bằng",
+    "color": "#000015",
+    "id_color": "#000015",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      515.8,
+      84.2
+    ],
+    "neighbors": [
+      "VN03",
+      "VN09",
+      "VN07",
+      "VN53"
+    ]
+  },
+  {
+    "id": "VN02",
+    "name": "Lào Cai",
+    "color": "#000016",
+    "id_color": "#000016",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      400.8,
+      116.3
+    ],
+    "neighbors": [
+      "VN05",
+      "VN03",
+      "VN01",
+      "VN06"
+    ]
+  },
+  {
+    "id": "VN01",
+    "name": "Lai Châu",
+    "color": "#000017",
+    "id_color": "#000017",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      352.8,
+      109.0
+    ],
+    "neighbors": [
+      "VN71",
+      "VN05",
+      "VN02"
+    ]
+  },
+  {
+    "id": "VN09",
+    "name": "Lạng Sơn",
+    "color": "#000018",
+    "id_color": "#000018",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      539.1,
+      143.8
+    ],
+    "neighbors": [
+      "VN04",
+      "VN13",
+      "VN53",
+      "VN54",
+      "VN69"
+    ]
+  },
+  {
+    "id": "VN13",
+    "name": "Quảng Ninh",
+    "color": "#000019",
+    "id_color": "#000019",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      580.8,
+      183.5
+    ],
+    "neighbors": [
+      "VN09",
+      "VNHP",
+      "VN54",
+      "VN61"
+    ]
+  },
+  {
+    "id": "VN52",
+    "name": "Sóc Trăng",
+    "color": "#00001a",
+    "id_color": "#00001a",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      508.1,
+      895.7
+    ],
+    "neighbors": [
+      "VN55",
+      "VN73",
+      "VN51"
+    ]
+  },
+  {
+    "id": "VN46",
+    "name": "Tiền Giang",
+    "color": "#00001b",
+    "id_color": "#00001b",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      524.3,
+      841.9
+    ],
+    "neighbors": [
+      "VN41",
+      "VN45",
+      "VNSG",
+      "VN49",
+      "VN50",
+      "VNCT"
+    ]
+  },
+  {
+    "id": "VN43",
+    "name": "Bà Rịa - Vũng Tàu",
+    "color": "#00001c",
+    "id_color": "#00001c",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      586.2,
+      835.3
+    ],
+    "neighbors": [
+      "VNSG",
+      "VN39",
+      "VN40"
+    ]
+  },
+  {
+    "id": "VNSG",
+    "name": "TP. Hồ Chí Minh",
+    "color": "#00001d",
+    "id_color": "#00001d",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 100,
+    "center": [
+      549.0,
+      820.8
+    ],
+    "neighbors": [
+      "VN37",
+      "VN41",
+      "VN46",
+      "VN43",
+      "VN39",
+      "VN57"
+    ]
+  },
+  {
+    "id": "VN34",
+    "name": "Khánh Hòa",
+    "color": "#00001e",
+    "id_color": "#00001e",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      686.0,
+      731.5
+    ],
+    "neighbors": [
+      "VN33",
+      "VN36",
+      "VN32",
+      "VN35"
+    ]
+  },
+  {
+    "id": "VN59",
+    "name": "Cà Mau",
+    "color": "#00001f",
+    "id_color": "#00001f",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      456.5,
+      924.7
+    ],
+    "neighbors": [
+      "VN47",
+      "VN55"
+    ]
+  },
+  {
+    "id": "VN55",
+    "name": "Bạc Liêu",
+    "color": "#000020",
+    "id_color": "#000020",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      481.6,
+      911.0
+    ],
+    "neighbors": [
+      "VN47",
+      "VN52",
+      "VN59",
+      "VN73"
+    ]
+  },
+  {
+    "id": "VN73",
+    "name": "Hậu Giang",
+    "color": "#000021",
+    "id_color": "#000021",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      493.4,
+      877.6
+    ],
+    "neighbors": [
+      "VN47",
+      "VN52",
+      "VN55",
+      "VN49",
+      "VNCT"
+    ]
+  },
+  {
+    "id": "VN49",
+    "name": "Vĩnh Long",
+    "color": "#000022",
+    "id_color": "#000022",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      512.7,
+      864.5
+    ],
+    "neighbors": [
+      "VN46",
+      "VN73",
+      "VN51",
+      "VN50",
+      "VNCT"
+    ]
+  },
+  {
+    "id": "VN51",
+    "name": "Trà Vinh",
+    "color": "#000023",
+    "id_color": "#000023",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      529.9,
+      881.3
+    ],
+    "neighbors": [
+      "VN52",
+      "VN49",
+      "VN50"
+    ]
+  },
+  {
+    "id": "VN50",
+    "name": "Bến Tre",
+    "color": "#000024",
+    "id_color": "#000024",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      544.4,
+      861.1
+    ],
+    "neighbors": [
+      "VN46",
+      "VN49",
+      "VN51"
+    ]
+  },
+  {
+    "id": "VN39",
+    "name": "Đồng Nai",
+    "color": "#000025",
+    "id_color": "#000025",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      582.6,
+      805.7
+    ],
+    "neighbors": [
+      "VN58",
+      "VN43",
+      "VNSG",
+      "VN40",
+      "VN57",
+      "VN35"
+    ]
+  },
+  {
+    "id": "VN40",
+    "name": "Bình Thuận",
+    "color": "#000026",
+    "id_color": "#000026",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      619.6,
+      806.9
+    ],
+    "neighbors": [
+      "VN43",
+      "VN39",
+      "VN36",
+      "VN35"
+    ]
+  },
+  {
+    "id": "VN36",
+    "name": "Ninh Thuận",
+    "color": "#000027",
+    "id_color": "#000027",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      680.8,
+      764.3
+    ],
+    "neighbors": [
+      "VN34",
+      "VN40",
+      "VN35"
+    ]
+  },
+  {
+    "id": "VN32",
+    "name": "Phú Yên",
+    "color": "#000028",
+    "id_color": "#000028",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      692.2,
+      685.4
+    ],
+    "neighbors": [
+      "VN33",
+      "VN30",
+      "VN34",
+      "VN31"
+    ]
+  },
+  {
+    "id": "VN31",
+    "name": "Bình Định",
+    "color": "#000029",
+    "id_color": "#000029",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      683.0,
+      615.9
+    ],
+    "neighbors": [
+      "VN30",
+      "VN32",
+      "VN29"
+    ]
+  },
+  {
+    "id": "VN29",
+    "name": "Quảng Ngãi",
+    "color": "#00002a",
+    "id_color": "#00002a",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 0,
+    "center": [
+      667.0,
+      564.2
+    ],
+    "neighbors": [
+      "VN28",
+      "VN30",
+      "VN27",
+      "VN31"
+    ]
+  },
+  {
+    "id": "VNDN",
+    "name": "Đà Nẵng",
+    "color": "#00002b",
+    "id_color": "#00002b",
+    "nation": "VIE",
+    "faction": "Liên Minh Miền Trung",
+    "troops": 80,
+    "center": [
+      634.7,
+      502.8
+    ],
+    "neighbors": [
+      "VN26",
+      "VN27"
+    ]
+  },
+  {
+    "id": "VN18",
+    "name": "Ninh Bình",
+    "color": "#00002c",
+    "id_color": "#00002c",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      503.0,
+      242.5
+    ],
+    "neighbors": [
+      "VN21",
+      "VN67",
+      "VN14",
+      "VN63"
+    ]
+  },
+  {
+    "id": "VN67",
+    "name": "Nam Định",
+    "color": "#00002d",
+    "id_color": "#00002d",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      527.0,
+      244.8
+    ],
+    "neighbors": [
+      "VN18",
+      "VN20",
+      "VN63"
+    ]
+  },
+  {
+    "id": "VN20",
+    "name": "Thái Bình",
+    "color": "#00002e",
+    "id_color": "#00002e",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      533.2,
+      226.9
+    ],
+    "neighbors": [
+      "VN67",
+      "VNHP",
+      "VN66",
+      "VN61",
+      "VN63"
+    ]
+  },
+  {
+    "id": "VNHP",
+    "name": "Hải Phòng",
+    "color": "#00002f",
+    "id_color": "#00002f",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      548.8,
+      209.2
+    ],
+    "neighbors": [
+      "VN13",
+      "VN20",
+      "VN61"
+    ]
+  },
+  {
+    "id": "VN14",
+    "name": "Hòa Bình",
+    "color": "#000030",
+    "id_color": "#000030",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      473.4,
+      215.9
+    ],
+    "neighbors": [
+      "VN05",
+      "VN21",
+      "VN18",
+      "VN68",
+      "VNHN",
+      "VN63"
+    ]
+  },
+  {
+    "id": "VN07",
+    "name": "Tuyên Quang",
+    "color": "#000031",
+    "id_color": "#000031",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      466.5,
+      125.8
+    ],
+    "neighbors": [
+      "VN03",
+      "VN04",
+      "VN06",
+      "VN70",
+      "VN68",
+      "VN53",
+      "VN69"
+    ]
+  },
+  {
+    "id": "VN06",
+    "name": "Yên Bái",
+    "color": "#000032",
+    "id_color": "#000032",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      431.8,
+      149.7
+    ],
+    "neighbors": [
+      "VN05",
+      "VN03",
+      "VN02",
+      "VN07",
+      "VN68"
+    ]
+  },
+  {
+    "id": "VN70",
+    "name": "Vĩnh Phúc",
+    "color": "#000033",
+    "id_color": "#000033",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      488.6,
+      175.1
+    ],
+    "neighbors": [
+      "VN07",
+      "VN68",
+      "VNHN",
+      "VN69"
+    ]
+  },
+  {
+    "id": "VN68",
+    "name": "Phú Thọ",
+    "color": "#000034",
+    "id_color": "#000034",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      459.8,
+      175.4
+    ],
+    "neighbors": [
+      "VN05",
+      "VN14",
+      "VN07",
+      "VN06",
+      "VN70",
+      "VNHN"
+    ]
+  },
+  {
+    "id": "VNHN",
+    "name": "Hà Nội",
+    "color": "#000035",
+    "id_color": "#000035",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 100,
+    "center": [
+      495.3,
+      199.8
+    ],
+    "neighbors": [
+      "VN14",
+      "VN70",
+      "VN68",
+      "VN66",
+      "VN56",
+      "VN54",
+      "VN69",
+      "VN63"
+    ]
+  },
+  {
+    "id": "VN53",
+    "name": "Bắc Kạn",
+    "color": "#000036",
+    "id_color": "#000036",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      505.2,
+      118.7
+    ],
+    "neighbors": [
+      "VN03",
+      "VN04",
+      "VN09",
+      "VN07",
+      "VN69"
+    ]
+  },
+  {
+    "id": "VN66",
+    "name": "Hưng Yên",
+    "color": "#000037",
+    "id_color": "#000037",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      513.2,
+      204.5
+    ],
+    "neighbors": [
+      "VN20",
+      "VNHN",
+      "VN56",
+      "VN61",
+      "VN63"
+    ]
+  },
+  {
+    "id": "VN56",
+    "name": "Bắc Ninh",
+    "color": "#000038",
+    "id_color": "#000038",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      518.6,
+      189.7
+    ],
+    "neighbors": [
+      "VNHN",
+      "VN66",
+      "VN54",
+      "VN61"
+    ]
+  },
+  {
+    "id": "VN54",
+    "name": "Bắc Giang",
+    "color": "#000039",
+    "id_color": "#000039",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      550.4,
+      173.2
+    ],
+    "neighbors": [
+      "VN09",
+      "VN13",
+      "VNHN",
+      "VN56",
+      "VN69",
+      "VN61"
+    ]
+  },
+  {
+    "id": "VN69",
+    "name": "Thái Nguyên",
+    "color": "#00003a",
+    "id_color": "#00003a",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      502.6,
+      158.6
+    ],
+    "neighbors": [
+      "VN09",
+      "VN07",
+      "VN70",
+      "VNHN",
+      "VN53",
+      "VN54"
+    ]
+  },
+  {
+    "id": "VN61",
+    "name": "Hải Dương",
+    "color": "#00003b",
+    "id_color": "#00003b",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      532.3,
+      204.2
+    ],
+    "neighbors": [
+      "VN13",
+      "VN20",
+      "VNHP",
+      "VN66",
+      "VN56",
+      "VN54"
+    ]
+  },
+  {
+    "id": "VN63",
+    "name": "Hà Nam",
+    "color": "#00003c",
+    "id_color": "#00003c",
+    "nation": "VIE",
+    "faction": "Quân Đội Miền Bắc",
+    "troops": 0,
+    "center": [
+      508.2,
+      224.5
+    ],
+    "neighbors": [
+      "VN18",
+      "VN67",
+      "VN20",
+      "VN14",
+      "VNHN",
+      "VN66"
+    ]
+  },
+  {
+    "id": "VN57",
+    "name": "Bình Dương",
+    "color": "#00003d",
+    "id_color": "#00003d",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      553.0,
+      799.6
+    ],
+    "neighbors": [
+      "VN58",
+      "VN37",
+      "VNSG",
+      "VN39"
+    ]
+  },
+  {
+    "id": "VN35",
+    "name": "Lâm Đồng",
+    "color": "#00003e",
+    "id_color": "#00003e",
+    "nation": "VIE",
+    "faction": "Quân Phiệt Cao Nguyên",
+    "troops": 0,
+    "center": [
+      650.3,
+      760.4
+    ],
+    "neighbors": [
+      "VN72",
+      "VN33",
+      "VN58",
+      "VN34",
+      "VN39",
+      "VN40",
+      "VN36"
+    ]
+  },
+  {
+    "id": "VNCT",
+    "name": "Cần Thơ",
+    "color": "#00003f",
+    "id_color": "#00003f",
+    "nation": "VIE",
+    "faction": "Lực Lượng Miền Nam",
+    "troops": 0,
+    "center": [
+      487.9,
+      854.9
+    ],
+    "neighbors": [
+      "VN45",
+      "VN44",
+      "VN47",
+      "VN46",
+      "VN73",
+      "VN49"
+    ]
+  }
+]

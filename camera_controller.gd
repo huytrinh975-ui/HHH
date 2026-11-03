@@ -1,0 +1,158 @@
+extends Camera2D
+
+@export_group("Zoom Settings")
+@export var min_zoom: Vector2 = Vector2(0.2, 0.2)
+@export var max_zoom: Vector2 = Vector2(4.0, 4.0)
+@export var zoom_factor: float = 1.2
+@export var zoom_speed: float = 12.0 # Tốc độ nội suy phóng to/thu nhỏ mượt mà
+
+@export_group("Pan Settings")
+@export var keyboard_pan_speed: float = 700.0
+@export var touch_drag_threshold: float = 10.0 # Ngưỡng di chuyển tối thiểu để nhận diện vuốt bản đồ (pixel)
+
+var target_zoom: Vector2 = Vector2.ONE
+var is_dragging: bool = false # Cho PC chuột phải/chuột giữa
+var zoom_anchor_mouse_pos: Vector2 = Vector2.ZERO
+
+# Quản lý cảm ứng đa điểm cho Mobile / Web Mobile
+var touch_points: Dictionary = {}
+var touch_start_positions: Dictionary = {}
+var is_touch_dragging: bool = false
+var just_finished_touch_drag: bool = false
+var initial_pinch_distance: float = 0.0
+var initial_pinch_zoom: Vector2 = Vector2.ONE
+
+func _ready() -> void:
+	target_zoom = zoom
+
+func _process(delta: float) -> void:
+	just_finished_touch_drag = false
+	_handle_keyboard_pan(delta)
+	_handle_smooth_zoom(delta)
+
+func _handle_keyboard_pan(delta: float) -> void:
+	var move_vec = Vector2.ZERO
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+		move_vec.x -= 1
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+		move_vec.x += 1
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+		move_vec.y -= 1
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+		move_vec.y += 1
+	
+	if move_vec != Vector2.ZERO:
+		position += move_vec.normalized() * (keyboard_pan_speed / zoom.x) * delta
+
+func _handle_smooth_zoom(delta: float) -> void:
+	if zoom.distance_squared_to(target_zoom) > 0.00001:
+		var prev_zoom = zoom
+		var t = 1.0 - exp(-zoom_speed * delta)
+		zoom = zoom.lerp(target_zoom, t)
+		
+		var viewport_size = get_viewport_rect().size
+		var mouse_offset = zoom_anchor_mouse_pos - (viewport_size * 0.5)
+		position += mouse_offset * (1.0 / prev_zoom.x - 1.0 / zoom.x)
+	else:
+		zoom = target_zoom
+
+func _unhandled_input(event: InputEvent) -> void:
+	# ----------------------------------------------------
+	# 1. XỬ LÝ CẢM ỨNG DI ĐỘNG (TOUCH, PAN & PINCH-TO-ZOOM)
+	# ----------------------------------------------------
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			touch_points[event.index] = event.position
+			touch_start_positions[event.index] = event.position
+			
+			if touch_points.size() == 1:
+				is_touch_dragging = false
+			elif touch_points.size() == 2:
+				is_touch_dragging = true
+				var points = touch_points.values()
+				initial_pinch_distance = max(points[0].distance_to(points[1]), 1.0)
+				initial_pinch_zoom = zoom
+				target_zoom = zoom
+				zoom_anchor_mouse_pos = (points[0] + points[1]) * 0.5
+				get_viewport().set_input_as_handled()
+			elif touch_points.size() > 2:
+				is_touch_dragging = true
+				get_viewport().set_input_as_handled()
+		else:
+			# Khi nhấc ngón tay lên
+			if is_touch_dragging:
+				just_finished_touch_drag = true
+				get_viewport().set_input_as_handled()
+			
+			touch_points.erase(event.index)
+			touch_start_positions.erase(event.index)
+			
+			if touch_points.size() == 1:
+				# Vừa chuyển từ 2 ngón về 1 ngón: cập nhật lại vị trí bắt đầu cho ngón còn lại
+				var remaining_idx = touch_points.keys()[0]
+				touch_start_positions[remaining_idx] = touch_points[remaining_idx]
+				initial_pinch_distance = 0.0
+			elif touch_points.is_empty():
+				is_touch_dragging = false
+				initial_pinch_distance = 0.0
+
+	elif event is InputEventScreenDrag:
+		touch_points[event.index] = event.position
+		
+		# A. VUỐT 1 NGÓN TAY (TOUCH PAN)
+		if touch_points.size() == 1:
+			var start_pos: Vector2 = touch_start_positions.get(event.index, event.position)
+			var total_dist: float = start_pos.distance_to(event.position)
+			
+			if not is_touch_dragging:
+				if total_dist >= touch_drag_threshold:
+					is_touch_dragging = true
+			
+			if is_touch_dragging:
+				position -= event.relative / zoom.x
+				get_viewport().set_input_as_handled()
+		
+		# B. ZOOM 2 NGÓN TAY (PINCH-TO-ZOOM & 2-FINGER PAN)
+		elif touch_points.size() == 2:
+			is_touch_dragging = true
+			var points = touch_points.values()
+			var current_distance: float = points[0].distance_to(points[1])
+			var center_pos: Vector2 = (points[0] + points[1]) * 0.5
+			
+			# Dịch chuyển bản đồ theo chuyển động ngón tay
+			position -= (event.relative * 0.5) / zoom.x
+			
+			if initial_pinch_distance > 10.0 and current_distance > 10.0:
+				var pinch_ratio: float = current_distance / initial_pinch_distance
+				zoom_anchor_mouse_pos = center_pos
+				target_zoom = (initial_pinch_zoom * pinch_ratio).clamp(min_zoom, max_zoom)
+			
+			get_viewport().set_input_as_handled()
+		
+		elif touch_points.size() > 2:
+			is_touch_dragging = true
+			get_viewport().set_input_as_handled()
+
+	# ----------------------------------------------------
+	# 2. XỬ LÝ CHUỘT TRÊN PC (GIỮ NGUYÊN 100%)
+	# ----------------------------------------------------
+	elif event is InputEventMouseButton:
+		if event.button_index in [MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
+			is_dragging = event.pressed
+			if is_dragging:
+				get_viewport().set_input_as_handled()
+		elif event.is_pressed():
+			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				_start_zoom(zoom_factor, event.position)
+				get_viewport().set_input_as_handled()
+			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				_start_zoom(1.0 / zoom_factor, event.position)
+				get_viewport().set_input_as_handled()
+
+	elif event is InputEventMouseMotion and is_dragging:
+		position -= event.relative / zoom.x
+		get_viewport().set_input_as_handled()
+
+func _start_zoom(factor: float, mouse_screen_pos: Vector2) -> void:
+	zoom_anchor_mouse_pos = mouse_screen_pos
+	target_zoom = (target_zoom * factor).clamp(min_zoom, max_zoom)

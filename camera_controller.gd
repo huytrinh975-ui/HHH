@@ -19,6 +19,7 @@ var touch_points: Dictionary = {}
 var touch_start_positions: Dictionary = {}
 var is_touch_dragging: bool = false
 var just_finished_touch_drag: bool = false
+var was_pinching: bool = false # Cờ khóa không cho phép kéo 1 ngón (Pan) sau khi pinch cho đến khi buông hết tay
 
 # Dành riêng cho Pinch-to-zoom 2 ngón tay (Cố định World Anchor, không cộng dồn relative, không dùng lerp)
 var pinch_start_distance: float = 0.0
@@ -32,8 +33,8 @@ func _process(delta: float) -> void:
 	just_finished_touch_drag = false
 	_handle_keyboard_pan(delta)
 	
-	# CHỈ chạy nội suy mượt khi dùng chuột trên PC (khi không có ngón tay nào chạm)
-	if touch_points.is_empty():
+	# CHỈ chạy nội suy mượt khi dùng chuột trên PC (khi không có ngón tay nào chạm và không phải vừa pinch)
+	if touch_points.is_empty() and not was_pinching:
 		_handle_smooth_zoom(delta)
 	else:
 		target_zoom = zoom
@@ -74,10 +75,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			touch_start_positions[event.index] = event.position
 			
 			if touch_points.size() == 1:
+				# Bắt đầu lần chạm mới với 1 ngón
 				is_touch_dragging = false
+				was_pinching = false
 				target_zoom = zoom
 			elif touch_points.size() == 2:
+				# Bắt đầu cử chỉ 2 ngón tay (Pinch-to-zoom)
 				is_touch_dragging = true
+				was_pinching = true
 				var points = touch_points.values()
 				var center = (points[0] + points[1]) * 0.5
 				var viewport_center = get_viewport_rect().size * 0.5
@@ -91,25 +96,31 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 			elif touch_points.size() > 2:
 				is_touch_dragging = true
+				was_pinching = true
 				get_viewport().set_input_as_handled()
 		else:
 			# Khi nhấc ngón tay lên
-			if is_touch_dragging:
+			if is_touch_dragging or was_pinching:
 				just_finished_touch_drag = true
 				get_viewport().set_input_as_handled()
 			
 			touch_points.erase(event.index)
 			touch_start_positions.erase(event.index)
 			
+			# Luôn khóa cứng target_zoom = zoom khi nhấc tay
+			target_zoom = zoom
+			
 			if touch_points.size() == 1:
-				# Vừa chuyển từ 2 ngón về 1 ngón: cập nhật lại vị trí bắt đầu cho ngón còn lại
+				# Vừa nhấc ngón tay đầu tiên ra khỏi màn hình:
+				# GIỮ NGUYÊN was_pinching = true để ngón còn lại tuyệt đối không kích hoạt kéo 1 ngón (Pan)
 				var remaining_idx = touch_points.keys()[0]
 				touch_start_positions[remaining_idx] = touch_points[remaining_idx]
 				pinch_start_distance = 0.0
-				is_touch_dragging = true # Giữ cờ drag để không nhận nhầm thành click khi nhấc ngón này lên
-				target_zoom = zoom
+				is_touch_dragging = true # Tránh nhận nhầm click khi ngón này được nhấc nốt
 			elif touch_points.is_empty():
+				# Đã nhấc hết toàn bộ các ngón tay: hoàn tất chu kỳ cử chỉ
 				is_touch_dragging = false
+				was_pinching = false
 				pinch_start_distance = 0.0
 				target_zoom = zoom
 
@@ -117,7 +128,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		touch_points[event.index] = event.position
 		
 		# A. VUỐT 1 NGÓN TAY (TOUCH PAN)
+		# TUYỆT ĐỐI KHÔNG pan nếu vừa thực hiện pinch 2 ngón (was_pinching == true)
 		if touch_points.size() == 1:
+			if was_pinching:
+				# Vừa buông 1 ngón sau khi pinch: triệt tiêu sự kiện, khóa cứng camera không cho giật văng
+				get_viewport().set_input_as_handled()
+				return
+			
 			var start_pos: Vector2 = touch_start_positions.get(event.index, event.position)
 			var total_dist: float = start_pos.distance_to(event.position)
 			
@@ -132,6 +149,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		# B. PINCH-TO-ZOOM 2 NGÓN TAY (KHÓA CỨNG WORLD ANCHOR, KHÔNG CỘNG DỒN RELATIVE, KHÔNG LERP)
 		elif touch_points.size() == 2:
 			is_touch_dragging = true
+			was_pinching = true
 			var points = touch_points.values()
 			var current_dist: float = points[0].distance_to(points[1])
 			var current_center: Vector2 = (points[0] + points[1]) * 0.5
@@ -149,6 +167,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 		elif touch_points.size() > 2:
 			is_touch_dragging = true
+			was_pinching = true
 			get_viewport().set_input_as_handled()
 
 	# ----------------------------------------------------

@@ -370,6 +370,38 @@ func get_province_neighbors(prov: Dictionary) -> Array:
 	return result
 
 # ==============================================================================
+# CỔNG KIỂM TRA NGOẠI GIAO (DIPLOMACY GUARD CHECK)
+# ==============================================================================
+func can_send_troops_to(source_prov: Dictionary, target_prov: Dictionary, show_ui_warning: bool = true) -> bool:
+	if source_prov.is_empty() or target_prov.is_empty():
+		return false
+	
+	var src_fac = source_prov.get("faction", player_faction)
+	var tgt_fac = target_prov.get("faction", target_prov.get("owner", ""))
+	
+	# 1. Cùng phe: Di chuyển nội bộ / tiếp viện bình thường
+	if tgt_fac == src_fac or tgt_fac == "":
+		return true
+	
+	# 2. Đồng minh: Cho phép chi viện phòng thủ
+	if DiplomacyManager and DiplomacyManager.is_allied(src_fac, tgt_fac):
+		return true
+	
+	# 3. Phe khác không phải đồng minh: Bắt buộc PHẢI ĐANG CÓ CHIẾN TRANH
+	var is_war = false
+	if DiplomacyManager:
+		is_war = DiplomacyManager.is_at_war(src_fac, tgt_fac)
+	
+	if not is_war:
+		if show_ui_warning and src_fac == player_faction:
+			show_notification("⚠️ Chưa tuyên chiến! Bạn không thể tấn công phe này khi đang hòa bình.")
+			# Tự động bật bảng Ngoại giao của phe đó lên để người chơi thao tác tuyên chiến hợp lệ nếu đủ điều kiện
+			show_province_info(target_prov)
+		return false
+	
+	return true
+
+# ==============================================================================
 # THUẬT TOÁN TÌM ĐƯỜNG THEO ĐỒ THỊ LÁNG GIỀNG (GRAPH PATHFINDING - BFS)
 # ==============================================================================
 func find_path(from_province: Dictionary, to_province: Dictionary, mover_faction: String = "") -> Array:
@@ -383,6 +415,10 @@ func find_path(from_province: Dictionary, to_province: Dictionary, mover_faction
 	
 	if mover_faction == "":
 		mover_faction = from_province.get("faction", player_faction)
+	
+	# Kiểm tra cổng Ngoại giao: Nếu đích đến là phe khác mà chưa tuyên chiến thì không có đường tấn công hợp lệ
+	if not can_send_troops_to(from_province, to_province, false):
+		return []
 	
 	var queue: Array = [start_id]
 	var visited: Dictionary = {start_id: true}
@@ -834,6 +870,12 @@ func handle_left_click(click_pos: Vector2, is_godot_double_click: bool = false) 
 			show_province_info(clicked_prov)
 			return
 		
+		# Cổng kiểm tra Ngoại giao (Diplomacy Guard Check) trước khi phát lệnh điều quân
+		if not can_send_troops_to(move_source_province, clicked_prov, true):
+			cancel_move_mode()
+			close_dispatch_container()
+			return
+		
 		# Bắt đầu xuất quân theo số lượng đã chọn trên HSlider
 		dispatch_army(move_source_province, clicked_prov, selected_troop_count)
 		cancel_move_mode()
@@ -855,6 +897,13 @@ func handle_left_click(click_pos: Vector2, is_godot_double_click: bool = false) 
 		if source_id != target_id and can_recruit(source_prov) and source_troops > 0:
 			if is_paused:
 				show_notification("⏸ Thời gian đang dừng, hãy tiếp tục thời gian để thực hiện hành động!")
+				return
+			
+			# Cổng kiểm tra Ngoại giao (Diplomacy Guard Check) trước khi thực hiện double-click
+			if not can_send_troops_to(source_prov, clicked_prov, true):
+				potential_double_click_source = {}
+				last_click_prov_id = ""
+				last_click_timestamp = 0.0
 				return
 			
 			var dispatched = dispatch_army(source_prov, clicked_prov, source_troops, false)
@@ -1591,22 +1640,16 @@ func _on_sweep_button_pressed() -> void:
 	var source_prov = selected_province
 	var source_faction = source_prov.get("faction", player_faction)
 	
-	# Quét tìm tất cả các tỉnh GIÁP RANH TRỰC TIẾP thuộc PHE ĐỊCH (loại trừ Đồng minh)
-	var war_neighbors: Array = []
-	var foreign_neighbors: Array = []
+	# Quét tìm tất cả các tỉnh GIÁP RANH TRỰC TIẾP thuộc PHE ĐANG CÓ CHIẾN TRANH
+	var enemy_neighbors: Array = []
 	for nb in get_province_neighbors(source_prov):
 		var nb_faction = nb.get("faction", nb.get("owner", ""))
 		if nb_faction != source_faction:
-			if DiplomacyManager and DiplomacyManager.is_allied(source_faction, nb_faction):
-				continue
-			foreign_neighbors.append(nb)
 			if DiplomacyManager and DiplomacyManager.is_at_war(source_faction, nb_faction):
-				war_neighbors.append(nb)
-	
-	var enemy_neighbors = war_neighbors if not war_neighbors.is_empty() else foreign_neighbors
+				enemy_neighbors.append(nb)
 	
 	if enemy_neighbors.is_empty():
-		show_notification("⚠️ Không có tỉnh địch giáp ranh để đánh lan!")
+		show_notification("⚠️ Chưa tuyên chiến với bất kỳ phe láng giềng nào! Không thể càn quét khi đang hòa bình.")
 		return
 	
 	var n_targets = enemy_neighbors.size()
@@ -1656,6 +1699,8 @@ func _on_sweep_button_pressed() -> void:
 	])
 
 func execute_troop_action(source: Dictionary, target: Dictionary, troop_amount: Variant) -> void:
+	if not can_send_troops_to(source, target, true):
+		return
 	var count = 0
 	if troop_amount is float:
 		count = int(ceil(source.get("troops", 0) * troop_amount))
@@ -1676,6 +1721,10 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 	if source_troops <= 0:
 		if show_notify:
 			show_notification("⚠️ %s không có quân để điều động!" % source.get("name"))
+		return false
+	
+	# Cổng kiểm tra Ngoại giao (Diplomacy Guard Check): Bắt buộc kiểm tra quan hệ ngoại giao trước khi phát lệnh
+	if not can_send_troops_to(source, target, show_notify):
 		return false
 	
 	var source_faction: String = source.get("faction", player_faction)

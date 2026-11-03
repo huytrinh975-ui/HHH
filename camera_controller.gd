@@ -20,9 +20,10 @@ var touch_start_positions: Dictionary = {}
 var is_touch_dragging: bool = false
 var just_finished_touch_drag: bool = false
 
-# Dành riêng cho Pinch-to-zoom 2 ngón tay (không dùng lerp)
-var last_pinch_distance: float = 0.0
-var last_pinch_center: Vector2 = Vector2.ZERO
+# Dành riêng cho Pinch-to-zoom 2 ngón tay (Cố định World Anchor, không cộng dồn relative, không dùng lerp)
+var pinch_start_distance: float = 0.0
+var pinch_start_zoom: Vector2 = Vector2.ONE
+var pinch_world_anchor: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	target_zoom = zoom
@@ -31,10 +32,11 @@ func _process(delta: float) -> void:
 	just_finished_touch_drag = false
 	_handle_keyboard_pan(delta)
 	
-	# CHỈ áp dụng nội suy mượt khi cuộn chuột trên PC (ít hơn 2 ngón chạm cảm ứng)
-	# Tuyệt đối không can thiệp khi đang pinch-to-zoom 2 ngón
-	if touch_points.size() < 2:
+	# CHỈ chạy nội suy mượt khi dùng chuột trên PC (khi không có ngón tay nào chạm)
+	if touch_points.is_empty():
 		_handle_smooth_zoom(delta)
+	else:
+		target_zoom = zoom
 
 func _handle_keyboard_pan(delta: float) -> void:
 	var move_vec = Vector2.ZERO
@@ -73,12 +75,19 @@ func _unhandled_input(event: InputEvent) -> void:
 			
 			if touch_points.size() == 1:
 				is_touch_dragging = false
+				target_zoom = zoom
 			elif touch_points.size() == 2:
 				is_touch_dragging = true
 				var points = touch_points.values()
-				last_pinch_distance = points[0].distance_to(points[1])
-				last_pinch_center = (points[0] + points[1]) * 0.5
-				target_zoom = zoom # Đồng bộ target_zoom ngay lập tức
+				var center = (points[0] + points[1]) * 0.5
+				var viewport_center = get_viewport_rect().size * 0.5
+				
+				# Khởi tạo điểm mỏ neo tọa độ thế giới (world anchor) cố định nằm ngay dưới trung điểm 2 ngón tay
+				pinch_start_distance = max(points[0].distance_to(points[1]), 1.0)
+				pinch_start_zoom = zoom
+				target_zoom = zoom
+				pinch_world_anchor = position + (center - viewport_center) / zoom.x
+				
 				get_viewport().set_input_as_handled()
 			elif touch_points.size() > 2:
 				is_touch_dragging = true
@@ -93,14 +102,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			touch_start_positions.erase(event.index)
 			
 			if touch_points.size() == 1:
-				# Vừa chuyển từ 2 ngón về 1 ngón: cập nhật lại điểm neo cho ngón còn lại
+				# Vừa chuyển từ 2 ngón về 1 ngón: cập nhật lại vị trí bắt đầu cho ngón còn lại
 				var remaining_idx = touch_points.keys()[0]
 				touch_start_positions[remaining_idx] = touch_points[remaining_idx]
-				last_pinch_distance = 0.0
+				pinch_start_distance = 0.0
 				is_touch_dragging = true # Giữ cờ drag để không nhận nhầm thành click khi nhấc ngón này lên
+				target_zoom = zoom
 			elif touch_points.is_empty():
 				is_touch_dragging = false
-				last_pinch_distance = 0.0
+				pinch_start_distance = 0.0
 				target_zoom = zoom
 
 	elif event is InputEventScreenDrag:
@@ -119,31 +129,22 @@ func _unhandled_input(event: InputEvent) -> void:
 				position -= event.relative / zoom.x
 				get_viewport().set_input_as_handled()
 		
-		# B. PINCH-TO-ZOOM & PAN 2 NGÓN TAY (TRỰC TIẾP, KHÔNG QUA LERP, KHÔNG GIẬT)
+		# B. PINCH-TO-ZOOM 2 NGÓN TAY (KHÓA CỨNG WORLD ANCHOR, KHÔNG CỘNG DỒN RELATIVE, KHÔNG LERP)
 		elif touch_points.size() == 2:
 			is_touch_dragging = true
 			var points = touch_points.values()
 			var current_dist: float = points[0].distance_to(points[1])
 			var current_center: Vector2 = (points[0] + points[1]) * 0.5
 			
-			if last_pinch_distance > 5.0 and current_dist > 5.0:
-				var pinch_ratio: float = current_dist / last_pinch_distance
-				var old_zoom = zoom
-				var new_zoom = (old_zoom * pinch_ratio).clamp(min_zoom, max_zoom)
+			if pinch_start_distance > 1.0 and current_dist > 1.0:
+				var ratio: float = current_dist / pinch_start_distance
+				zoom = (pinch_start_zoom * ratio).clamp(min_zoom, max_zoom)
+				target_zoom = zoom
 				
 				var viewport_center = get_viewport_rect().size * 0.5
-				
-				# Công thức neo vị trí chuẩn xác: Điểm thế giới dưới trung điểm 2 ngón tay giữ nguyên
-				position = position + (last_pinch_center - viewport_center) / old_zoom.x - (current_center - viewport_center) / new_zoom.x
-				
-				zoom = new_zoom
-				target_zoom = new_zoom
-			else:
-				# Nếu 2 ngón quá gần nhau (< 5px), chỉ dịch chuyển vị trí theo trung điểm
-				position -= (current_center - last_pinch_center) / zoom.x
+				var center_offset = current_center - viewport_center
+				position = pinch_world_anchor - (center_offset / zoom.x)
 			
-			last_pinch_distance = current_dist
-			last_pinch_center = current_center
 			get_viewport().set_input_as_handled()
 		
 		elif touch_points.size() > 2:

@@ -250,6 +250,85 @@ focus_mode = 0
 theme_override_colors/font_color = Color(1, 0.95, 0.7, 1)
 text = "🎯 Chọn mục tiêu"
 
+[node name="DiplomacyContainer" type="VBoxContainer" parent="UI/ProvincePanel/VBoxContainer" unique_id=2058862160]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DipFactionHeader" type="Label" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer" unique_id=2058862161]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "🏛️ Phe: ... (Chiếm giữ: 0 tỉnh)"
+
+[node name="DipRelationScoreLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer" unique_id=2058862163]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Quan hệ: 0 (Trung lập)"
+
+[node name="DipRelationBar" type="ProgressBar" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer" unique_id=2058862164]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+min_value = -100.0
+max_value = 100.0
+value = 0.0
+show_percentage = false
+
+[node name="DipTopFriendsLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer" unique_id=2058862165]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.5, 1)
+theme_override_font_sizes/font_size = 10
+text = "🟢 Thân thiết: Không có"
+autowrap_mode = 2
+
+[node name="DipTopEnemiesLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer" unique_id=2058862166]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 10
+text = "🔴 Thù địch: Không có"
+autowrap_mode = 2
+
+[node name="DipActionsGrid" type="GridContainer" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer" unique_id=2058862167]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="DipImproveButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipActionsGrid" unique_id=2058862168]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "🕊️ Cải thiện (5💰/thg)"
+
+[node name="DipInsultButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipActionsGrid" unique_id=2058862169]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "🤬 Xúc phạm (-30)"
+
+[node name="DipAccessButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipActionsGrid" unique_id=2058862170]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "🚶 Xin hành quân (≥20)"
+
+[node name="DipAllianceButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipActionsGrid" unique_id=2058862171]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "🤝 Liên minh (≥75)"
+
+[node name="DipWarButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/DiplomacyContainer" unique_id=2058862172]
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "⚔️ Tuyên chiến"
+
 [node name="NotificationPanel" type="PanelContainer" parent="UI" unique_id=1426641856]
 visible = false
 anchors_preset = 5

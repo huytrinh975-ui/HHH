@@ -23,6 +23,7 @@ extends Node2D
 @onready var recruit_preset_75_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox/RecruitPreset75Button
 @onready var recruit_preset_max_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitPresetHBox/RecruitPresetMaxButton
 @onready var confirm_recruit_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitContainer/ConfirmRecruitButton
+@onready var action_buttons_hbox: HBoxContainer = $UI/ProvincePanel/VBoxContainer/ActionButtonsHBox
 @onready var move_button: Button = $UI/ProvincePanel/VBoxContainer/ActionButtonsHBox/MoveButton
 @onready var sweep_button: Button = $UI/ProvincePanel/VBoxContainer/ActionButtonsHBox/SweepButton
 @onready var dispatch_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/DispatchContainer
@@ -33,6 +34,19 @@ extends Node2D
 @onready var preset_75_button: Button = $UI/ProvincePanel/VBoxContainer/DispatchContainer/PresetHBox/Preset75Button
 @onready var preset_100_button: Button = $UI/ProvincePanel/VBoxContainer/DispatchContainer/PresetHBox/Preset100Button
 @onready var confirm_target_button: Button = $UI/ProvincePanel/VBoxContainer/DispatchContainer/ConfirmTargetButton
+
+# Node Ngoại giao (Diplomacy UI)
+@onready var diplomacy_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer
+@onready var dip_faction_header: Label = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipFactionHeader
+@onready var dip_relation_score_label: Label = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipRelationScoreLabel
+@onready var dip_relation_bar: ProgressBar = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipRelationBar
+@onready var dip_top_friends_label: Label = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipTopFriendsLabel
+@onready var dip_top_enemies_label: Label = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipTopEnemiesLabel
+@onready var dip_improve_button: Button = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipActionsGrid/DipImproveButton
+@onready var dip_insult_button: Button = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipActionsGrid/DipInsultButton
+@onready var dip_access_button: Button = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipActionsGrid/DipAccessButton
+@onready var dip_alliance_button: Button = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipActionsGrid/DipAllianceButton
+@onready var dip_war_button: Button = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipWarButton
 @onready var menu_button: Button = $UI/MenuButton
 @onready var notification_panel: PanelContainer = $UI/NotificationPanel
 @onready var notification_label: Label = $UI/NotificationPanel/MarginContainer/NotificationLabel
@@ -198,6 +212,18 @@ func _ready() -> void:
 	if preset_100_button:
 		preset_100_button.pressed.connect(func(): _set_slider_preset(1.00))
 	
+	# Kết nối sự kiện Ngoại giao
+	if dip_improve_button:
+		dip_improve_button.pressed.connect(_on_dip_improve_button_pressed)
+	if dip_insult_button:
+		dip_insult_button.pressed.connect(_on_dip_insult_button_pressed)
+	if dip_access_button:
+		dip_access_button.pressed.connect(_on_dip_access_button_pressed)
+	if dip_alliance_button:
+		dip_alliance_button.pressed.connect(_on_dip_alliance_button_pressed)
+	if dip_war_button:
+		dip_war_button.pressed.connect(_on_dip_war_button_pressed)
+	
 	# Kết nối sự kiện điều khiển thời gian
 	if pause_button:
 		pause_button.pressed.connect(toggle_pause)
@@ -262,28 +288,6 @@ func update_active_armies(dt: float) -> void:
 			var current_pos = army["start_pos"].lerp(army["end_pos"], t)
 			if is_instance_valid(army["badge_root"]):
 				army["badge_root"].position = current_pos
-			
-			# KIỂM TRA CHẶN ĐÁNH DỌC ĐƯỜNG (ZONE OF CONTROL / INTERCEPT)
-			if t > 0.05:
-				var current_prov = get_province_at_local_pos(current_pos)
-				if not current_prov.is_empty():
-					var prov_id = current_prov.get("id")
-					var source_id = army["source"].get("id")
-					var target_id = army["target"].get("id")
-					
-					# Chỉ chặn đánh nếu là tỉnh trung gian (khác tỉnh xuất phát và chưa tới tỉnh đích)
-					if prov_id != source_id and prov_id != target_id:
-						var prov_faction = current_prov.get("faction", current_prov.get("owner", ""))
-						var prov_troops = int(current_prov.get("troops", 0))
-						
-						# Nếu tỉnh trung gian thuộc PHE ĐỊCH và CÓ LÍNH ĐỒN TRÚ (> 0)
-						if prov_faction != army["faction"] and prov_troops > 0:
-							_resolve_army_intercept(army, current_prov)
-							if is_instance_valid(army["badge_root"]):
-								army["badge_root"].queue_free()
-							if is_instance_valid(army["line"]):
-								army["line"].queue_free()
-							active_armies.remove_at(i)
 		i -= 1
 
 func load_provinces_json() -> void:
@@ -327,6 +331,14 @@ func load_provinces_json() -> void:
 				provinces_data.size(),
 				"Loạn 63 Xứ Quân" if is_63_warlords else "Tứ Quốc Tranh Hùng"
 			])
+			
+			var fac_list = []
+			for p in provinces_data:
+				var fac = p.get("faction", "")
+				if fac != "" and not fac_list.has(fac):
+					fac_list.append(fac)
+			if DiplomacyManager:
+				DiplomacyManager.init_factions(fac_list)
 		else:
 			print("Lỗi parse JSON provinces.json")
 
@@ -337,6 +349,49 @@ func get_province_neighbors(prov: Dictionary) -> Array:
 		var sid = str(nid)
 		if provinces_by_id.has(sid):
 			result.append(provinces_by_id[sid])
+	return result
+
+func find_province_path(source: Dictionary, target: Dictionary) -> Array:
+	var start_id = str(source.get("id"))
+	var end_id = str(target.get("id"))
+	if start_id == end_id:
+		return [source]
+	
+	var queue = [start_id]
+	var visited = {start_id: true}
+	var parent = {}
+	var found = false
+	
+	while queue.size() > 0:
+		var curr_id = queue.pop_front()
+		if curr_id == end_id:
+			found = true
+			break
+		
+		var curr_prov = provinces_by_id.get(curr_id)
+		if curr_prov == null:
+			continue
+		
+		var neighbors = curr_prov.get("neighbors", [])
+		for nid in neighbors:
+			var sid = str(nid)
+			if not visited.has(sid) and provinces_by_id.has(sid):
+				visited[sid] = true
+				parent[sid] = curr_id
+				queue.append(sid)
+	
+	if not found:
+		return []
+	
+	var path_ids = []
+	var curr = end_id
+	while curr != "":
+		path_ids.push_front(curr)
+		curr = parent.get(curr, "")
+	
+	var result = []
+	for pid in path_ids:
+		result.append(provinces_by_id[pid])
 	return result
 
 # ==============================================================================
@@ -396,25 +451,39 @@ func get_player_total_province_income() -> int:
 func get_player_net_monthly_gold() -> int:
 	var total_prov_income = get_player_total_province_income()
 	var total_upkeep = get_player_military_upkeep()
-	return total_prov_income - total_upkeep
+	var diplomat_expense = 0
+	if DiplomacyManager:
+		diplomat_expense = DiplomacyManager.get_player_diplomat_expense(player_faction)
+	return total_prov_income - total_upkeep - diplomat_expense
 
 func trigger_monthly_economy() -> void:
+	var dip_result = {}
+	if DiplomacyManager:
+		dip_result = DiplomacyManager.monthly_tick(player_faction, player_gold)
+	
 	var total_income = get_player_total_province_income()
 	var total_upkeep = get_player_military_upkeep()
-	var net_monthly_gold = total_income - total_upkeep
+	var diplomat_expense = dip_result.get("diplomat_cost", 0)
+	var net_monthly_gold = total_income - total_upkeep - diplomat_expense
 	player_gold += net_monthly_gold
 	update_gold_display()
 	
 	var sign_str = "+" if net_monthly_gold >= 0 else ""
-	show_notification("💰 ĐẦU THÁNG %02d/%d: Thuế +%s, Quân phí -%s (Thu ròng: %s%s Vàng)!" % [
+	var cancel_notif = ""
+	if dip_result.has("cancelled_factions") and dip_result["cancelled_factions"].size() > 0:
+		cancel_notif = " (Đã hủy sứ giả tới %s do hết vàng!)" % ", ".join(dip_result["cancelled_factions"])
+	
+	show_notification("💰 ĐẦU THÁNG %02d/%d: Thuế +%s, Quân phí -%s%s (Thu ròng: %s%s Vàng)%s!" % [
 		current_month, current_year,
 		format_number(total_income),
 		format_number(total_upkeep),
+		(", Ngoại giao -%d" % diplomat_expense) if diplomat_expense > 0 else "",
 		sign_str,
-		format_number(net_monthly_gold)
+		format_number(net_monthly_gold),
+		cancel_notif
 	])
-	print("Kinh te dau thang %02d/%d: Thue +%d, Upkeep -%d, Thu rong: %+d (Tong vang: %d)" % [
-		current_month, current_year, total_income, total_upkeep, net_monthly_gold, player_gold
+	print("Kinh te dau thang %02d/%d: Thue +%d, Upkeep -%d, Ngoai giao -%d, Thu rong: %+d (Tong vang: %d)" % [
+		current_month, current_year, total_income, total_upkeep, diplomat_expense, net_monthly_gold, player_gold
 	])
 	
 	if not selected_province.is_empty():
@@ -849,7 +918,9 @@ func get_max_recruitable(prov: Dictionary) -> int:
 func update_province_panel_size() -> void:
 	if not province_panel:
 		return
-	if (dispatch_container and dispatch_container.visible) or (recruit_container and recruit_container.visible):
+	if diplomacy_container and diplomacy_container.visible:
+		province_panel.offset_top = -370.0
+	elif (dispatch_container and dispatch_container.visible) or (recruit_container and recruit_container.visible):
 		province_panel.offset_top = -475.0
 	else:
 		province_panel.offset_top = -315.0
@@ -998,83 +1069,117 @@ func show_province_info(prov: Dictionary) -> void:
 		nation_label.text = "Quốc gia: " + str(prov.get("nation", "VIE"))
 		faction_label.text = "Phe: " + str(prov.get("faction", prov.get("owner", "Vô chủ")))
 		
-		var tot_pop = get_total_population(prov)
-		var m_pop = get_male_population(prov)
-		var f_pop = get_female_population(prov)
-		var m_work = get_male_working_age(prov)
-		var current_troops = int(prov.get("troops", 0))
-		
-		if population_label:
-			population_label.text = "👥 Dân số: %s người" % format_number(tot_pop)
-		if demographics_label:
-			demographics_label.text = "  • Nam: %s | Nữ: %s" % [format_number(m_pop), format_number(f_pop)]
-		if manpower_label:
-			manpower_label.text = "  • Nam độ tuổi lao động (15-64): %s" % format_number(m_work)
-		
-		var prov_income = get_province_income(prov)
-		if income_label:
-			income_label.text = "💰 Thu nhập: +%s đồng/tháng" % format_number(prov_income)
-		
-		troops_label.text = "⚔️ Quân đồn trú: %s quân" % format_number(current_troops)
-		
 		var is_player_prov = can_recruit(prov)
-		var has_troops = current_troops > 0
-		var can_sweep = is_player_prov and current_troops >= 10
-		var remaining_quota = get_remaining_pop_quota(prov)
-		var max_rec = get_max_recruitable(prov)
+		var target_fac = prov.get("faction", prov.get("owner", ""))
 		
-		if is_paused:
-			recruit_button.disabled = true
-			recruit_button.text = "⏸ Đang dừng (Pause)"
-			move_button.disabled = true
-			move_button.text = "Đang dừng"
-			if sweep_button:
-				sweep_button.disabled = true
-				sweep_button.text = "Đang dừng"
-			close_dispatch_container()
-			close_recruit_container()
-		elif is_player_prov:
-			if remaining_quota <= 0:
-				recruit_button.disabled = true
-				recruit_button.text = "Đã tuyển hết hạn ngạch tháng %02d" % current_month
-				close_recruit_container()
-			elif player_gold < COST_PER_TROOP:
-				recruit_button.disabled = true
-				recruit_button.text = "Không đủ Vàng (Cần ≥ %d💰)" % COST_PER_TROOP
-				close_recruit_container()
-			else:
-				recruit_button.disabled = false
-				if recruit_container and recruit_container.visible:
-					recruit_button.text = "Đóng tuyển quân ✖"
-				else:
-					recruit_button.text = "🎖️ Tuyển quân (Tối đa: %s)" % format_number(max_rec)
+		if is_player_prov:
+			if diplomacy_container:
+				diplomacy_container.visible = false
 			
-			move_button.disabled = not has_troops
-			if not has_troops:
+			if population_label:
+				population_label.visible = true
+			if demographics_label:
+				demographics_label.visible = true
+			if manpower_label:
+				manpower_label.visible = true
+			if income_label:
+				income_label.visible = true
+			if troops_label:
+				troops_label.visible = true
+			if recruit_button:
+				recruit_button.visible = true
+			if action_buttons_hbox:
+				action_buttons_hbox.visible = true
+			
+			var tot_pop = get_total_population(prov)
+			var m_pop = get_male_population(prov)
+			var f_pop = get_female_population(prov)
+			var m_work = get_male_working_age(prov)
+			var current_troops = int(prov.get("troops", 0))
+			
+			if population_label:
+				population_label.text = "👥 Dân số: %s người" % format_number(tot_pop)
+			if demographics_label:
+				demographics_label.text = "  • Nam: %s | Nữ: %s" % [format_number(m_pop), format_number(f_pop)]
+			if manpower_label:
+				manpower_label.text = "  • Nam độ tuổi lao động (15-64): %s" % format_number(m_work)
+			
+			var prov_income = get_province_income(prov)
+			if income_label:
+				income_label.text = "💰 Thu nhập: +%s đồng/tháng" % format_number(prov_income)
+			
+			if troops_label:
+				troops_label.text = "⚔️ Quân đồn trú: %s quân" % format_number(current_troops)
+			
+			var has_troops = current_troops > 0
+			var can_sweep = current_troops >= 10
+			var remaining_quota = get_remaining_pop_quota(prov)
+			var max_rec = get_max_recruitable(prov)
+			
+			if is_paused:
+				recruit_button.disabled = true
+				recruit_button.text = "⏸ Đang dừng (Pause)"
+				move_button.disabled = true
+				move_button.text = "Đang dừng"
+				if sweep_button:
+					sweep_button.disabled = true
+					sweep_button.text = "Đang dừng"
 				close_dispatch_container()
-				move_button.text = "Hết quân"
+				close_recruit_container()
 			else:
-				if dispatch_container and dispatch_container.visible:
-					_refresh_dispatch_slider()
+				if remaining_quota <= 0:
+					recruit_button.disabled = true
+					recruit_button.text = "Đã tuyển hết hạn ngạch tháng %02d" % current_month
+					close_recruit_container()
+				elif player_gold < COST_PER_TROOP:
+					recruit_button.disabled = true
+					recruit_button.text = "Không đủ Vàng (Cần ≥ %d💰)" % COST_PER_TROOP
+					close_recruit_container()
 				else:
-					move_button.text = "Điều quân..."
-			
-			if sweep_button:
-				sweep_button.disabled = not can_sweep
-				if can_sweep:
-					sweep_button.text = "⚡ Càn quét"
+					recruit_button.disabled = false
+					if recruit_container and recruit_container.visible:
+						recruit_button.text = "Đóng tuyển quân ✖"
+					else:
+						recruit_button.text = "🎖️ Tuyển quân (Tối đa: %s)" % format_number(max_rec)
+				
+				move_button.disabled = not has_troops
+				if not has_troops:
+					close_dispatch_container()
+					move_button.text = "Hết quân"
 				else:
-					sweep_button.text = "Càn quét (≥10)"
+					if dispatch_container and dispatch_container.visible:
+						_refresh_dispatch_slider()
+					else:
+						move_button.text = "Điều quân..."
+				
+				if sweep_button:
+					sweep_button.disabled = not can_sweep
+					if can_sweep:
+						sweep_button.text = "⚡ Càn quét"
+					else:
+						sweep_button.text = "Càn quét (≥10)"
 		else:
-			recruit_button.disabled = true
-			recruit_button.text = "Khác phe (Không thể tuyển)"
-			move_button.disabled = true
-			move_button.text = "Khác phe"
-			if sweep_button:
-				sweep_button.disabled = true
-				sweep_button.text = "Khác phe"
+			# Tỉnh đối phương / trung lập: Chuyển sang Bảng Ngoại giao
+			if population_label:
+				population_label.visible = false
+			if demographics_label:
+				demographics_label.visible = false
+			if manpower_label:
+				manpower_label.visible = false
+			if income_label:
+				income_label.visible = false
+			if troops_label:
+				troops_label.visible = false
+			if recruit_button:
+				recruit_button.visible = false
+			if action_buttons_hbox:
+				action_buttons_hbox.visible = false
 			close_dispatch_container()
 			close_recruit_container()
+			
+			if diplomacy_container:
+				diplomacy_container.visible = true
+				_update_diplomacy_ui(target_fac)
 			
 		province_panel.visible = true
 		update_province_panel_size()
@@ -1084,10 +1189,206 @@ func show_province_info(prov: Dictionary) -> void:
 	var target_color = Color.from_string(id_hex, Color.BLACK)
 	set_province_selection_shader(target_color, true)
 
+func _update_diplomacy_ui(target_fac: String) -> void:
+	if not diplomacy_container or not DiplomacyManager:
+		return
+	
+	var prov_count = 0
+	for p in provinces_data:
+		if p.get("faction") == target_fac:
+			prov_count += 1
+	
+	if dip_faction_header:
+		dip_faction_header.text = "🏛️ Phe: %s (Chiếm giữ: %d tỉnh)" % [target_fac, prov_count]
+	
+	var rel = DiplomacyManager.get_relation(player_faction, target_fac)
+	var is_war = DiplomacyManager.is_at_war(player_faction, target_fac)
+	var is_ally = DiplomacyManager.is_allied(player_faction, target_fac)
+	var has_acc = DiplomacyManager.has_military_access(player_faction, target_fac)
+	var is_improving = DiplomacyManager.is_improving_relations(player_faction, target_fac)
+	var insult_cd = DiplomacyManager.get_insult_cooldown(player_faction, target_fac)
+	
+	var status_text = "Trung lập"
+	if is_war:
+		status_text = "⚔️ ĐANG CÓ CHIẾN TRANH"
+	elif is_ally:
+		status_text = "🤝 LIÊN MINH QUÂN SỰ"
+	elif has_acc:
+		status_text = "📜 CÓ QUYỀN HÀNH QUÂN"
+	elif rel <= -50:
+		status_text = "Thù địch gay gắt"
+	elif rel < 0:
+		status_text = "Căng thẳng"
+	elif rel >= 50:
+		status_text = "Rất thân thiết"
+	elif rel > 0:
+		status_text = "Hữu hảo"
+	
+	if dip_relation_score_label:
+		dip_relation_score_label.text = "Quan hệ: %+d / 100 (%s)" % [rel, status_text]
+	
+	if dip_relation_bar:
+		dip_relation_bar.value = rel
+		var bar_color = Color("#ffca28") # vàng
+		if rel < -30:
+			bar_color = Color("#ff5252") # đỏ
+		elif rel > 30:
+			bar_color = Color("#69f0ae") # xanh lá
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = bar_color
+		sb.set_corner_radius_all(3)
+		dip_relation_bar.add_theme_stylebox_override("fill", sb)
+	
+	# Top quốc gia thân thiết & thù địch
+	var friends = DiplomacyManager.get_top_friends(target_fac, 3)
+	var enemies = DiplomacyManager.get_top_enemies(target_fac, 3)
+	
+	if dip_top_friends_label:
+		if friends.is_empty():
+			dip_top_friends_label.text = "🟢 Thân thiết: Không có"
+		else:
+			var arr = []
+			for f in friends:
+				arr.append("%s (%+d)" % [f["faction"], f["relations"]])
+			dip_top_friends_label.text = "🟢 Thân nhất: %s" % ", ".join(arr)
+	
+	if dip_top_enemies_label:
+		if enemies.is_empty():
+			dip_top_enemies_label.text = "🔴 Thù địch: Không có"
+		else:
+			var arr = []
+			for e in enemies:
+				arr.append("%s (%+d)" % [e["faction"], e["relations"]])
+			dip_top_enemies_label.text = "🔴 Thù địch nhất: %s" % ", ".join(arr)
+	
+	# Nút Cải thiện quan hệ
+	if dip_improve_button:
+		if is_improving:
+			dip_improve_button.text = "🕊️ Dừng cải thiện (5💰/thg)"
+			dip_improve_button.modulate = Color(1.2, 1.2, 0.8)
+		else:
+			dip_improve_button.text = "🕊️ Cải thiện (5💰/thg)"
+			dip_improve_button.modulate = Color(1.0, 1.0, 1.0)
+	
+	# Nút Xúc phạm ngoại giao
+	if dip_insult_button:
+		if insult_cd > 0:
+			dip_insult_button.disabled = true
+			dip_insult_button.text = "🤬 Xúc phạm (Chờ %d thg)" % insult_cd
+		else:
+			dip_insult_button.disabled = false
+			dip_insult_button.text = "🤬 Xúc phạm (-30)"
+	
+	# Nút Xin quyền hành quân
+	if dip_access_button:
+		if has_acc or is_ally:
+			dip_access_button.disabled = true
+			dip_access_button.text = "✓ Đã có quyền đi"
+		elif rel < 20:
+			dip_access_button.disabled = true
+			dip_access_button.text = "🚶 Xin hành quân (≥20)"
+		else:
+			dip_access_button.disabled = false
+			dip_access_button.text = "🚶 Xin quyền hành quân"
+	
+	# Nút Liên minh quân sự
+	if dip_alliance_button:
+		if is_ally:
+			dip_alliance_button.disabled = true
+			dip_alliance_button.text = "✓ Đã là Đồng minh"
+		elif rel < 75:
+			dip_alliance_button.disabled = true
+			dip_alliance_button.text = "🤝 Liên minh (≥75)"
+		else:
+			dip_alliance_button.disabled = false
+			dip_alliance_button.text = "🤝 Ký hiệp ước Liên minh"
+	
+	# Nút Tuyên chiến
+	if dip_war_button:
+		if is_war:
+			dip_war_button.disabled = true
+			dip_war_button.text = "⚔️ Đang có chiến tranh"
+		else:
+			dip_war_button.disabled = false
+			dip_war_button.text = "⚔️ Tuyên chiến!"
+
+func _on_dip_improve_button_pressed() -> void:
+	if selected_province.is_empty():
+		return
+	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
+	if target_fac == "" or target_fac == player_faction:
+		return
+	var is_improving = DiplomacyManager.is_improving_relations(player_faction, target_fac)
+	if is_improving:
+		DiplomacyManager.set_improving_relations(player_faction, target_fac, false)
+		show_notification("🕊️ Đã triệu hồi nhà ngoại giao về từ phe [%s]!" % target_fac)
+	else:
+		if player_gold < 5:
+			show_notification("⚠️ Không đủ Vàng (Cần 5 Vàng để bắt đầu cử nhà ngoại giao)!")
+			return
+		DiplomacyManager.set_improving_relations(player_faction, target_fac, true)
+		show_notification("🕊️ Đã cử nhà ngoại giao sang [%s] (Chi phí: 5 Vàng/tháng, +3 điểm/tháng)!" % target_fac)
+	update_gold_display()
+	_update_diplomacy_ui(target_fac)
+
+func _on_dip_insult_button_pressed() -> void:
+	if selected_province.is_empty():
+		return
+	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
+	if target_fac == "" or target_fac == player_faction:
+		return
+	if not DiplomacyManager.can_insult(player_faction, target_fac):
+		show_notification("⚠️ Vừa mới xúc phạm phe này! Cần chờ hồi phục quan hệ.")
+		return
+	DiplomacyManager.insult(player_faction, target_fac)
+	var new_rel = DiplomacyManager.get_relation(player_faction, target_fac)
+	show_notification("🤬 Bạn đã gửi tối hậu thư xúc phạm phe [%s]! Quan hệ giảm -30 (Còn: %+d)." % [target_fac, new_rel])
+	_update_diplomacy_ui(target_fac)
+
+func _on_dip_access_button_pressed() -> void:
+	if selected_province.is_empty():
+		return
+	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
+	if target_fac == "" or target_fac == player_faction:
+		return
+	var rel = DiplomacyManager.get_relation(player_faction, target_fac)
+	if rel < 20:
+		show_notification("⚠️ Quan hệ chưa đủ tin cậy (cần ≥ +20, hiện tại: %+d) để xin quyền hành quân!" % rel)
+		return
+	DiplomacyManager.grant_military_access(player_faction, target_fac)
+	show_notification("📜 Phe [%s] đã đồng ý cấp quyền hành quân qua địa phận của họ!" % target_fac)
+	_update_diplomacy_ui(target_fac)
+
+func _on_dip_alliance_button_pressed() -> void:
+	if selected_province.is_empty():
+		return
+	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
+	if target_fac == "" or target_fac == player_faction:
+		return
+	var rel = DiplomacyManager.get_relation(player_faction, target_fac)
+	if rel < 75:
+		show_notification("⚠️ Quan hệ chưa đạt mức đồng minh (cần ≥ +75, hiện tại: %+d)!" % rel)
+		return
+	DiplomacyManager.form_alliance(player_faction, target_fac)
+	show_notification("🎉 LIÊN MINH QUÂN SỰ thành lập giữa [%s] và [%s]! Mở quyền hành quân 2 chiều." % [player_faction, target_fac])
+	_update_diplomacy_ui(target_fac)
+
+func _on_dip_war_button_pressed() -> void:
+	if selected_province.is_empty():
+		return
+	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
+	if target_fac == "" or target_fac == player_faction:
+		return
+	DiplomacyManager.declare_war(player_faction, target_fac)
+	show_notification("⚔️ BẠN ĐÃ CHÍNH THỨC TUYÊN CHIẾN VỚI PHE [%s]! Quan hệ tụt xuống -100." % target_fac)
+	_update_diplomacy_ui(target_fac)
+
 func hide_province_panel() -> void:
 	selected_province = {}
 	close_dispatch_container()
 	close_recruit_container()
+	if diplomacy_container:
+		diplomacy_container.visible = false
 	cancel_move_mode()
 	if province_panel:
 		province_panel.visible = false
@@ -1228,12 +1529,19 @@ func _on_sweep_button_pressed() -> void:
 	var source_prov = selected_province
 	var source_faction = source_prov.get("faction", player_faction)
 	
-	# Quét tìm tất cả các tỉnh GIÁP RANH TRỰC TIẾP thuộc PHE ĐỊCH
-	var enemy_neighbors: Array = []
+	# Quét tìm tất cả các tỉnh GIÁP RANH TRỰC TIẾP thuộc PHE ĐỊCH (loại trừ Đồng minh)
+	var war_neighbors: Array = []
+	var foreign_neighbors: Array = []
 	for nb in get_province_neighbors(source_prov):
 		var nb_faction = nb.get("faction", nb.get("owner", ""))
 		if nb_faction != source_faction:
-			enemy_neighbors.append(nb)
+			if DiplomacyManager and DiplomacyManager.is_allied(source_faction, nb_faction):
+				continue
+			foreign_neighbors.append(nb)
+			if DiplomacyManager and DiplomacyManager.is_at_war(source_faction, nb_faction):
+				war_neighbors.append(nb)
+	
+	var enemy_neighbors = war_neighbors if not war_neighbors.is_empty() else foreign_neighbors
 	
 	if enemy_neighbors.is_empty():
 		show_notification("⚠️ Không có tỉnh địch giáp ranh để đánh lan!")
@@ -1294,6 +1602,14 @@ func execute_troop_action(source: Dictionary, target: Dictionary, troop_amount: 
 	dispatch_army(source, target, count)
 
 func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, show_notify: bool = true) -> void:
+	if source.is_empty() or target.is_empty():
+		return
+	
+	var source_id = str(source.get("id"))
+	var target_id = str(target.get("id"))
+	if source_id == target_id:
+		return
+	
 	var source_troops = int(source.get("troops", 0))
 	if source_troops <= 0:
 		if show_notify:
@@ -1301,6 +1617,53 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 		return
 	
 	var moving_troops: int = clamp(troop_count, 1, source_troops)
+	var source_faction: String = source.get("faction", player_faction)
+	var target_faction: String = target.get("faction", target.get("owner", ""))
+	
+	# Kiểm tra trực tiếp giáp ranh hay qua tỉnh trung gian
+	var actual_target = target
+	var is_direct = false
+	var neighbors = source.get("neighbors", [])
+	for nid in neighbors:
+		if str(nid) == target_id:
+			is_direct = true
+			break
+	
+	if not is_direct:
+		var path = find_province_path(source, target)
+		if path.is_empty() or path.size() < 2:
+			if show_notify:
+				show_notification("⚠️ Không tìm thấy đường hành quân từ %s đến %s!" % [source.get("name"), target.get("name")])
+			return
+		
+		# Kiểm tra từng tỉnh trung gian trên lộ trình
+		if path.size() > 2:
+			var intermediates = path.slice(1, path.size() - 1)
+			for inter_prov in intermediates:
+				var inter_fac = inter_prov.get("faction", inter_prov.get("owner", ""))
+				
+				# 1. Phe mình, đồng minh, hoặc đã cấp quyền hành quân: Cho phép đi xuyên qua an toàn
+				if inter_fac == source_faction:
+					continue
+				if DiplomacyManager and (DiplomacyManager.is_allied(source_faction, inter_fac) or DiplomacyManager.has_military_access(source_faction, inter_fac)):
+					continue
+				
+				# 2. Phe đang có chiến tranh: Quân buộc phải dừng lại tấn công tỉnh trung gian này trước!
+				if DiplomacyManager and DiplomacyManager.is_at_war(source_faction, inter_fac):
+					actual_target = inter_prov
+					if show_notify:
+						show_notification("⚔️ Tuyến đường bị chặn bởi quân địch tại %s (%s)! Quân đội chuyển hướng công kích %s!" % [
+							inter_prov.get("name"), inter_fac, inter_prov.get("name")
+						])
+					break
+				
+				# 3. Phe trung lập chưa cấp quyền: Chặn lệnh hành quân hoàn toàn
+				if show_notify:
+					show_notification("⚠️ Không có quyền hành quân qua địa phận của [%s] (%s)!" % [
+						inter_fac, inter_prov.get("name")
+					])
+				return
+	
 	var remaining_in_source: int = source_troops - moving_troops
 	
 	# Trừ quân ở tỉnh xuất phát ngay lập tức
@@ -1312,11 +1675,11 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 		show_province_info(source)
 	
 	var start_pos = get_province_local_pos(source)
-	var end_pos = get_province_local_pos(target)
+	var end_pos = get_province_local_pos(actual_target)
 	
 	# 1. Đường hành quân (Line2D nối từ tâm xuất phát đến tâm đích)
 	var line = Line2D.new()
-	line.name = "MarchLine_%s_%s" % [str(source.get("id")), str(target.get("id"))]
+	line.name = "MarchLine_%s_%s" % [str(source.get("id")), str(actual_target.get("id"))]
 	line.width = 2.5
 	line.default_color = Color(1.0, 0.85, 0.25, 0.65)
 	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
@@ -1328,7 +1691,7 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 	
 	# 2. Node hiển thị đơn vị lính hành quân trên bản đồ
 	var badge_root = Node2D.new()
-	badge_root.name = "ArmyBadge_%s_%s" % [str(source.get("id")), str(target.get("id"))]
+	badge_root.name = "ArmyBadge_%s_%s" % [str(source.get("id")), str(actual_target.get("id"))]
 	badge_root.position = start_pos
 	badge_root.scale = Vector2(0.65, 0.65) # Đồng bộ thu nhỏ nhãn hành quân
 	badge_root.z_index = 10
@@ -1367,13 +1730,13 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 	
 	var army_data = {
 		"source": source,
-		"target": target,
+		"target": actual_target,
 		"troops": moving_troops,
-		"faction": source.get("faction", player_faction),
+		"faction": source_faction,
 		"start_pos": start_pos,
 		"end_pos": end_pos,
 		"progress": 0.0,
-		"duration": 3.5, # 3.5 giây ở tốc độ 1x (nằm trong khoảng 3-5 giây)
+		"duration": 3.5, # 3.5 giây ở tốc độ 1x
 		"badge_root": badge_root,
 		"line": line
 	}
@@ -1381,11 +1744,11 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 	
 	if show_notify:
 		show_notification("🚩 %d quân xuất phát từ %s tiến về %s (còn lại: %d quân)!" % [
-			moving_troops, source.get("name"), target.get("name"), remaining_in_source
+			moving_troops, source.get("name"), actual_target.get("name"), remaining_in_source
 		])
-	print("--- XUAT QUAN HANH QUAN ---")
-	print("Xuat phat: %d quan tu %s -> %s (con lai tai tinh goc: %d)" % [
-		moving_troops, source.get("name"), target.get("name"), remaining_in_source
+	print("--- XUẤT QUÂN HÀNH QUÂN ---")
+	print("Xuất phát: %d quân từ %s -> %s (còn lại tại tỉnh gốc: %d)" % [
+		moving_troops, source.get("name"), actual_target.get("name"), remaining_in_source
 	])
 
 func _resolve_army_arrival(army: Dictionary) -> void:
@@ -1395,22 +1758,44 @@ func _resolve_army_arrival(army: Dictionary) -> void:
 	var army_faction: String = army["faction"]
 	
 	var target_faction = target.get("faction", target.get("owner", ""))
-	var is_friendly = (target_faction == army_faction)
+	var is_same_faction = (target_faction == army_faction)
+	var is_allied = (DiplomacyManager and DiplomacyManager.is_allied(army_faction, target_faction))
+	var has_access = (DiplomacyManager and DiplomacyManager.has_military_access(army_faction, target_faction))
+	var is_war = (DiplomacyManager and DiplomacyManager.is_at_war(army_faction, target_faction))
 	
-	if is_friendly:
+	if is_same_faction:
 		target["troops"] = target.get("troops", 0) + moving_troops
 		show_notification("🚚 TIẾP VIỆN THÀNH CÔNG: %d quân đã hội quân tại %s (Tổng đồn trú: %d quân)!" % [
 			moving_troops, target.get("name"), target["troops"]
 		])
-		print("--- VIEN BINH DEN NOI ---")
-		print("Hoi quan: %d quan tu %s den %s (Tong quan: %d)" % [
+		print("--- VIỆN BINH ĐẾN NƠI ---")
+		print("Hội quân: %d quân từ %s đến %s (Tổng quân: %d)" % [
 			moving_troops, source.get("name"), target.get("name"), target["troops"]
 		])
+	elif is_allied:
+		target["troops"] = target.get("troops", 0) + moving_troops
+		show_notification("🤝 TIẾP VIỆN ĐỒNG MINH: %d quân đã chi viện cho %s (%s) (Tổng đồn trú: %d quân)!" % [
+			moving_troops, target.get("name"), target_faction, target["troops"]
+		])
+		print("--- CHI VIỆN ĐỒNG MINH ---")
+		print("Chi viện: %d quân từ %s đến %s (%s)" % [
+			moving_troops, source.get("name"), target.get("name"), target_faction
+		])
+	elif has_access and not is_war:
+		target["troops"] = target.get("troops", 0) + moving_troops
+		show_notification("🚶 ĐỒN TRÚ/QUÁ CẢNH: %d quân đã tập kết tại %s (%s) theo hiệp ước hành quân!" % [
+			moving_troops, target.get("name"), target_faction
+		])
 	else:
+		# Giao tranh (Combat)!
+		if DiplomacyManager and not DiplomacyManager.is_at_war(army_faction, target_faction):
+			DiplomacyManager.declare_war(army_faction, target_faction)
+			show_notification("⚔️ CHIẾN TRANH BÙNG NỔ giữa %s và %s!" % [army_faction, target_faction])
+		
 		var defender_troops = target.get("troops", 0)
-		print("--- GIAO TRANH BAT DAU ---")
-		print("Cong: %s (%s) mang %d quân" % [source.get("name"), army_faction, moving_troops])
-		print("Thu: %s (%s) có %d quân" % [target.get("name"), target_faction, defender_troops])
+		print("--- GIAO TRANH BẮT ĐẦU ---")
+		print("Công: %s (%s) mang %d quân" % [source.get("name"), army_faction, moving_troops])
+		print("Thủ: %s (%s) có %d quân" % [target.get("name"), target_faction, defender_troops])
 		
 		if moving_troops > defender_troops:
 			var leftover_at_target = moving_troops - defender_troops
@@ -1426,66 +1811,17 @@ func _resolve_army_arrival(army: Dictionary) -> void:
 			show_notification("⚔️ THẮNG TRẬN! Chiếm %s thành công (đồn trú: %d quân)!" % [
 				target.get("name"), leftover_at_target
 			])
-			print("Ket qua: Thang tran! Da chiem dong %s voi %d quan con lai." % [target.get("name"), leftover_at_target])
+			print("Kết quả: Thắng trận! Đã chiếm đóng %s với %d quân còn lại." % [target.get("name"), leftover_at_target])
 		else:
 			target["troops"] = defender_troops - moving_troops
 			show_notification("⚠️ TẤN CÔNG THẤT BẠI! %d quân tử trận tại %s. Quân phòng thủ còn %d." % [
 				moving_troops, target.get("name"), target["troops"]
 			])
-			print("Ket qua: That bai! Quan phong thu %s con lai %d." % [target.get("name"), target["troops"]])
+			print("Kết quả: Thất bại! Quân phòng thủ %s còn lại %d." % [target.get("name"), target["troops"]])
 	
 	update_troop_label(target)
 	if not selected_province.is_empty() and selected_province.get("id") == target.get("id"):
 		show_province_info(target)
-
-# ==============================================================================
-# XỬ LÝ CHẶN ĐÁNH DỌC ĐƯỜNG HÀNH QUÂN (ZONE OF CONTROL / INTERCEPT COMBAT)
-# ==============================================================================
-func _resolve_army_intercept(army: Dictionary, intercept_prov: Dictionary) -> void:
-	var source = army["source"]
-	var target = army["target"]
-	var moving_troops: int = army["troops"]
-	var army_faction: String = army["faction"]
-	var intercept_faction: String = intercept_prov.get("faction", intercept_prov.get("owner", "Địch"))
-	var defender_troops: int = intercept_prov.get("troops", 0)
-	
-	print("--- QUÂN ĐỘI BỊ CHẶN ĐÁNH DỌC ĐƯỜNG ---")
-	print("Hành quân từ %s -> %s bị phục kích tại %s!" % [source.get("name"), target.get("name"), intercept_prov.get("name")])
-	print("Quân ta: %d lính (%s) vs Quân đồn trú chặn đường: %d lính (%s)" % [
-		moving_troops, army_faction, defender_troops, intercept_faction
-	])
-	
-	if moving_troops > defender_troops:
-		var leftover_troops = moving_troops - defender_troops
-		intercept_prov["troops"] = leftover_troops
-		intercept_prov["faction"] = army_faction
-		if intercept_prov.has("owner"):
-			intercept_prov["owner"] = army_faction
-		
-		var new_faction_color = faction_colors.get(army_faction, Color.RED)
-		repaint_province(intercept_prov, new_faction_color)
-		update_gold_display()
-		
-		show_notification("⚔️ BỊ CHẶN ĐÁNH! Quân đội bị chặn đánh tại %s nhưng đã CHIẾN THẮNG và chiếm đóng luôn tỉnh này (đồn trú: %d quân)!" % [
-			intercept_prov.get("name"), leftover_troops
-		])
-		print("Ket qua: Thang tran! Da chiem dong tinh chan duong %s voi %d quan con lai." % [
-			intercept_prov.get("name"), leftover_troops
-		])
-	else:
-		var leftover_defenders = defender_troops - moving_troops
-		intercept_prov["troops"] = leftover_defenders
-		
-		show_notification("⚠️ BỊ CHẶN ĐÁNH THẤT BẠI! Quân đội bị chặn đánh tại %s và bị tiêu diệt hoàn toàn. Quân địch còn %d." % [
-			intercept_prov.get("name"), leftover_defenders
-		])
-		print("Ket qua: That bai! Toan bo %d quan da tu tran tai %s. Dich con %d." % [
-			moving_troops, intercept_prov.get("name"), leftover_defenders
-		])
-	
-	update_troop_label(intercept_prov)
-	if not selected_province.is_empty() and selected_province.get("id") == intercept_prov.get("id"):
-		show_province_info(intercept_prov)
 
 func show_notification(msg: String) -> void:
 	if notification_panel and notification_label:

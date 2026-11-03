@@ -9,6 +9,7 @@ extends Node2D
 @onready var population_label: Label = $UI/ProvincePanel/VBoxContainer/PopulationLabel
 @onready var demographics_label: Label = $UI/ProvincePanel/VBoxContainer/DemographicsLabel
 @onready var manpower_label: Label = $UI/ProvincePanel/VBoxContainer/ManpowerLabel
+@onready var income_label: Label = $UI/ProvincePanel/VBoxContainer/IncomeLabel
 @onready var start_button: Button = $UI/ProvincePanel/VBoxContainer/StartButton
 @onready var mode_label: Label = $UI/HeaderPanel/MarginContainer/VBoxContainer/ModeLabel
 @onready var back_button: Button = $UI/BackButton
@@ -285,6 +286,17 @@ func show_province_info(prov: Dictionary) -> void:
 			demographics_label.text = "  • Nam: %s | Nữ: %s" % [format_number(m_pop), format_number(f_pop)]
 		if manpower_label:
 			manpower_label.text = "  • Nam độ tuổi lao động (15-64): %s" % format_number(m_work)
+		
+		var total_working = 0
+		if prov.has("demographics"):
+			var d = prov["demographics"]
+			if d.has("male"):
+				total_working += int(d["male"].get("working_age", 0))
+			if d.has("female"):
+				total_working += int(d["female"].get("working_age", 0))
+		var prov_income = 10 + int(total_working / 100000)
+		if income_label:
+			income_label.text = "💰 Thu nhập: +%s đồng/tháng" % format_number(prov_income)
 		
 		troops_label.text = "⚔️ Quân khởi đầu: " + format_number(int(prov.get("troops", 0)))
 		start_button.text = "⚔️ VÀO TRẬN (LÃNH ĐẠO " + str(prov.get("faction")) + ")"

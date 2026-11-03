@@ -12,6 +12,7 @@ extends Node2D
 @onready var population_label: Label = $UI/ProvincePanel/VBoxContainer/PopulationLabel
 @onready var demographics_label: Label = $UI/ProvincePanel/VBoxContainer/DemographicsLabel
 @onready var manpower_label: Label = $UI/ProvincePanel/VBoxContainer/ManpowerLabel
+@onready var income_label: Label = $UI/ProvincePanel/VBoxContainer/IncomeLabel
 @onready var troops_label: Label = $UI/ProvincePanel/VBoxContainer/TroopsLabel
 @onready var recruit_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitButton
 @onready var recruit_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/RecruitContainer
@@ -91,8 +92,9 @@ const SPEED_DURATIONS = {
 # Kinh tế: Tiền vàng
 var player_gold: int = 100
 const COST_PER_TROOP: int = 2          # Chi phí mỗi lính = 2 Vàng
+const BASE_INCOME_PER_PROVINCE: int = 10 # Thuế cơ bản = 10 đồng/tỉnh/tháng
+const UPKEEP_PER_TROOP: float = 0.1    # Chi phí duy trì quân đội = 0.1 đồng/lính/tháng
 const RECRUIT_COST: int = 20           # Chi phí cũ (+10 lính)
-const INCOME_PER_PROVINCE: int = 25    # Thuế thu về mỗi tỉnh vào ngày đầu tháng
 
 # Trạng thái di chuyển quân & Double-click
 var is_move_mode: bool = false
@@ -355,14 +357,65 @@ func advance_one_day() -> void:
 	
 	update_date_display()
 
+func get_working_age_population(prov: Dictionary) -> int:
+	var total_working = 0
+	if prov.has("demographics"):
+		var demo = prov["demographics"]
+		if demo.has("male"):
+			total_working += int(demo["male"].get("working_age", 0))
+		if demo.has("female"):
+			total_working += int(demo["female"].get("working_age", 0))
+	return total_working
+
+func get_province_income(prov: Dictionary) -> int:
+	var total_working_age = get_working_age_population(prov)
+	var labor_income = int(total_working_age / 100000)
+	return BASE_INCOME_PER_PROVINCE + labor_income
+
+func get_total_player_troops() -> int:
+	var total = 0
+	for prov in provinces_data:
+		if can_recruit(prov):
+			total += int(prov.get("troops", 0))
+	for army in active_armies:
+		if army.get("faction") == player_faction:
+			total += int(army.get("troops", 0))
+	return total
+
+func get_player_military_upkeep() -> int:
+	var total_troops = get_total_player_troops()
+	return int(total_troops * UPKEEP_PER_TROOP)
+
+func get_player_total_province_income() -> int:
+	var total = 0
+	for prov in provinces_data:
+		if can_recruit(prov):
+			total += get_province_income(prov)
+	return total
+
+func get_player_net_monthly_gold() -> int:
+	var total_prov_income = get_player_total_province_income()
+	var total_upkeep = get_player_military_upkeep()
+	return total_prov_income - total_upkeep
+
 func trigger_monthly_economy() -> void:
-	var owned_count = get_player_province_count()
-	var income = owned_count * INCOME_PER_PROVINCE
-	player_gold += income
+	var total_income = get_player_total_province_income()
+	var total_upkeep = get_player_military_upkeep()
+	var net_monthly_gold = total_income - total_upkeep
+	player_gold += net_monthly_gold
 	update_gold_display()
 	
-	show_notification("💰 ĐẦU THÁNG %02d/%d: Thu thuế +%d vàng! Đã mở đợt tuyển quân mới cho các tỉnh." % [current_month, current_year, income])
-	print("Kinh te dau thang %02d/%d: Thu +%d vang (so tinh: %d, tong vang: %d)" % [current_month, current_year, income, owned_count, player_gold])
+	var sign_str = "+" if net_monthly_gold >= 0 else ""
+	show_notification("💰 ĐẦU THÁNG %02d/%d: Thuế +%s, Quân phí -%s (Thu ròng: %s%s Vàng)!" % [
+		current_month, current_year,
+		format_number(total_income),
+		format_number(total_upkeep),
+		sign_str,
+		format_number(net_monthly_gold)
+	])
+	print("Kinh te dau thang %02d/%d: Thue +%d, Upkeep -%d, Thu rong: %+d (Tong vang: %d)" % [
+		current_month, current_year, total_income, total_upkeep, net_monthly_gold, player_gold
+	])
 	
 	if not selected_province.is_empty():
 		show_province_info(selected_province)
@@ -390,8 +443,11 @@ func update_date_display() -> void:
 
 func update_gold_display() -> void:
 	if gold_label:
-		var monthly_income = get_player_province_count() * INCOME_PER_PROVINCE
-		gold_label.text = "💰 %d (+%d/thg)" % [player_gold, monthly_income]
+		var net_gold = get_player_net_monthly_gold()
+		var sign_str = "+" if net_gold >= 0 else ""
+		gold_label.text = "💰 %s (%s%s/thg)" % [format_number(player_gold), sign_str, format_number(net_gold)]
+		var color = Color("#69f0ae") if net_gold >= 0 else Color("#ff5252")
+		gold_label.add_theme_color_override("font_color", color)
 
 func toggle_pause() -> void:
 	set_paused(not is_paused)
@@ -794,9 +850,9 @@ func update_province_panel_size() -> void:
 	if not province_panel:
 		return
 	if (dispatch_container and dispatch_container.visible) or (recruit_container and recruit_container.visible):
-		province_panel.offset_top = -450.0
+		province_panel.offset_top = -475.0
 	else:
-		province_panel.offset_top = -290.0
+		province_panel.offset_top = -315.0
 
 func close_dispatch_container() -> void:
 	if dispatch_container:
@@ -954,6 +1010,10 @@ func show_province_info(prov: Dictionary) -> void:
 			demographics_label.text = "  • Nam: %s | Nữ: %s" % [format_number(m_pop), format_number(f_pop)]
 		if manpower_label:
 			manpower_label.text = "  • Nam độ tuổi lao động (15-64): %s" % format_number(m_work)
+		
+		var prov_income = get_province_income(prov)
+		if income_label:
+			income_label.text = "💰 Thu nhập: +%s đồng/tháng" % format_number(prov_income)
 		
 		troops_label.text = "⚔️ Quân đồn trú: %s quân" % format_number(current_troops)
 		

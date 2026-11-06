@@ -82,21 +82,21 @@ func apply_scenario(scenario_data: Dictionary, target_scene: Node = null) -> boo
 	if target_scene == null:
 		target_scene = _get_active_game_scene()
 
-	# Đồng bộ và áp dụng phe người chơi đã chọn (selected_player_faction)
+	# Đồng bộ và áp dụng phe người chơi nếu không ở chế độ Lobby
 	var gm = _get_game_manager()
-	var effective_player_faction: String = ""
-	if gm and gm.selected_player_faction != "":
-		effective_player_faction = gm.selected_player_faction
-	elif target_scene != null and "player_faction" in target_scene and target_scene.player_faction != "" and factions.has(target_scene.player_faction):
-		effective_player_faction = target_scene.player_faction
-	else:
-		effective_player_faction = "LE_TRINH"
+	if gm and not gm.is_lobby_mode:
+		var effective_player_faction: String = ""
+		if gm.selected_player_faction != "":
+			effective_player_faction = gm.selected_player_faction
+		elif target_scene != null and "player_faction" in target_scene and target_scene.player_faction != "" and factions.has(target_scene.player_faction):
+			effective_player_faction = target_scene.player_faction
+		else:
+			effective_player_faction = "LE_TRINH"
 
-	if gm:
 		gm.selected_player_faction = effective_player_faction
 		gm.player_faction = effective_player_faction
-	if target_scene != null and "player_faction" in target_scene:
-		target_scene.player_faction = effective_player_faction
+		if target_scene != null and "player_faction" in target_scene:
+			target_scene.player_faction = effective_player_faction
 
 	var provs_dict: Dictionary = {}
 	if target_scene != null and "provinces_by_id" in target_scene:

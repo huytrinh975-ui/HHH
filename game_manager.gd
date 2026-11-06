@@ -7,6 +7,7 @@ const MODE_63_WARLORDS = "LOAN_63"
 
 # Trạng thái hiện tại
 var current_mode: String = MODE_SCENARIO_1611
+var is_lobby_mode: bool = true
 var selected_player_faction: String = ""
 var _player_faction: String = "LE_TRINH"
 

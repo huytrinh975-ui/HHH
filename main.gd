@@ -127,13 +127,32 @@ var mouse_press_pos: Vector2 = Vector2.ZERO
 var is_left_mouse_down: bool = false
 var was_godot_double_click: bool = false
 
+# ==============================================================================
+# CHẾ ĐỘ SẢNH CHỌN QUỐC GIA (LOBBY SELECTION)
+# ==============================================================================
+var is_lobby_mode: bool = true
+var lobby_selected_faction: String = ""
+var lobby_selected_province: Dictionary = {}
+
+var lobby_panel: PanelContainer = null
+var lobby_faction_label: Label = null
+var lobby_capital_label: Label = null
+var lobby_confirm_button: Button = null
+
 func _ready() -> void:
-	# Cập nhật phe người chơi từ GameManager nếu có
+	# Cập nhật trạng thái Lobby và phe người chơi từ GameManager
 	if GameManager:
-		if GameManager.selected_player_faction != "":
-			player_faction = GameManager.selected_player_faction
-		elif GameManager.player_faction != "":
-			player_faction = GameManager.player_faction
+		is_lobby_mode = GameManager.is_lobby_mode
+		if not is_lobby_mode:
+			if GameManager.selected_player_faction != "":
+				player_faction = GameManager.selected_player_faction
+			elif GameManager.player_faction != "":
+				player_faction = GameManager.player_faction
+	
+	if is_lobby_mode:
+		is_paused = true
+		if pause_button:
+			pause_button.text = "▶ Tiếp tục"
 	
 	load_provinces_json()
 	
@@ -268,7 +287,13 @@ func _ready() -> void:
 			mode_name = "ĐẠI VIỆT 1611"
 		elif GameManager.current_mode == GameManager.MODE_63_WARLORDS:
 			mode_name = "TỬ CHIẾN (63 XỨ QUÂN)"
-	show_notification("🚩 CHIẾN DỊCH: %s! Bạn đang chỉ huy phe [%s]." % [mode_name, player_faction])
+	
+	if is_lobby_mode:
+		show_notification("🗺️ SẢNH CHỌN QUỐC GIA: Nhấp chuột vào một tỉnh trên bản đồ để chọn phe lãnh đạo!")
+	else:
+		show_notification("🚩 CHIẾN DỊCH: %s! Bạn đang chỉ huy phe [%s]." % [mode_name, player_faction])
+
+	setup_lobby_ui()
 
 	# Nạp kịch bản Đại Việt 1611 nếu đang ở chế độ 1611
 	if GameManager and GameManager.current_mode == GameManager.MODE_SCENARIO_1611:
@@ -280,12 +305,198 @@ func _load_scenario_1611() -> void:
 		if sc_data.is_empty():
 			sc_data = ScenarioManager.load_scenario("res://data/scenarios/scenario_1611.json")
 		var success = ScenarioManager.apply_scenario(sc_data, self)
-		if success:
+		if success and not is_lobby_mode:
 			var fac_display = player_faction
 			if sc_data.has("factions") and sc_data["factions"].has(player_faction):
 				fac_display = sc_data["factions"][player_faction].get("display_name", sc_data["factions"][player_faction].get("name", player_faction))
 			show_notification("📜 Khởi đầu kịch bản: Đại Việt 1611 — Bạn đang chỉ huy phe [%s]!" % fac_display)
 			update_gold_display()
+
+func setup_lobby_ui() -> void:
+	if lobby_panel and is_instance_valid(lobby_panel):
+		lobby_panel.visible = is_lobby_mode
+		return
+	
+	lobby_panel = PanelContainer.new()
+	lobby_panel.name = "LobbyPanel"
+	lobby_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	
+	# Định vị góc dưới bên trái (anchors_preset = Control.PRESET_BOTTOM_LEFT)
+	lobby_panel.anchors_preset = Control.PRESET_BOTTOM_LEFT
+	lobby_panel.anchor_top = 1.0
+	lobby_panel.anchor_bottom = 1.0
+	lobby_panel.offset_left = 20.0
+	lobby_panel.offset_top = -185.0
+	lobby_panel.offset_right = 380.0
+	lobby_panel.offset_bottom = -20.0
+	lobby_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	
+	var style_panel = StyleBoxFlat.new()
+	style_panel.bg_color = Color(0.07, 0.08, 0.13, 0.95)
+	style_panel.border_color = Color(1.0, 0.84, 0.2, 0.9)
+	style_panel.set_border_width_all(2)
+	style_panel.set_corner_radius_all(8)
+	style_panel.shadow_color = Color(0, 0, 0, 0.6)
+	style_panel.shadow_size = 12
+	lobby_panel.add_theme_stylebox_override("panel", style_panel)
+	
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	lobby_panel.add_child(margin)
+	
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	margin.add_child(vbox)
+	
+	var title = Label.new()
+	title.text = "🗺️ SẢNH CHỌN QUỐC GIA (LOBBY MAP)"
+	title.add_theme_font_size_override("font_size", 13)
+	title.add_theme_color_override("font_color", Color(1.0, 0.86, 0.35, 1.0))
+	vbox.add_child(title)
+	
+	lobby_faction_label = Label.new()
+	lobby_faction_label.text = "👉 Nhấp chuột lên một tỉnh trên bản đồ để chọn phe..."
+	lobby_faction_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lobby_faction_label.add_theme_font_size_override("font_size", 12)
+	lobby_faction_label.add_theme_color_override("font_color", Color(0.9, 0.93, 0.98, 1.0))
+	vbox.add_child(lobby_faction_label)
+	
+	lobby_capital_label = Label.new()
+	lobby_capital_label.text = "(Bản đồ đang tạm dừng • Tự do quan sát lãnh thổ)"
+	lobby_capital_label.add_theme_font_size_override("font_size", 11)
+	lobby_capital_label.add_theme_color_override("font_color", Color(0.65, 0.8, 1.0, 1.0))
+	vbox.add_child(lobby_capital_label)
+	
+	lobby_confirm_button = Button.new()
+	lobby_confirm_button.text = "⚔️ CHÍNH THỨC VÀO TRẬN"
+	lobby_confirm_button.custom_minimum_size = Vector2(0, 40)
+	lobby_confirm_button.focus_mode = Control.FOCUS_NONE
+	lobby_confirm_button.mouse_filter = Control.MOUSE_FILTER_STOP
+	lobby_confirm_button.disabled = true
+	lobby_confirm_button.add_theme_font_size_override("font_size", 13)
+	
+	_update_lobby_button_style(false)
+	
+	lobby_confirm_button.pressed.connect(_on_lobby_confirm_pressed)
+	vbox.add_child(lobby_confirm_button)
+	
+	$UI.add_child(lobby_panel)
+	lobby_panel.visible = is_lobby_mode
+
+func _update_lobby_button_style(enabled: bool) -> void:
+	if not lobby_confirm_button:
+		return
+	var btn_style = StyleBoxFlat.new()
+	btn_style.set_corner_radius_all(6)
+	if enabled:
+		btn_style.bg_color = Color(0.85, 0.65, 0.1, 1.0)
+		btn_style.border_color = Color(1.0, 0.9, 0.45, 1.0)
+		btn_style.set_border_width_all(2)
+		lobby_confirm_button.add_theme_color_override("font_color", Color(0.12, 0.08, 0.01, 1.0))
+	else:
+		btn_style.bg_color = Color(0.18, 0.20, 0.26, 0.8)
+		btn_style.border_color = Color(0.3, 0.35, 0.45, 0.6)
+		btn_style.set_border_width_all(1)
+		lobby_confirm_button.add_theme_color_override("font_color", Color(0.6, 0.65, 0.75, 0.7))
+	lobby_confirm_button.add_theme_stylebox_override("normal", btn_style)
+	lobby_confirm_button.add_theme_stylebox_override("hover", btn_style)
+	lobby_confirm_button.add_theme_stylebox_override("pressed", btn_style)
+	lobby_confirm_button.add_theme_stylebox_override("disabled", btn_style)
+
+func _handle_lobby_click(click_pos: Vector2) -> void:
+	var clicked_prov = get_province_data_at_pos(click_pos)
+	if clicked_prov.is_empty():
+		return
+	
+	var fac = clicked_prov.get("owner", clicked_prov.get("faction", ""))
+	if fac == "":
+		return
+	
+	lobby_selected_faction = fac
+	lobby_selected_province = clicked_prov
+	
+	# Tô sáng viền tỉnh được chọn bằng shader
+	var id_hex = clicked_prov.get("id_color", clicked_prov.get("original_color", clicked_prov.get("color", "")))
+	set_province_selection_shader(Color.from_string(id_hex, Color.BLACK), true)
+	
+	var fac_display = fac
+	if ScenarioManager and ScenarioManager.active_scenario.has("factions") and ScenarioManager.active_scenario["factions"].has(fac):
+		fac_display = ScenarioManager.active_scenario["factions"][fac].get("display_name", ScenarioManager.active_scenario["factions"][fac].get("name", fac))
+	
+	var prov_name = clicked_prov.get("name", "Tỉnh")
+	var prov_troops = int(clicked_prov.get("troops", 0))
+	
+	if lobby_faction_label:
+		lobby_faction_label.text = "👑 Bạn đang chọn: " + fac_display
+	if lobby_capital_label:
+		lobby_capital_label.text = "📍 Thủ phủ: %s • ⚔️ Quân số: %d" % [prov_name, prov_troops]
+	
+	if lobby_confirm_button:
+		lobby_confirm_button.disabled = false
+		lobby_confirm_button.text = "⚔️ CHÍNH THỨC VÀO TRẬN (LÃNH ĐẠO: %s)" % fac_display
+		_update_lobby_button_style(true)
+
+func _on_lobby_confirm_pressed() -> void:
+	if lobby_selected_faction == "" or lobby_selected_province.is_empty():
+		show_notification("⚠️ Vui lòng nhấp chọn một tỉnh trên bản đồ trước!")
+		return
+	
+	player_faction = lobby_selected_faction
+	if GameManager:
+		GameManager.selected_player_faction = lobby_selected_faction
+		GameManager.player_faction = lobby_selected_faction
+		GameManager.player_province_id = lobby_selected_province.get("id", "")
+		GameManager.is_lobby_mode = false
+	is_lobby_mode = false
+	
+	if lobby_panel:
+		lobby_panel.visible = false
+	
+	var fac_display = player_faction
+	if ScenarioManager and ScenarioManager.active_scenario.has("factions") and ScenarioManager.active_scenario["factions"].has(player_faction):
+		fac_display = ScenarioManager.active_scenario["factions"][player_faction].get("display_name", ScenarioManager.active_scenario["factions"][player_faction].get("name", player_faction))
+	
+	show_notification("🚩 BẮT ĐẦU VÁN ĐẤU! Bạn đang thống lĩnh phe [%s] (Thủ phủ: %s). Chúc bách chiến bách thắng!" % [
+		fac_display,
+		lobby_selected_province.get("name", "")
+	])
+	
+	# Mở bảng thông tin của tỉnh thủ phủ đã chọn
+	show_province_info(lobby_selected_province)
+	
+	# Cập nhật kinh tế & ngày tháng
+	update_gold_display()
+	update_date_display()
+	
+	# Bắt đầu thời gian game
+	is_paused = false
+	if pause_button:
+		pause_button.text = "⏸ Tạm dừng"
+		pause_button.modulate = Color.WHITE
+
+func reset_to_lobby_mode() -> void:
+	is_lobby_mode = true
+	is_paused = true
+	lobby_selected_faction = ""
+	lobby_selected_province = {}
+	if lobby_panel:
+		lobby_panel.visible = true
+	if lobby_faction_label:
+		lobby_faction_label.text = "👉 Nhấp chuột lên một tỉnh trên bản đồ để chọn phe..."
+	if lobby_capital_label:
+		lobby_capital_label.text = "(Bản đồ đang tạm dừng • Tự do quan sát lãnh thổ)"
+	if lobby_confirm_button:
+		lobby_confirm_button.disabled = true
+		lobby_confirm_button.text = "⚔️ CHÍNH THỨC VÀO TRẬN"
+		_update_lobby_button_style(false)
+	if province_panel:
+		province_panel.visible = false
+	set_province_selection_shader(Color(0, 0, 0, 0), false)
+	if pause_button:
+		pause_button.text = "▶ Tiếp tục"
 
 func cache_province_pixels() -> void:
 	if not id_map_image:
@@ -673,6 +884,9 @@ func toggle_pause() -> void:
 	set_paused(not is_paused)
 
 func set_paused(paused: bool) -> void:
+	if is_lobby_mode and not paused:
+		show_notification("⚠️ Hãy chọn một tỉnh và bấm 'CHÍNH THỨC VÀO TRẬN' trước khi bắt đầu thời gian!")
+		return
 	is_paused = paused
 	if pause_button:
 		if is_paused:
@@ -690,6 +904,9 @@ func set_paused(paused: bool) -> void:
 		show_province_info(selected_province)
 
 func set_speed(speed: int) -> void:
+	if is_lobby_mode:
+		show_notification("⚠️ Hãy chọn một tỉnh và bấm 'CHÍNH THỨC VÀO TRẬN' trước khi tăng tốc!")
+		return
 	game_speed = speed
 	update_speed_buttons_ui()
 
@@ -922,6 +1139,10 @@ func _unhandled_input(event: InputEvent) -> void:
 					handle_left_click(get_global_mouse_position(), is_dbl)
 
 func handle_left_click(click_pos: Vector2, is_godot_double_click: bool = false) -> void:
+	if is_lobby_mode:
+		_handle_lobby_click(click_pos)
+		return
+
 	var clicked_prov = get_province_data_at_pos(click_pos)
 	var current_time = Time.get_ticks_msec() / 1000.0
 	

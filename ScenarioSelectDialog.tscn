@@ -93,7 +93,7 @@ grow_vertical = 2
 mouse_filter = 0
 
 [node name="MainPanel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(980, 545)
+custom_minimum_size = Vector2(980, 480)
 layout_mode = 2
 mouse_filter = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
@@ -142,7 +142,7 @@ theme_override_constants/separation = 16
 alignment = 1
 
 [node name="Card1611" type="PanelContainer" parent="CenterContainer/MainPanel/MarginContainer/VBoxContainer/CardsContainer"]
-custom_minimum_size = Vector2(295, 255)
+custom_minimum_size = Vector2(295, 290)
 layout_mode = 2
 mouse_filter = 0
 
@@ -229,7 +229,7 @@ theme_override_font_sizes/font_size = 12
 text = "✔ ĐÃ CHỌN"
 
 [node name="CardTuQuoc" type="PanelContainer" parent="CenterContainer/MainPanel/MarginContainer/VBoxContainer/CardsContainer"]
-custom_minimum_size = Vector2(295, 255)
+custom_minimum_size = Vector2(295, 290)
 layout_mode = 2
 mouse_filter = 0
 
@@ -315,7 +315,7 @@ theme_override_font_sizes/font_size = 12
 text = "Chọn"
 
 [node name="CardTuChien" type="PanelContainer" parent="CenterContainer/MainPanel/MarginContainer/VBoxContainer/CardsContainer"]
-custom_minimum_size = Vector2(295, 255)
+custom_minimum_size = Vector2(295, 290)
 layout_mode = 2
 mouse_filter = 0
 

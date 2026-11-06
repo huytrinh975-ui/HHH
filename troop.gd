@@ -4,9 +4,7 @@ signal movement_canceled(army_data: Dictionary)
 
 var army_data: Dictionary = {}
 var cancel_button: Button = null
-
-var _press_pos: Vector2 = Vector2.ZERO
-var _drag_started: bool = false
+var _is_canceling: bool = false
 
 func setup_cancel_button(is_player_owned: bool = true) -> void:
 	if not is_player_owned:
@@ -21,22 +19,22 @@ func setup_cancel_button(is_player_owned: bool = true) -> void:
 	cancel_button.tooltip_text = "Ngưng hành quân (Hoàn trả quân về tỉnh xuất phát)"
 	cancel_button.focus_mode = Control.FOCUS_NONE
 	
-	# Kích thước nhỏ gọn, đặt ngay phía trên nhãn quân số [-15, -23]
-	var btn_size = Vector2(30, 14)
+	# Kích thước nhỏ gọn, đặt lệch lên trên nhóm quân (y = -35)
+	var btn_size = Vector2(28, 14)
 	cancel_button.custom_minimum_size = btn_size
 	cancel_button.size = btn_size
 	cancel_button.pivot_offset = btn_size * 0.5
-	cancel_button.position = Vector2(-btn_size.x * 0.5, -23.0)
+	cancel_button.position = Vector2(-btn_size.x * 0.5, -35.0)
 	
 	# Theme & Font
 	cancel_button.add_theme_font_size_override("font_size", 9)
 	cancel_button.add_theme_color_override("font_color", Color(1.0, 0.95, 0.95, 0.95))
 	cancel_button.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
 	
-	# Style: Nền đỏ thẫm nổi bật, viền nhẹ
+	# Style: Nền đỏ thẫm nhỏ gọn, nổi bật
 	var style_normal = StyleBoxFlat.new()
-	style_normal.bg_color = Color(0.72, 0.12, 0.12, 0.9)
-	style_normal.border_color = Color(1.0, 0.5, 0.5, 0.8)
+	style_normal.bg_color = Color(0.72, 0.12, 0.12, 0.92)
+	style_normal.border_color = Color(1.0, 0.45, 0.45, 0.8)
 	style_normal.set_border_width_all(1)
 	style_normal.set_corner_radius_all(3)
 	style_normal.content_margin_top = 0
@@ -63,51 +61,21 @@ func setup_cancel_button(is_player_owned: bool = true) -> void:
 	style_pressed.set_corner_radius_all(3)
 	cancel_button.add_theme_stylebox_override("pressed", style_pressed)
 	
-	# Sử dụng MOUSE_FILTER_PASS để không chặn cử chỉ pan/zoom của Camera2D
-	cancel_button.mouse_filter = Control.MOUSE_FILTER_PASS
+	# Chặn và nhận trực tiếp sự kiện click
+	cancel_button.mouse_filter = Control.MOUSE_FILTER_STOP
+	cancel_button.pressed.connect(_on_cancel_button_pressed)
 	
-	cancel_button.gui_input.connect(_on_cancel_button_gui_input)
 	add_child(cancel_button)
 
-func _on_cancel_button_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			_press_pos = event.global_position
-			_drag_started = false
-		else:
-			if not _drag_started and _press_pos != Vector2.ZERO and _press_pos.distance_to(event.global_position) < 12.0:
-				var cam = get_viewport().get_camera_2d()
-				if cam and (cam.get("is_touch_dragging") or cam.get("just_finished_touch_drag") or cam.get("is_pinch_zooming") or cam.get("is_dragging")):
-					_press_pos = Vector2.ZERO
-					_drag_started = false
-					return
-				get_viewport().set_input_as_handled()
-				cancel_movement()
-			_press_pos = Vector2.ZERO
-			_drag_started = false
-
-	elif event is InputEventScreenTouch:
-		if event.pressed:
-			_press_pos = event.position
-			_drag_started = false
-		else:
-			if not _drag_started and _press_pos != Vector2.ZERO and _press_pos.distance_to(event.position) < 15.0:
-				var cam = get_viewport().get_camera_2d()
-				if cam and (cam.get("is_touch_dragging") or cam.get("just_finished_touch_drag") or cam.get("is_pinch_zooming") or cam.get("is_dragging")):
-					_press_pos = Vector2.ZERO
-					_drag_started = false
-					return
-				get_viewport().set_input_as_handled()
-				cancel_movement()
-			_press_pos = Vector2.ZERO
-			_drag_started = false
-
-	elif event is InputEventMouseMotion or event is InputEventScreenDrag:
-		var curr_pos = event.position if event is InputEventScreenDrag else event.global_position
-		if _press_pos != Vector2.ZERO and _press_pos.distance_to(curr_pos) >= 12.0:
-			_drag_started = true
+func _on_cancel_button_pressed() -> void:
+	get_viewport().set_input_as_handled()
+	cancel_movement()
 
 func cancel_movement() -> void:
+	if _is_canceling:
+		return
+	_is_canceling = true
+
 	if army_data and army_data is Dictionary:
 		# 1. Dừng logic di chuyển: Xóa path queue để update_active_armies không tiếp tục di chuyển
 		army_data["path"] = []

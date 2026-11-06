@@ -955,7 +955,7 @@ func handle_left_click(click_pos: Vector2, is_godot_double_click: bool = false) 
 			
 			var dispatched = dispatch_army(source_prov, clicked_prov, source_troops, false)
 			if dispatched:
-				show_notification("⚡ [Double-click] Đã điều toàn bộ 100% (%s quân) từ %s sang %s!" % [
+				show_notification("⚡ [Double-click] Đã điều toàn bộ 100%% (%s quân) từ %s sang %s!" % [
 					format_number(source_troops), source_prov.get("name"), clicked_prov.get("name")
 				])
 			else:

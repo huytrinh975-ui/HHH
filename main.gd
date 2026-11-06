@@ -1982,43 +1982,111 @@ func _resolve_army_arrival(army: Dictionary) -> void:
 # ==============================================================================
 # HỆ THỐNG HỦY LỆNH DI CHUYỂN (CANCEL MOVEMENT)
 # ==============================================================================
+func is_province_safe_for_faction(prov: Dictionary, mover_faction: String) -> bool:
+	if prov == null or prov.is_empty():
+		return false
+	var prov_fac = str(prov.get("faction", prov.get("owner", "")))
+	if prov_fac == mover_faction:
+		return true
+	if DiplomacyManager:
+		if DiplomacyManager.is_at_war(mover_faction, prov_fac):
+			return false
+		if DiplomacyManager.is_allied(mover_faction, prov_fac) or DiplomacyManager.has_military_access(mover_faction, prov_fac):
+			return true
+	return false
+
+func determine_army_stop_province(army_data: Dictionary) -> Dictionary:
+	if not army_data or not (army_data is Dictionary):
+		return {}
+	
+	var path: Array = army_data.get("path", [])
+	var mover_faction: String = str(army_data.get("faction", ""))
+	var curr_leg: int = int(army_data.get("current_leg", 0))
+	var progress: float = float(army_data.get("leg_progress", 0.0))
+	var source: Dictionary = army_data.get("source", {})
+	
+	if path.is_empty():
+		return source
+	if path.size() == 1:
+		return path[0]
+	
+	curr_leg = clamp(curr_leg, 0, path.size() - 2)
+	var prov_a: Dictionary = path[curr_leg]
+	var prov_b: Dictionary = path[curr_leg + 1]
+	
+	var a_safe = is_province_safe_for_faction(prov_a, mover_faction)
+	var b_safe = is_province_safe_for_faction(prov_b, mover_faction)
+	
+	# Nếu đã đi hơn nửa đường (progress >= 0.5) và tỉnh B an toàn -> Đóng quân tại tỉnh B
+	if progress >= 0.5 and b_safe:
+		return prov_b
+	# Nếu tỉnh A an toàn -> Đóng quân tại tỉnh A
+	if a_safe:
+		return prov_a
+	if b_safe:
+		return prov_b
+	
+	# Tìm lùi về các chặng an toàn trước đó trên lộ trình
+	for k in range(curr_leg - 1, -1, -1):
+		if is_province_safe_for_faction(path[k], mover_faction):
+			return path[k]
+	
+	return source if not source.is_empty() else prov_a
+
 func _on_army_movement_canceled(army_data: Dictionary) -> void:
 	# Xử lý khi troop node phát tín hiệu hủy di chuyển
-	var source = army_data.get("source")
 	var troops = int(army_data.get("troops", 0))
 	var badge_root = army_data.get("badge_root")
 	var cancel_pos = Vector2.ZERO
-	if is_instance_valid(badge_root):
+	if army_data.has("cancel_pos") and army_data["cancel_pos"] != Vector2.ZERO:
+		cancel_pos = army_data["cancel_pos"]
+	elif is_instance_valid(badge_root):
 		cancel_pos = badge_root.position
 	elif army_data.has("start_pos"):
 		cancel_pos = army_data["start_pos"]
 
-	# 1. Hoàn trả quân về tỉnh xuất phát (duy nhất tại đây)
-	if source and source is Dictionary:
-		source["troops"] = int(source.get("troops", 0)) + troops
-		update_troop_label(source)
+	# 1. Xác định tỉnh tiếp nhận quân (Tỉnh dừng chân gần nhất đã tính trong troop.gd hoặc tính lại)
+	var dest_prov = army_data.get("stop_province")
+	if not dest_prov or not (dest_prov is Dictionary) or dest_prov.is_empty():
+		dest_prov = determine_army_stop_province(army_data)
+	if not dest_prov or not (dest_prov is Dictionary) or dest_prov.is_empty():
+		dest_prov = army_data.get("source", {})
+	
+	# Lấy tham chiếu chuẩn trong provinces_by_id nếu có
+	var prov_id = str(dest_prov.get("id", ""))
+	if prov_id != "" and provinces_by_id.has(prov_id):
+		dest_prov = provinces_by_id[prov_id]
+	
+	if cancel_pos == Vector2.ZERO and not dest_prov.is_empty():
+		cancel_pos = get_province_local_pos(dest_prov)
+
+	# 2. Đóng quân / hoàn trả quân vào tỉnh tiếp nhận (tuyệt đối không nhảy cóc về điểm xuất phát ban đầu)
+	if dest_prov and dest_prov is Dictionary and not dest_prov.is_empty():
+		dest_prov["troops"] = int(dest_prov.get("troops", 0)) + troops
+		update_troop_label(dest_prov)
 		if not selected_province.is_empty():
 			show_province_info(selected_province)
 
-	# 2. Xóa khỏi danh sách active_armies
+	# 3. Xóa khỏi danh sách active_armies
 	if active_armies.has(army_data):
 		active_armies.erase(army_data)
 
-	# 3. Dọn dẹp visual (line)
+	# 4. Dọn dẹp visual (line)
 	var line = army_data.get("line")
 	if is_instance_valid(line):
 		line.queue_free()
 
-	# 4. Hiệu ứng visual: Floating text nổi lên trên bản đồ
-	spawn_floating_text("⛔ Đã hủy lệnh (+%s quân)" % format_number(troops), cancel_pos, Color(1.0, 0.4, 0.4))
+	# 5. Hiệu ứng visual: Floating text nổi lên trên bản đồ
+	var dest_name = dest_prov.get("name", "tỉnh dừng chân") if not dest_prov.is_empty() else "tỉnh"
+	spawn_floating_text("⛔ Đã dừng tại %s (+%s)" % [dest_name, format_number(troops)], cancel_pos, Color(1.0, 0.4, 0.4))
 
-	# 5. Hiệu ứng âm thanh procedural
+	# 6. Hiệu ứng âm thanh procedural
 	play_cancel_sound()
 
-	# 6. Thông báo trên thanh UI
+	# 7. Thông báo trên thanh UI
 	if is_instance_valid(self) and not is_paused:
-		show_notification("⛔ Đã ngưng hành quân! %s quân trở về %s." % [
-			format_number(troops), source.get("name", "tỉnh xuất phát")
+		show_notification("⛔ Đã ngưng hành quân! %s quân đã đóng quân tại %s." % [
+			format_number(troops), dest_name
 		])
 
 func cancel_army_movement(army_data: Dictionary) -> void:
@@ -2030,6 +2098,8 @@ func cancel_army_movement(army_data: Dictionary) -> void:
 	if is_instance_valid(badge_root) and badge_root.has_method("cancel_movement"):
 		badge_root.cancel_movement()
 	else:
+		if not army_data.has("stop_province") or army_data["stop_province"].is_empty():
+			army_data["stop_province"] = determine_army_stop_province(army_data)
 		_on_army_movement_canceled(army_data)
 
 func _on_cancel_march_button_pressed() -> void:

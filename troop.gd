@@ -16,7 +16,7 @@ func setup_cancel_button(is_player_owned: bool = true) -> void:
 	cancel_button = Button.new()
 	cancel_button.name = "CancelButton"
 	cancel_button.text = "✕ Hủy"
-	cancel_button.tooltip_text = "Ngưng hành quân (Hoàn trả quân về tỉnh xuất phát)"
+	cancel_button.tooltip_text = "Ngưng hành quân (Đóng quân tại tỉnh an toàn gần nhất)"
 	cancel_button.focus_mode = Control.FOCUS_NONE
 	
 	# Kích thước nhỏ gọn, đặt lệch lên trên nhóm quân (y = -35)
@@ -71,27 +71,96 @@ func _on_cancel_button_pressed() -> void:
 	get_viewport().set_input_as_handled()
 	cancel_movement()
 
+func _get_diplomacy_manager() -> Node:
+	var tree = Engine.get_main_loop() as SceneTree
+	if tree and tree.root:
+		return tree.root.get_node_or_null("DiplomacyManager")
+	return null
+
+func is_province_safe(prov: Dictionary, mover_faction: String) -> bool:
+	if prov == null or prov.is_empty():
+		return false
+	var prov_fac = str(prov.get("faction", prov.get("owner", "")))
+	if prov_fac == mover_faction:
+		return true
+	var dm = _get_diplomacy_manager()
+	if dm:
+		if dm.is_at_war(mover_faction, prov_fac):
+			return false
+		if dm.is_allied(mover_faction, prov_fac) or dm.has_military_access(mover_faction, prov_fac):
+			return true
+	return false
+
+func get_nearest_safe_province() -> Dictionary:
+	if not army_data or not (army_data is Dictionary):
+		return {}
+	
+	var path: Array = army_data.get("path", [])
+	var mover_faction: String = str(army_data.get("faction", ""))
+	var curr_leg: int = int(army_data.get("current_leg", 0))
+	var progress: float = float(army_data.get("leg_progress", 0.0))
+	var source: Dictionary = army_data.get("source", {})
+	
+	if path.is_empty():
+		return source
+	
+	if path.size() == 1:
+		return path[0]
+	
+	curr_leg = clamp(curr_leg, 0, path.size() - 2)
+	var prov_a: Dictionary = path[curr_leg]
+	var prov_b: Dictionary = path[curr_leg + 1]
+	
+	var a_safe = is_province_safe(prov_a, mover_faction)
+	var b_safe = is_province_safe(prov_b, mover_faction)
+	
+	# Trường hợp 1: Nếu đã đi hơn nửa chặng (progress >= 0.5) và tỉnh B an toàn
+	# (đất nhà / đồng minh / có quyền hành quân) -> cho quân đóng tại tỉnh B
+	if progress >= 0.5 and b_safe:
+		return prov_b
+	
+	# Nếu tỉnh A an toàn (tỉnh vừa bước qua hoặc chặng B là đất địch / chưa đi được bao nhiêu)
+	# -> Quay đầu đóng quân tại tỉnh A
+	if a_safe:
+		return prov_a
+	
+	# Nếu chỉ tỉnh B an toàn
+	if b_safe:
+		return prov_b
+	
+	# Trường hợp ngoại lệ: Tìm lùi về các chặng an toàn trước đó trên lộ trình
+	for k in range(curr_leg - 1, -1, -1):
+		if is_province_safe(path[k], mover_faction):
+			return path[k]
+	
+	return source if not source.is_empty() else prov_a
+
 func cancel_movement() -> void:
 	if _is_canceling:
 		return
 	_is_canceling = true
 
 	if army_data and army_data is Dictionary:
-		# 1. Dừng logic di chuyển: Xóa path queue để update_active_armies không tiếp tục di chuyển
+		# 1. Xác định điểm dừng chân hợp lý (Tỉnh gần nhất / an toàn trên chặng hiện tại)
+		var stop_prov = get_nearest_safe_province()
+		army_data["stop_province"] = stop_prov
+		army_data["cancel_pos"] = position
+
+		# 2. Xóa sạch các chặng hành quân tiếp theo còn lại trong path queue
 		army_data["path"] = []
 		army_data["total_legs"] = 0
 		army_data["current_leg"] = 0
 		army_data["leg_progress"] = 1.0
 
-		# 2. Phát tín hiệu hủy di chuyển (main.gd sẽ nhận signal để hoàn trả quân, tạo floating text, cập nhật UI)
+		# 3. Phát tín hiệu hủy di chuyển (main.gd sẽ nhận signal để cộng quân vào tỉnh dừng chân, cập nhật UI)
 		emit_signal("movement_canceled", army_data)
 
-		# 3. Dọn dẹp visual (line)
+		# 4. Dọn dẹp visual đường đi (line)
 		var line = army_data.get("line")
 		if is_instance_valid(line):
 			line.queue_free()
 
-		# 4. Giải phóng node troop
+		# 5. Giải phóng node sprite quân
 		queue_free()
 
 func _on_cancel_movement_requested() -> void:

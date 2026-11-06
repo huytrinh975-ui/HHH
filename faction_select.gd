@@ -13,8 +13,10 @@ extends Node2D
 @onready var start_button: Button = $UI/ProvincePanel/VBoxContainer/StartButton
 @onready var mode_label: Label = $UI/HeaderPanel/MarginContainer/VBoxContainer/ModeLabel
 @onready var back_button: Button = $UI/BackButton
+@onready var scenario_button: Button = $UI.get_node_or_null("ScenarioButton")
 
 var provinces_data: Array = []
+var provinces_by_id: Dictionary = {}
 var provinces_by_id_num: Dictionary = {}
 var map_image: Image
 var base_display_image: Image
@@ -35,14 +37,18 @@ func _ready() -> void:
 	
 	if back_button:
 		back_button.pressed.connect(func(): get_tree().change_scene_to_file("res://MainMenu.tscn"))
+	if scenario_button:
+		scenario_button.pressed.connect(_on_scenario_button_pressed)
 	if start_button:
 		start_button.pressed.connect(_on_start_button_pressed)
 	
 	if mode_label:
 		if GameManager.current_mode == GameManager.MODE_63_WARLORDS:
 			mode_label.text = "Chế độ: LOẠN 63 XỨ QUÂN (Mỗi tỉnh là 1 phe độc lập • 30 lính)"
+		elif GameManager.current_mode == GameManager.MODE_SCENARIO_1611:
+			mode_label.text = "Kịch bản: ĐẠI VIỆT 1611 (Trịnh - Nguyễn Phân Tranh)"
 		else:
-			mode_label.text = "Chế độ: TỨ QUỐC TRANH HÙNG (4 Đại Cường Quốc)"
+			mode_label.text = "Chế độ: TỨ QUỐC GIAO TRANH (4 Cường Quốc Cân Bằng)"
 	
 	if map_sprite and map_sprite.texture:
 		map_image = map_sprite.texture.get_image()
@@ -77,7 +83,11 @@ func load_provinces_json() -> void:
 		if json.parse(file.get_as_text()) == OK:
 			provinces_data = json.data
 			provinces_by_id_num.clear()
+			provinces_by_id.clear()
 			for prov in provinces_data:
+				var pid = str(prov.get("id", ""))
+				if pid != "":
+					provinces_by_id[pid] = prov
 				var id_hex = prov.get("id_color", prov.get("color", "")).to_lower()
 				prov["original_color"] = id_hex
 				prov["current_color"] = id_hex
@@ -100,7 +110,13 @@ func cache_province_pixels() -> void:
 				province_pixel_cache[target_b].append(Vector2i(x, y))
 
 func init_game_mode_data() -> void:
-	if GameManager.current_mode == GameManager.MODE_63_WARLORDS:
+	if GameManager.current_mode == GameManager.MODE_SCENARIO_1611:
+		if ScenarioManager:
+			var sc_data = ScenarioManager.active_scenario
+			if sc_data.is_empty():
+				sc_data = ScenarioManager.load_scenario("res://data/scenarios/scenario_1611.json")
+			ScenarioManager.apply_scenario(sc_data, self)
+	elif GameManager.current_mode == GameManager.MODE_63_WARLORDS:
 		# Loạn 63 Xứ Quân: Mỗi tỉnh là 1 phe độc lập, màu riêng, 30 quân
 		for prov in provinces_data:
 			prov["faction"] = prov.get("name", "Vô danh")
@@ -125,6 +141,16 @@ func init_game_mode_data() -> void:
 	else:
 		# Tứ Quốc Tranh Hùng: 4 phe lớn như provinces.json
 		pass
+
+func _on_scenario_button_pressed() -> void:
+	var dialog = preload("res://ScenarioSelectDialog.tscn").instantiate()
+	$UI.add_child(dialog)
+	dialog.is_modal = true
+	dialog.open_dialog()
+	dialog.scenario_started.connect(func(_sc_id):
+		# Khi kịch bản mới được bắt đầu từ dialog
+		pass
+	)
 
 func repaint_province(prov: Dictionary, new_color: Color) -> void:
 	if not map_image or not id_map_image or not base_display_image:

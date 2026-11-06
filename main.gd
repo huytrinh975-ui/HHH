@@ -259,8 +259,26 @@ func _ready() -> void:
 	update_speed_buttons_ui()
 	
 	# Thông báo chào mừng đầu trận
-	var mode_name = "LOẠN 63 XỨ QUÂN" if (GameManager and GameManager.current_mode == GameManager.MODE_63_WARLORDS) else "TỨ QUỐC TRANH HÙNG"
+	var mode_name = "TỨ QUỐC GIAO TRANH"
+	if GameManager:
+		if GameManager.current_mode == GameManager.MODE_SCENARIO_1611:
+			mode_name = "ĐẠI VIỆT 1611"
+		elif GameManager.current_mode == GameManager.MODE_63_WARLORDS:
+			mode_name = "TỬ CHIẾN (63 XỨ QUÂN)"
 	show_notification("🚩 CHIẾN DỊCH: %s! Bạn đang chỉ huy phe [%s]." % [mode_name, player_faction])
+
+	# Nạp kịch bản Đại Việt 1611 nếu đang ở chế độ 1611
+	if GameManager and GameManager.current_mode == GameManager.MODE_SCENARIO_1611:
+		call_deferred("_load_scenario_1611")
+
+func _load_scenario_1611() -> void:
+	if ScenarioManager:
+		var sc_data = ScenarioManager.active_scenario
+		if sc_data.is_empty():
+			sc_data = ScenarioManager.load_scenario("res://data/scenarios/scenario_1611.json")
+		var success = ScenarioManager.apply_scenario(sc_data, self)
+		if success:
+			show_notification("📜 Đã nạp kịch bản: Đại Việt 1611 (Trịnh - Nguyễn Phân Tranh)")
 
 func cache_province_pixels() -> void:
 	if not id_map_image:

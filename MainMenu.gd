@@ -1,21 +1,13 @@
 extends Control
 
-@onready var btn_four_factions: Button = $CenterContainer/VBoxContainer/ModesBox/ModeFourFactionsButton
-@onready var btn_63_warlords: Button = $CenterContainer/VBoxContainer/ModesBox/Mode63WarlordsButton
-@onready var btn_quit: Button = $CenterContainer/VBoxContainer/QuitButton
+@onready var scenario_dialog: Control = $ScenarioSelectDialog
 
 func _ready() -> void:
-	if btn_four_factions:
-		btn_four_factions.pressed.connect(_on_four_factions_selected)
-	if btn_63_warlords:
-		btn_63_warlords.pressed.connect(_on_63_warlords_selected)
-	if btn_quit:
-		btn_quit.pressed.connect(func(): get_tree().quit())
-
-func _on_four_factions_selected() -> void:
-	GameManager.current_mode = GameManager.MODE_FOUR_FACTIONS
-	get_tree().change_scene_to_file("res://FactionSelect.tscn")
-
-func _on_63_warlords_selected() -> void:
-	GameManager.current_mode = GameManager.MODE_63_WARLORDS
-	get_tree().change_scene_to_file("res://FactionSelect.tscn")
+	if scenario_dialog:
+		scenario_dialog.is_modal = false
+		if scenario_dialog.close_button:
+			scenario_dialog.close_button.text = "🚪 Thoát Game"
+			scenario_dialog.close_button.visible = true
+			if scenario_dialog.close_button.pressed.is_connected(scenario_dialog.close_dialog):
+				scenario_dialog.close_button.pressed.disconnect(scenario_dialog.close_dialog)
+			scenario_dialog.close_button.pressed.connect(func(): get_tree().quit())

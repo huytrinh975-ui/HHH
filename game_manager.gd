@@ -1,13 +1,14 @@
 extends Node
 
-# Định nghĩa các chế độ chơi
+# Định nghĩa các chế độ chơi / kịch bản
+const MODE_SCENARIO_1611 = "DAI_VIET_1611"
 const MODE_FOUR_FACTIONS = "TU_QUOC"
 const MODE_63_WARLORDS = "LOAN_63"
 
 # Trạng thái hiện tại
-var current_mode: String = MODE_FOUR_FACTIONS
-var player_faction: String = "Quân Đội Miền Bắc"
-var player_province_id: String = "VN-HN"
+var current_mode: String = MODE_SCENARIO_1611
+var player_faction: String = "LE_TRINH"
+var player_province_id: String = "VNHN"
 
 # Bảng màu 63 phe cho chế độ "Loạn 63 Xứ Quân"
 var warlord_colors: Dictionary = {}

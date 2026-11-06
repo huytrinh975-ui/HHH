@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b7fsselect001"]
 
-[ext_resource type="Script" uid="uid://d1fsselectsc" path="res://faction_select.gd" id="1_fs"]
+[ext_resource type="Script" path="res://faction_select.gd" id="1_fs"]
 [ext_resource type="Texture2D" path="res://VN_display_map.png" id="2_map"]
 [ext_resource type="Script" uid="uid://k5eq5r5bfm38" path="res://camera_controller.gd" id="3_cam"]
 [ext_resource type="Shader" path="res://province_selection.gdshader" id="4_sh"]
@@ -76,7 +76,17 @@ offset_top = 18.0
 offset_right = 160.0
 offset_bottom = 54.0
 focus_mode = 0
+mouse_filter = 0
 text = "⬅ Menu Chính"
+
+[node name="ScenarioButton" type="Button" parent="UI"]
+offset_left = 175.0
+offset_top = 18.0
+offset_right = 325.0
+offset_bottom = 54.0
+focus_mode = 0
+mouse_filter = 0
+text = "📜 Chọn Kịch Bản"
 
 [node name="ProvincePanel" type="Panel" parent="UI"]
 visible = false

@@ -129,8 +129,11 @@ var was_godot_double_click: bool = false
 
 func _ready() -> void:
 	# Cập nhật phe người chơi từ GameManager nếu có
-	if GameManager and GameManager.player_faction != "":
-		player_faction = GameManager.player_faction
+	if GameManager:
+		if GameManager.selected_player_faction != "":
+			player_faction = GameManager.selected_player_faction
+		elif GameManager.player_faction != "":
+			player_faction = GameManager.player_faction
 	
 	load_provinces_json()
 	
@@ -278,7 +281,11 @@ func _load_scenario_1611() -> void:
 			sc_data = ScenarioManager.load_scenario("res://data/scenarios/scenario_1611.json")
 		var success = ScenarioManager.apply_scenario(sc_data, self)
 		if success:
-			show_notification("📜 Đã nạp kịch bản: Đại Việt 1611 (Trịnh - Nguyễn Phân Tranh)")
+			var fac_display = player_faction
+			if sc_data.has("factions") and sc_data["factions"].has(player_faction):
+				fac_display = sc_data["factions"][player_faction].get("display_name", sc_data["factions"][player_faction].get("name", player_faction))
+			show_notification("📜 Khởi đầu kịch bản: Đại Việt 1611 — Bạn đang chỉ huy phe [%s]!" % fac_display)
+			update_gold_display()
 
 func cache_province_pixels() -> void:
 	if not id_map_image:

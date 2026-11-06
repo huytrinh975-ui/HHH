@@ -7,11 +7,26 @@ const MODE_63_WARLORDS = "LOAN_63"
 
 # Trạng thái hiện tại
 var current_mode: String = MODE_SCENARIO_1611
-var player_faction: String = "LE_TRINH"
+var selected_player_faction: String = ""
+var _player_faction: String = "LE_TRINH"
+
+var player_faction: String:
+	get:
+		if selected_player_faction != "":
+			return selected_player_faction
+		return _player_faction
+	set(val):
+		_player_faction = val
+		selected_player_faction = val
+
 var player_province_id: String = "VNHN"
 
 # Bảng màu 63 phe cho chế độ "Loạn 63 Xứ Quân"
 var warlord_colors: Dictionary = {}
+
+func set_player_faction(faction_id: String) -> void:
+	selected_player_faction = faction_id
+	_player_faction = faction_id
 
 func _ready() -> void:
 	init_warlord_colors()

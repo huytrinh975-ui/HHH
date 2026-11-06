@@ -344,7 +344,9 @@ func set_province_selection_shader(color: Color, selected: bool) -> void:
 func _on_start_button_pressed() -> void:
 	if selected_province.is_empty():
 		return
-	GameManager.player_faction = selected_province.get("faction", "")
+	var fac = selected_province.get("faction", "")
+	GameManager.player_faction = fac
+	GameManager.selected_player_faction = fac
 	GameManager.player_province_id = selected_province.get("id", "")
 	print("Xac nhan chon phe: ", GameManager.player_faction, " - Che do: ", GameManager.current_mode)
 	get_tree().change_scene_to_file("res://main.tscn")

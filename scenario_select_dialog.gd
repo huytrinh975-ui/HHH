@@ -21,11 +21,86 @@ signal dialog_closed()
 @onready var start_button: Button = $CenterContainer/MainPanel/MarginContainer/VBoxContainer/ActionBar/StartButton
 @onready var close_button: Button = $CenterContainer/MainPanel/MarginContainer/VBoxContainer/ActionBar/CloseButton
 
+# Cấu hình 8 phe phái trong kịch bản Đại Việt 1611
+const FACTIONS_1611 = [
+	{
+		"id": "LE_TRINH",
+		"name": "Lê - Trịnh",
+		"icon": "🔴",
+		"full_name": "Đàng Ngoài (Lê - Trịnh)",
+		"color": Color("#B71C1C"),
+		"capital": "VNHN"
+	},
+	{
+		"id": "NGUYEN",
+		"name": "Chúa Nguyễn",
+		"icon": "🔵",
+		"full_name": "Đàng Trong (Chúa Nguyễn)",
+		"color": Color("#0277BD"),
+		"capital": "VNDN"
+	},
+	{
+		"id": "MAC",
+		"name": "Nhà Mạc",
+		"icon": "🟣",
+		"full_name": "Nhà Mạc (Cao Bằng)",
+		"color": Color("#4A148C"),
+		"capital": "VN04"
+	},
+	{
+		"id": "CHUA_BAU",
+		"name": "Chúa Bầu",
+		"icon": "🟤",
+		"full_name": "Chúa Bầu (Tuyên Quang)",
+		"color": Color("#5D4037"),
+		"capital": "VN07"
+	},
+	{
+		"id": "HOA_ANH",
+		"name": "Hoa Anh",
+		"icon": "🟢",
+		"full_name": "Tiểu Quốc Hoa Anh (Phú Yên)",
+		"color": Color("#00695C"),
+		"capital": "VN32"
+	},
+	{
+		"id": "NAM_BAN",
+		"name": "Nam Bàn",
+		"icon": "🌸",
+		"full_name": "Tiểu Quốc Nam Bàn (Tây Nguyên)",
+		"color": Color("#AD1457"),
+		"capital": "VN33"
+	},
+	{
+		"id": "CHAMPA",
+		"name": "Champa",
+		"icon": "🟡",
+		"full_name": "Champa (Panduranga)",
+		"color": Color("#F9A825"),
+		"capital": "VN34"
+	},
+	{
+		"id": "CHAN_LAP",
+		"name": "Chân Lạp",
+		"icon": "🌿",
+		"full_name": "Thủy Chân Lạp (Gia Định)",
+		"color": Color("#558B2F"),
+		"capital": "VNSG"
+	}
+]
+
 var selected_scenario_id: String = "dai_viet_1611"
+var selected_1611_faction: String = "LE_TRINH"
+var faction_buttons: Dictionary = {}
+var faction_selection_box: VBoxContainer = null
 
 func _ready() -> void:
 	# Chặn toàn bộ sự kiện chuột lọt xuyên xuống bản đồ hoặc các node phía dưới
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	
+	var gm = _get_game_manager()
+	if gm and gm.selected_player_faction != "":
+		selected_1611_faction = gm.selected_player_faction
 	
 	if btn_select_1611:
 		btn_select_1611.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -59,7 +134,97 @@ func _ready() -> void:
 			close_button.pressed.connect(close_dialog)
 		close_button.visible = is_modal
 	
+	# Xây dựng giao diện chọn 8 phe phái kịch bản 1611
+	_build_faction_selection_ui()
+	
 	select_scenario(selected_scenario_id)
+
+func _build_faction_selection_ui() -> void:
+	var vbox_parent = $CenterContainer/MainPanel/MarginContainer/VBoxContainer
+	var action_bar = vbox_parent.get_node_or_null("ActionBar")
+	if not vbox_parent or not action_bar:
+		return
+	
+	faction_selection_box = VBoxContainer.new()
+	faction_selection_box.name = "FactionSelectionBox"
+	faction_selection_box.mouse_filter = Control.MOUSE_FILTER_STOP
+	faction_selection_box.add_theme_constant_override("separation", 6)
+	
+	var title_lbl = Label.new()
+	title_lbl.name = "FactionTitleLabel"
+	title_lbl.text = "🚩 CHỌN PHE BẠN MUỐN ĐIỀU KHIỂN (8 PHE CÁT CỨ):"
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 12)
+	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4, 1.0))
+	faction_selection_box.add_child(title_lbl)
+	
+	var grid = GridContainer.new()
+	grid.name = "FactionGrid"
+	grid.columns = 4
+	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	grid.mouse_filter = Control.MOUSE_FILTER_STOP
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 6)
+	faction_selection_box.add_child(grid)
+	
+	for fac in FACTIONS_1611:
+		var fac_id = fac["id"]
+		var btn = Button.new()
+		btn.name = "BtnFac_" + fac_id
+		btn.custom_minimum_size = Vector2(215, 30)
+		btn.mouse_filter = Control.MOUSE_FILTER_STOP
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.pressed.connect(func(): select_faction_1611(fac_id))
+		grid.add_child(btn)
+		faction_buttons[fac_id] = btn
+		
+	# Chèn ngay phía trên ActionBar
+	vbox_parent.add_child(faction_selection_box)
+	vbox_parent.move_child(faction_selection_box, action_bar.get_index())
+	
+	_update_faction_buttons_ui()
+
+func select_faction_1611(fac_id: String) -> void:
+	selected_1611_faction = fac_id
+	var gm = _get_game_manager()
+	if gm:
+		gm.selected_player_faction = fac_id
+		gm.player_faction = fac_id
+	_update_faction_buttons_ui()
+	_update_ui_state()
+
+func _update_faction_buttons_ui() -> void:
+	for fac in FACTIONS_1611:
+		var fac_id = fac["id"]
+		var btn = faction_buttons.get(fac_id) as Button
+		if not btn:
+			continue
+		var is_sel = (fac_id == selected_1611_faction)
+		var fac_color: Color = fac["color"]
+		
+		var style = StyleBoxFlat.new()
+		style.set_corner_radius_all(5)
+		style.set_content_margin_all(5)
+		
+		if is_sel:
+			# Nổi bật viền vàng, nền đậm màu phe
+			style.bg_color = Color(fac_color.r * 0.45 + 0.1, fac_color.g * 0.45 + 0.1, fac_color.b * 0.45 + 0.1, 0.98)
+			style.border_color = Color(1.0, 0.88, 0.2, 1.0)
+			style.set_border_width_all(2)
+			btn.text = "👑 " + fac["name"]
+			btn.add_theme_color_override("font_color", Color(1.0, 0.96, 0.8, 1.0))
+			btn.add_theme_font_size_override("font_size", 12)
+		else:
+			style.bg_color = Color(0.10, 0.12, 0.16, 0.9)
+			style.border_color = Color(fac_color.r, fac_color.g, fac_color.b, 0.6)
+			style.set_border_width_all(1)
+			btn.text = fac["icon"] + " " + fac["name"]
+			btn.add_theme_color_override("font_color", Color(0.85, 0.88, 0.92, 0.9))
+			btn.add_theme_font_size_override("font_size", 11)
+			
+		btn.add_theme_stylebox_override("normal", style)
+		btn.add_theme_stylebox_override("hover", style)
+		btn.add_theme_stylebox_override("pressed", style)
 
 func _on_card_gui_input(event: InputEvent, sc_id: String) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -78,10 +243,18 @@ func _update_ui_state() -> void:
 	_update_card_style(card_tuquoc, btn_select_tuquoc, status_tuquoc, selected_scenario_id == "tu_quoc")
 	_update_card_style(card_tuchien, btn_select_tuchien, status_tuchien, selected_scenario_id == "tu_chien")
 	
+	if faction_selection_box:
+		faction_selection_box.visible = (selected_scenario_id == "dai_viet_1611")
+	
 	if start_button:
 		match selected_scenario_id:
 			"dai_viet_1611":
-				start_button.text = "⚔️ BẮT ĐẦU: ĐẠI VIỆT 1611"
+				var fac_display = selected_1611_faction
+				for fac in FACTIONS_1611:
+					if fac["id"] == selected_1611_faction:
+						fac_display = fac["name"]
+						break
+				start_button.text = "⚔️ BẮT ĐẦU: ĐẠI VIỆT 1611 (LÃNH ĐẠO: %s)" % fac_display
 			"tu_quoc":
 				start_button.text = "⚔️ BẮT ĐẦU: TỨ QUỐC GIAO TRANH"
 			"tu_chien":
@@ -151,15 +324,22 @@ func _on_start_button_pressed() -> void:
 	
 	match selected_scenario_id:
 		"dai_viet_1611":
+			var cap_prov = "VNHN"
+			for fac in FACTIONS_1611:
+				if fac["id"] == selected_1611_faction:
+					cap_prov = fac.get("capital", "VNHN")
+					break
 			if gm:
 				gm.current_mode = gm.MODE_SCENARIO_1611
-				gm.player_faction = "LE_TRINH"
-				gm.player_province_id = "VNHN"
+				gm.selected_player_faction = selected_1611_faction
+				gm.player_faction = selected_1611_faction
+				gm.player_province_id = cap_prov
 			if sm:
 				var sc_path = "res://data/scenarios/scenario_1611.json"
 				var sc_data = sm.load_scenario(sc_path)
-				sm.apply_scenario(sc_data)
-			print("ScenarioSelect: Đã kích hoạt kịch bản Đại Việt 1611!")
+				var cur_scene = get_tree().current_scene if get_tree() else null
+				sm.apply_scenario(sc_data, cur_scene)
+			print("ScenarioSelect: Đã kích hoạt kịch bản Đại Việt 1611 với phe: ", selected_1611_faction)
 			emit_signal("scenario_started", "dai_viet_1611")
 			close_dialog()
 			_switch_to_campaign_map()
@@ -167,6 +347,7 @@ func _on_start_button_pressed() -> void:
 		"tu_quoc":
 			if gm:
 				gm.current_mode = gm.MODE_FOUR_FACTIONS
+				gm.selected_player_faction = "Quân Đội Miền Bắc"
 				gm.player_faction = "Quân Đội Miền Bắc"
 				gm.player_province_id = "VNHN"
 			if sm:
@@ -179,6 +360,7 @@ func _on_start_button_pressed() -> void:
 		"tu_chien":
 			if gm:
 				gm.current_mode = gm.MODE_63_WARLORDS
+				gm.selected_player_faction = "Hà Nội"
 				gm.player_faction = "Hà Nội"
 				gm.player_province_id = "VNHN"
 			if sm:
@@ -195,6 +377,10 @@ func close_dialog() -> void:
 
 func open_dialog() -> void:
 	visible = true
+	var gm = _get_game_manager()
+	if gm and gm.selected_player_faction != "":
+		selected_1611_faction = gm.selected_player_faction
+	_update_faction_buttons_ui()
 	select_scenario(selected_scenario_id)
 
 func _switch_to_campaign_map() -> void:

@@ -82,6 +82,22 @@ func apply_scenario(scenario_data: Dictionary, target_scene: Node = null) -> boo
 	if target_scene == null:
 		target_scene = _get_active_game_scene()
 
+	# Đồng bộ và áp dụng phe người chơi đã chọn (selected_player_faction)
+	var gm = _get_game_manager()
+	var effective_player_faction: String = ""
+	if gm and gm.selected_player_faction != "":
+		effective_player_faction = gm.selected_player_faction
+	elif target_scene != null and "player_faction" in target_scene and target_scene.player_faction != "" and factions.has(target_scene.player_faction):
+		effective_player_faction = target_scene.player_faction
+	else:
+		effective_player_faction = "LE_TRINH"
+
+	if gm:
+		gm.selected_player_faction = effective_player_faction
+		gm.player_faction = effective_player_faction
+	if target_scene != null and "player_faction" in target_scene:
+		target_scene.player_faction = effective_player_faction
+
 	var provs_dict: Dictionary = {}
 	if target_scene != null and "provinces_by_id" in target_scene:
 		provs_dict = target_scene.provinces_by_id
@@ -104,7 +120,7 @@ func apply_scenario(scenario_data: Dictionary, target_scene: Node = null) -> boo
 
 			# Cập nhật phe phái
 			prov["faction"] = faction_key
-			prov["owner"] = faction_key
+			prov["owner"] = prov_config.get("owner", faction_key)
 
 			# Cập nhật số quân
 			prov["troops"] = int(prov_config.get("troops", 0))
@@ -142,6 +158,11 @@ func apply_scenario(scenario_data: Dictionary, target_scene: Node = null) -> boo
 		if "selected_province" in target_scene and not target_scene.selected_province.is_empty():
 			if target_scene.has_method("show_province_info"):
 				target_scene.show_province_info(target_scene.selected_province)
+
+		if target_scene.has_method("calculate_monthly_income"):
+			target_scene.calculate_monthly_income()
+		if target_scene.has_method("update_gold_display"):
+			target_scene.update_gold_display()
 
 	# Khởi tạo lại DiplomacyManager với phe phái mới
 	var dm = _get_diplomacy_manager()
@@ -242,6 +263,12 @@ func load_and_apply_scenario(scenario_id: String, target_scene: Node = null) -> 
 
 	push_error("ScenarioManager: Không tìm thấy kịch bản ID '%s'" % scenario_id)
 	return false
+
+func _get_game_manager() -> Node:
+	var tree = Engine.get_main_loop() as SceneTree
+	if tree and tree.root:
+		return tree.root.get_node_or_null("GameManager")
+	return null
 
 func _get_diplomacy_manager() -> Node:
 	var tree = Engine.get_main_loop() as SceneTree

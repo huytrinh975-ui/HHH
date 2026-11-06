@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 GameManager="*res://game_manager.gd"
 DiplomacyManager="*res://diplomacy_manager.gd"
 ScenarioManager="*res://scenario_manager.gd"
+ProvinceManager="*res://province_manager.gd"
 
 [display]
 

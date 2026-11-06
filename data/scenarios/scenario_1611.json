@@ -2,7 +2,7 @@
   "id": "dai_viet_1611",
   "name": "Đại Việt 1611 (Trịnh - Nguyễn Phân Tranh)",
   "year": 1611,
-  "description": "Kịch bản lịch sử năm 1611: Trịnh Tùng nắm quyền Đàng Ngoài, Chúa Nguyễn Hoàng cai trị Đàng Trong. Nhà Mạc còn据守 Cao Bằng. Các chúa địa phương, tộc người cao nguyên và Thủy Chân Lạp tự trị.",
+  "description": "Kịch bản lịch sử năm 1611: Trịnh Tùng nắm quyền Đàng Ngoài, Chúa Nguyễn Hoàng cai trị Đàng Trong. Nhà Mạc cất cứ Cao Bằng. Chúa Bầu (Họ Vũ) cai trị Đông Bắc. Các chúa địa phương, tộc người cao nguyên và Thủy Chân Lạp tự trị.",
   "factions": {
     "LE_TRINH": {
       "name": "Đàng Ngoài (Lê - Trịnh)",
@@ -49,1197 +49,693 @@
     {
       "id": "VNHN",
       "faction": "LE_TRINH",
-      "troops": 500,
+      "troops": 50,
       "total_population": 450000,
       "demographics": {
-        "male": {
-          "under_18": 45000,
-          "working_age": 160000,
-          "senior": 10000
-        },
-        "female": {
-          "under_18": 42000,
-          "working_age": 165000,
-          "senior": 15000
-        }
+        "male": { "under_18": 45000, "working_age": 160000, "senior": 10000 },
+        "female": { "under_18": 42000, "working_age": 165000, "senior": 15000 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VNHP",
       "faction": "LE_TRINH",
-      "troops": 200,
+      "troops": 0,
       "total_population": 180000,
       "demographics": {
-        "male": {
-          "under_18": 18000,
-          "working_age": 65000,
-          "senior": 4000
-        },
-        "female": {
-          "under_18": 17000,
-          "working_age": 66000,
-          "senior": 6000
-        }
+        "male": { "under_18": 18000, "working_age": 65000, "senior": 4000 },
+        "female": { "under_18": 17000, "working_age": 66000, "senior": 6000 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN67",
       "faction": "LE_TRINH",
-      "troops": 180,
+      "troops": 0,
       "total_population": 220000,
       "demographics": {
-        "male": {
-          "under_18": 22000,
-          "working_age": 78000,
-          "senior": 5000
-        },
-        "female": {
-          "under_18": 21000,
-          "working_age": 80000,
-          "senior": 7000
-        }
+        "male": { "under_18": 22000, "working_age": 78000, "senior": 5000 },
+        "female": { "under_18": 21000, "working_age": 80000, "senior": 7000 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN20",
       "faction": "LE_TRINH",
-      "troops": 150,
+      "troops": 0,
       "total_population": 200000,
       "demographics": {
-        "male": {
-          "under_18": 20000,
-          "working_age": 70000,
-          "senior": 4500
-        },
-        "female": {
-          "under_18": 19000,
-          "working_age": 72000,
-          "senior": 6500
-        }
+        "male": { "under_18": 20000, "working_age": 70000, "senior": 4500 },
+        "female": { "under_18": 19000, "working_age": 72000, "senior": 6500 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN61",
       "faction": "LE_TRINH",
-      "troops": 160,
+      "troops": 0,
       "total_population": 210000,
       "demographics": {
-        "male": {
-          "under_18": 21000,
-          "working_age": 74000,
-          "senior": 4800
-        },
-        "female": {
-          "under_18": 20000,
-          "working_age": 75000,
-          "senior": 6200
-        }
+        "male": { "under_18": 21000, "working_age": 74000, "senior": 4800 },
+        "female": { "under_18": 20000, "working_age": 75000, "senior": 6200 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN66",
       "faction": "LE_TRINH",
-      "troops": 120,
+      "troops": 0,
       "total_population": 180000,
       "demographics": {
-        "male": {
-          "under_18": 18000,
-          "working_age": 63000,
-          "senior": 4000
-        },
-        "female": {
-          "under_18": 17000,
-          "working_age": 64000,
-          "senior": 5000
-        }
+        "male": { "under_18": 18000, "working_age": 63000, "senior": 4000 },
+        "female": { "under_18": 17000, "working_age": 64000, "senior": 5000 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN56",
       "faction": "LE_TRINH",
-      "troops": 140,
+      "troops": 0,
       "total_population": 190000,
       "demographics": {
-        "male": {
-          "under_18": 19000,
-          "working_age": 67000,
-          "senior": 4200
-        },
-        "female": {
-          "under_18": 18000,
-          "working_age": 68000,
-          "senior": 5800
-        }
+        "male": { "under_18": 19000, "working_age": 67000, "senior": 4200 },
+        "female": { "under_18": 18000, "working_age": 68000, "senior": 5800 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN54",
       "faction": "LE_TRINH",
-      "troops": 130,
+      "troops": 0,
       "total_population": 185000,
       "demographics": {
-        "male": {
-          "under_18": 18500,
-          "working_age": 65000,
-          "senior": 4100
-        },
-        "female": {
-          "under_18": 17500,
-          "working_age": 66000,
-          "senior": 5900
-        }
+        "male": { "under_18": 18500, "working_age": 65000, "senior": 4100 },
+        "female": { "under_18": 17500, "working_age": 66000, "senior": 5900 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN63",
       "faction": "LE_TRINH",
-      "troops": 110,
+      "troops": 0,
       "total_population": 175000,
       "demographics": {
-        "male": {
-          "under_18": 17500,
-          "working_age": 61000,
-          "senior": 3800
-        },
-        "female": {
-          "under_18": 16500,
-          "working_age": 62000,
-          "senior": 5200
-        }
+        "male": { "under_18": 17500, "working_age": 61000, "senior": 3800 },
+        "female": { "under_18": 16500, "working_age": 62000, "senior": 5200 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN70",
       "faction": "LE_TRINH",
-      "troops": 130,
+      "troops": 0,
       "total_population": 190000,
       "demographics": {
-        "male": {
-          "under_18": 19000,
-          "working_age": 67000,
-          "senior": 4200
-        },
-        "female": {
-          "under_18": 18000,
-          "working_age": 68000,
-          "senior": 5800
-        }
+        "male": { "under_18": 19000, "working_age": 67000, "senior": 4200 },
+        "female": { "under_18": 18000, "working_age": 68000, "senior": 5800 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN68",
       "faction": "LE_TRINH",
-      "troops": 140,
+      "troops": 0,
       "total_population": 200000,
       "demographics": {
-        "male": {
-          "under_18": 20000,
-          "working_age": 70000,
-          "senior": 4500
-        },
-        "female": {
-          "under_18": 19000,
-          "working_age": 72000,
-          "senior": 6500
-        }
+        "male": { "under_18": 20000, "working_age": 70000, "senior": 4500 },
+        "female": { "under_18": 19000, "working_age": 72000, "senior": 6500 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN69",
       "faction": "LE_TRINH",
-      "troops": 150,
+      "troops": 0,
       "total_population": 210000,
       "demographics": {
-        "male": {
-          "under_18": 21000,
-          "working_age": 74000,
-          "senior": 4800
-        },
-        "female": {
-          "under_18": 20000,
-          "working_age": 75000,
-          "senior": 6200
-        }
+        "male": { "under_18": 21000, "working_age": 74000, "senior": 4800 },
+        "female": { "under_18": 20000, "working_age": 75000, "senior": 6200 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN14",
       "faction": "LE_TRINH",
-      "troops": 80,
+      "troops": 0,
       "total_population": 120000,
       "demographics": {
-        "male": {
-          "under_18": 12000,
-          "working_age": 42000,
-          "senior": 2500
-        },
-        "female": {
-          "under_18": 11000,
-          "working_age": 43000,
-          "senior": 3500
-        }
+        "male": { "under_18": 12000, "working_age": 42000, "senior": 2500 },
+        "female": { "under_18": 11000, "working_age": 43000, "senior": 3500 }
       },
       "owner": "LE_TRINH"
     },
     {
-      "id": "VN06",
-      "faction": "CHUA_BAU",
-      "troops": 90,
-      "total_population": 130000,
-      "demographics": {
-        "male": {
-          "under_18": 13000,
-          "working_age": 46000,
-          "senior": 2800
-        },
-        "female": {
-          "under_18": 12000,
-          "working_age": 47000,
-          "senior": 3200
-        }
-      },
-      "owner": "CHUA_BAU"
-    },
-    {
       "id": "VN05",
       "faction": "LE_TRINH",
-      "troops": 70,
+      "troops": 0,
       "total_population": 100000,
       "demographics": {
-        "male": {
-          "under_18": 10000,
-          "working_age": 35000,
-          "senior": 2000
-        },
-        "female": {
-          "under_18": 9000,
-          "working_age": 36000,
-          "senior": 3000
-        }
+        "male": { "under_18": 10000, "working_age": 35000, "senior": 2000 },
+        "female": { "under_18": 9000, "working_age": 36000, "senior": 3000 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN71",
       "faction": "LE_TRINH",
-      "troops": 60,
+      "troops": 0,
       "total_population": 80000,
       "demographics": {
-        "male": {
-          "under_18": 8000,
-          "working_age": 28000,
-          "senior": 1500
-        },
-        "female": {
-          "under_18": 7000,
-          "working_age": 29000,
-          "senior": 2500
-        }
+        "male": { "under_18": 8000, "working_age": 28000, "senior": 1500 },
+        "female": { "under_18": 7000, "working_age": 29000, "senior": 2500 }
       },
       "owner": "LE_TRINH"
-    },
-    {
-      "id": "VN03",
-      "faction": "CHUA_BAU",
-      "troops": 100,
-      "total_population": 110000,
-      "demographics": {
-        "male": {
-          "under_18": 11000,
-          "working_age": 39000,
-          "senior": 2200
-        },
-        "female": {
-          "under_18": 10000,
-          "working_age": 40000,
-          "senior": 3800
-        }
-      },
-      "owner": "CHUA_BAU"
-    },
-    {
-      "id": "VN04",
-      "faction": "MAC",
-      "troops": 300,
-      "total_population": 50000,
-      "demographics": {
-        "male": {
-          "under_18": 5000,
-          "working_age": 18000,
-          "senior": 1000
-        },
-        "female": {
-          "under_18": 4500,
-          "working_age": 18500,
-          "senior": 1500
-        }
-      },
-      "owner": "MAC"
-    },
-    {
-      "id": "VN09",
-      "faction": "MAC",
-      "troops": 350,
-      "total_population": 45000,
-      "demographics": {
-        "male": {
-          "under_18": 4500,
-          "working_age": 16000,
-          "senior": 900
-        },
-        "female": {
-          "under_18": 4000,
-          "working_age": 16500,
-          "senior": 1100
-        }
-      },
-      "owner": "MAC"
-    },
-    {
-      "id": "VN53",
-      "faction": "LE_TRINH",
-      "troops": 200,
-      "total_population": 40000,
-      "demographics": {
-        "male": {
-          "under_18": 4000,
-          "working_age": 14000,
-          "senior": 800
-        },
-        "female": {
-          "under_18": 3500,
-          "working_age": 14500,
-          "senior": 1200
-        }
-      },
-      "owner": "LE_TRINH"
-    },
-    {
-      "id": "VN07",
-      "faction": "CHUA_BAU",
-      "troops": 250,
-      "total_population": 50000,
-      "demographics": {
-        "male": {
-          "under_18": 5000,
-          "working_age": 18000,
-          "senior": 1000
-        },
-        "female": {
-          "under_18": 4500,
-          "working_age": 18500,
-          "senior": 1500
-        }
-      },
-      "owner": "CHUA_BAU"
-    },
-    {
-      "id": "VN02",
-      "faction": "CHUA_BAU",
-      "troops": 180,
-      "total_population": 45000,
-      "demographics": {
-        "male": {
-          "under_18": 4500,
-          "working_age": 16000,
-          "senior": 900
-        },
-        "female": {
-          "under_18": 4000,
-          "working_age": 16500,
-          "senior": 1100
-        }
-      },
-      "owner": "CHUA_BAU"
     },
     {
       "id": "VN01",
       "faction": "LE_TRINH",
-      "troops": 150,
-      "total_population": 40000,
+      "troops": 0,
+      "total_population": 80000,
       "demographics": {
-        "male": {
-          "under_18": 4000,
-          "working_age": 14000,
-          "senior": 800
-        },
-        "female": {
-          "under_18": 3500,
-          "working_age": 14500,
-          "senior": 1200
-        }
-      },
-      "owner": "LE_TRINH"
-    },
-    {
-      "id": "VN13",
-      "faction": "LE_TRINH",
-      "troops": 120,
-      "total_population": 35000,
-      "demographics": {
-        "male": {
-          "under_18": 3500,
-          "working_age": 12000,
-          "senior": 700
-        },
-        "female": {
-          "under_18": 3000,
-          "working_age": 12500,
-          "senior": 800
-        }
-      },
-      "owner": "LE_TRINH"
-    },
-    {
-      "id": "VN18",
-      "faction": "LE_TRINH",
-      "troops": 100,
-      "total_population": 30000,
-      "demographics": {
-        "male": {
-          "under_18": 3000,
-          "working_age": 11000,
-          "senior": 600
-        },
-        "female": {
-          "under_18": 2800,
-          "working_age": 11200,
-          "senior": 700
-        }
+        "male": { "under_18": 8000, "working_age": 28000, "senior": 1500 },
+        "female": { "under_18": 7000, "working_age": 29000, "senior": 2500 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN21",
       "faction": "LE_TRINH",
-      "troops": 400,
+      "troops": 0,
       "total_population": 250000,
       "demographics": {
-        "male": {
-          "under_18": 25000,
-          "working_age": 88000,
-          "senior": 5500
-        },
-        "female": {
-          "under_18": 23000,
-          "working_age": 90000,
-          "senior": 7500
-        }
+        "male": { "under_18": 25000, "working_age": 88000, "senior": 5500 },
+        "female": { "under_18": 23000, "working_age": 90000, "senior": 7500 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN22",
       "faction": "LE_TRINH",
-      "troops": 350,
+      "troops": 0,
       "total_population": 240000,
       "demographics": {
-        "male": {
-          "under_18": 24000,
-          "working_age": 84000,
-          "senior": 5200
-        },
-        "female": {
-          "under_18": 22000,
-          "working_age": 86000,
-          "senior": 7800
-        }
+        "male": { "under_18": 24000, "working_age": 84000, "senior": 5200 },
+        "female": { "under_18": 22000, "working_age": 86000, "senior": 7800 }
       },
       "owner": "LE_TRINH"
     },
     {
       "id": "VN23",
       "faction": "LE_TRINH",
-      "troops": 200,
+      "troops": 0,
       "total_population": 180000,
       "demographics": {
-        "male": {
-          "under_18": 18000,
-          "working_age": 63000,
-          "senior": 3800
-        },
-        "female": {
-          "under_18": 16000,
-          "working_age": 65000,
-          "senior": 5200
-        }
+        "male": { "under_18": 18000, "working_age": 63000, "senior": 3800 },
+        "female": { "under_18": 16000, "working_age": 65000, "senior": 5200 }
       },
       "owner": "LE_TRINH"
     },
     {
-      "id": "VN24",
+      "id": "VN18",
       "faction": "LE_TRINH",
-      "troops": 300,
-      "total_population": 150000,
+      "troops": 0,
+      "total_population": 140000,
       "demographics": {
-        "male": {
-          "under_18": 15000,
-          "working_age": 53000,
-          "senior": 3200
-        },
-        "female": {
-          "under_18": 14000,
-          "working_age": 54000,
-          "senior": 4800
-        }
+        "male": { "under_18": 14000, "working_age": 49000, "senior": 3000 },
+        "female": { "under_18": 13000, "working_age": 50000, "senior": 4000 }
       },
       "owner": "LE_TRINH"
+    },
+    {
+      "id": "VN57",
+      "faction": "LE_TRINH",
+      "troops": 0,
+      "total_population": 120000,
+      "demographics": {
+        "male": { "under_18": 12000, "working_age": 42000, "senior": 2500 },
+        "female": { "under_18": 11000, "working_age": 43000, "senior": 3500 }
+      },
+      "owner": "LE_TRINH"
+    },
+    {
+      "id": "VN04",
+      "faction": "MAC",
+      "troops": 25,
+      "total_population": 50000,
+      "demographics": {
+        "male": { "under_18": 5000, "working_age": 18000, "senior": 1000 },
+        "female": { "under_18": 4500, "working_age": 18500, "senior": 1500 }
+      },
+      "owner": "MAC"
+    },
+    {
+      "id": "VN09",
+      "faction": "MAC",
+      "troops": 0,
+      "total_population": 45000,
+      "demographics": {
+        "male": { "under_18": 4500, "working_age": 16000, "senior": 900 },
+        "female": { "under_18": 4000, "working_age": 16500, "senior": 1100 }
+      },
+      "owner": "MAC"
+    },
+    {
+      "id": "VN53",
+      "faction": "MAC",
+      "troops": 0,
+      "total_population": 40000,
+      "demographics": {
+        "male": { "under_18": 4000, "working_age": 14000, "senior": 800 },
+        "female": { "under_18": 3500, "working_age": 14500, "senior": 1200 }
+      },
+      "owner": "MAC"
+    },
+    {
+      "id": "VN13",
+      "faction": "MAC",
+      "troops": 0,
+      "total_population": 120000,
+      "demographics": {
+        "male": { "under_18": 12000, "working_age": 42000, "senior": 2500 },
+        "female": { "under_18": 11000, "working_age": 43000, "senior": 3500 }
+      },
+      "owner": "MAC"
+    },
+    {
+      "id": "VN07",
+      "faction": "CHUA_BAU",
+      "troops": 20,
+      "total_population": 50000,
+      "demographics": {
+        "male": { "under_18": 5000, "working_age": 18000, "senior": 1000 },
+        "female": { "under_18": 4500, "working_age": 18500, "senior": 1500 }
+      },
+      "owner": "CHUA_BAU"
+    },
+    {
+      "id": "VN03",
+      "faction": "CHUA_BAU",
+      "troops": 0,
+      "total_population": 110000,
+      "demographics": {
+        "male": { "under_18": 11000, "working_age": 39000, "senior": 2200 },
+        "female": { "under_18": 10000, "working_age": 40000, "senior": 3800 }
+      },
+      "owner": "CHUA_BAU"
+    },
+    {
+      "id": "VN02",
+      "faction": "CHUA_BAU",
+      "troops": 0,
+      "total_population": 100000,
+      "demographics": {
+        "male": { "under_18": 10000, "working_age": 35000, "senior": 2000 },
+        "female": { "under_18": 9000, "working_age": 36000, "senior": 3000 }
+      },
+      "owner": "CHUA_BAU"
+    },
+    {
+      "id": "VN06",
+      "faction": "CHUA_BAU",
+      "troops": 0,
+      "total_population": 130000,
+      "demographics": {
+        "male": { "under_18": 13000, "working_age": 46000, "senior": 2800 },
+        "female": { "under_18": 12000, "working_age": 47000, "senior": 3200 }
+      },
+      "owner": "CHUA_BAU"
+    },
+    {
+      "id": "VN24",
+      "faction": "NGUYEN",
+      "troops": 0,
+      "total_population": 150000,
+      "demographics": {
+        "male": { "under_18": 15000, "working_age": 53000, "senior": 3200 },
+        "female": { "under_18": 14000, "working_age": 54000, "senior": 4800 }
+      },
+      "owner": "NGUYEN"
     },
     {
       "id": "VN25",
       "faction": "NGUYEN",
-      "troops": 400,
+      "troops": 0,
       "total_population": 100000,
       "demographics": {
-        "male": {
-          "under_18": 10000,
-          "working_age": 35000,
-          "senior": 2000
-        },
-        "female": {
-          "under_18": 9000,
-          "working_age": 36000,
-          "senior": 3000
-        }
+        "male": { "under_18": 10000, "working_age": 35000, "senior": 2000 },
+        "female": { "under_18": 9000, "working_age": 36000, "senior": 3000 }
       },
       "owner": "NGUYEN"
     },
     {
       "id": "VN26",
       "faction": "NGUYEN",
-      "troops": 500,
+      "troops": 40,
       "total_population": 180000,
       "demographics": {
-        "male": {
-          "under_18": 18000,
-          "working_age": 63000,
-          "senior": 3800
-        },
-        "female": {
-          "under_18": 16000,
-          "working_age": 65000,
-          "senior": 5200
-        }
+        "male": { "under_18": 18000, "working_age": 63000, "senior": 3800 },
+        "female": { "under_18": 16000, "working_age": 65000, "senior": 5200 }
       },
       "owner": "NGUYEN"
     },
     {
       "id": "VNDN",
       "faction": "NGUYEN",
-      "troops": 350,
+      "troops": 0,
       "total_population": 120000,
       "demographics": {
-        "male": {
-          "under_18": 12000,
-          "working_age": 42000,
-          "senior": 2500
-        },
-        "female": {
-          "under_18": 11000,
-          "working_age": 43000,
-          "senior": 3500
-        }
+        "male": { "under_18": 12000, "working_age": 42000, "senior": 2500 },
+        "female": { "under_18": 11000, "working_age": 43000, "senior": 3500 }
       },
       "owner": "NGUYEN"
     },
     {
       "id": "VN27",
       "faction": "NGUYEN",
-      "troops": 300,
+      "troops": 0,
       "total_population": 100000,
       "demographics": {
-        "male": {
-          "under_18": 10000,
-          "working_age": 35000,
-          "senior": 2000
-        },
-        "female": {
-          "under_18": 9000,
-          "working_age": 36000,
-          "senior": 3000
-        }
+        "male": { "under_18": 10000, "working_age": 35000, "senior": 2000 },
+        "female": { "under_18": 9000, "working_age": 36000, "senior": 3000 }
       },
       "owner": "NGUYEN"
     },
     {
       "id": "VN29",
       "faction": "NGUYEN",
-      "troops": 250,
+      "troops": 0,
       "total_population": 80000,
       "demographics": {
-        "male": {
-          "under_18": 8000,
-          "working_age": 28000,
-          "senior": 1500
-        },
-        "female": {
-          "under_18": 7000,
-          "working_age": 29000,
-          "senior": 2500
-        }
+        "male": { "under_18": 8000, "working_age": 28000, "senior": 1500 },
+        "female": { "under_18": 7000, "working_age": 29000, "senior": 2500 }
       },
       "owner": "NGUYEN"
     },
     {
       "id": "VN31",
       "faction": "NGUYEN",
-      "troops": 200,
+      "troops": 0,
       "total_population": 70000,
       "demographics": {
-        "male": {
-          "under_18": 7000,
-          "working_age": 25000,
-          "senior": 1300
-        },
-        "female": {
-          "under_18": 6000,
-          "working_age": 26000,
-          "senior": 1700
-        }
+        "male": { "under_18": 7000, "working_age": 25000, "senior": 1300 },
+        "female": { "under_18": 6000, "working_age": 26000, "senior": 1700 }
       },
       "owner": "NGUYEN"
     },
     {
       "id": "VN32",
       "faction": "HOA_ANH",
-      "troops": 100,
-      "total_population": 40000,
+      "troops": 10,
+      "total_population": 70000,
       "demographics": {
-        "male": {
-          "under_18": 4000,
-          "working_age": 14000,
-          "senior": 800
-        },
-        "female": {
-          "under_18": 3500,
-          "working_age": 14500,
-          "senior": 1200
-        }
+        "male": { "under_18": 7000, "working_age": 25000, "senior": 1300 },
+        "female": { "under_18": 6000, "working_age": 26000, "senior": 1700 }
       },
       "owner": "HOA_ANH"
     },
     {
-      "id": "VN34",
-      "faction": "CHAMPA",
-      "troops": 180,
-      "total_population": 60000,
+      "id": "VN33",
+      "faction": "NAM_BAN",
+      "troops": 15,
+      "total_population": 40000,
       "demographics": {
-        "male": {
-          "under_18": 6000,
-          "working_age": 21000,
-          "senior": 1100
-        },
-        "female": {
-          "under_18": 5500,
-          "working_age": 21500,
-          "senior": 1400
-        }
+        "male": { "under_18": 4000, "working_age": 14000, "senior": 800 },
+        "female": { "under_18": 3500, "working_age": 14500, "senior": 1200 }
       },
-      "owner": "CHAMPA"
-    },
-    {
-      "id": "VN40",
-      "faction": "CHAMPA",
-      "troops": 150,
-      "total_population": 60000,
-      "demographics": {
-        "male": {
-          "under_18": 6000,
-          "working_age": 21000,
-          "senior": 1100
-        },
-        "female": {
-          "under_18": 5500,
-          "working_age": 21500,
-          "senior": 1400
-        }
-      },
-      "owner": "CHAMPA"
-    },
-    {
-      "id": "VN36",
-      "faction": "CHAMPA",
-      "troops": 120,
-      "total_population": 50000,
-      "demographics": {
-        "male": {
-          "under_18": 5000,
-          "working_age": 18000,
-          "senior": 900
-        },
-        "female": {
-          "under_18": 4500,
-          "working_age": 18500,
-          "senior": 1100
-        }
-      },
-      "owner": "CHAMPA"
+      "owner": "NAM_BAN"
     },
     {
       "id": "VN28",
       "faction": "NAM_BAN",
-      "troops": 80,
+      "troops": 0,
       "total_population": 35000,
       "demographics": {
-        "male": {
-          "under_18": 3500,
-          "working_age": 12000,
-          "senior": 700
-        },
-        "female": {
-          "under_18": 3000,
-          "working_age": 12500,
-          "senior": 800
-        }
+        "male": { "under_18": 3500, "working_age": 12000, "senior": 700 },
+        "female": { "under_18": 3000, "working_age": 12500, "senior": 800 }
       },
       "owner": "NAM_BAN"
     },
     {
       "id": "VN72",
       "faction": "NAM_BAN",
-      "troops": 70,
+      "troops": 0,
       "total_population": 30000,
       "demographics": {
-        "male": {
-          "under_18": 3000,
-          "working_age": 11000,
-          "senior": 600
-        },
-        "female": {
-          "under_18": 2800,
-          "working_age": 11200,
-          "senior": 700
-        }
-      },
-      "owner": "NAM_BAN"
-    },
-    {
-      "id": "VN33",
-      "faction": "NAM_BAN",
-      "troops": 100,
-      "total_population": 40000,
-      "demographics": {
-        "male": {
-          "under_18": 4000,
-          "working_age": 14000,
-          "senior": 800
-        },
-        "female": {
-          "under_18": 3500,
-          "working_age": 14500,
-          "senior": 1200
-        }
+        "male": { "under_18": 3000, "working_age": 11000, "senior": 600 },
+        "female": { "under_18": 2800, "working_age": 11200, "senior": 700 }
       },
       "owner": "NAM_BAN"
     },
     {
       "id": "VN30",
       "faction": "NAM_BAN",
-      "troops": 90,
+      "troops": 0,
       "total_population": 35000,
       "demographics": {
-        "male": {
-          "under_18": 3500,
-          "working_age": 12000,
-          "senior": 700
-        },
-        "female": {
-          "under_18": 3000,
-          "working_age": 12500,
-          "senior": 800
-        }
+        "male": { "under_18": 3500, "working_age": 12000, "senior": 700 },
+        "female": { "under_18": 3000, "working_age": 12500, "senior": 800 }
       },
       "owner": "NAM_BAN"
     },
     {
       "id": "VN35",
       "faction": "NAM_BAN",
-      "troops": 60,
+      "troops": 0,
       "total_population": 25000,
       "demographics": {
-        "male": {
-          "under_18": 2500,
-          "working_age": 9000,
-          "senior": 500
-        },
-        "female": {
-          "under_18": 2300,
-          "working_age": 9200,
-          "senior": 500
-        }
+        "male": { "under_18": 2500, "working_age": 9000, "senior": 500 },
+        "female": { "under_18": 2300, "working_age": 9200, "senior": 500 }
       },
       "owner": "NAM_BAN"
     },
     {
-      "id": "VN58",
+      "id": "VN36",
+      "faction": "CHAMPA",
+      "troops": 15,
+      "total_population": 50000,
+      "demographics": {
+        "male": { "under_18": 5000, "working_age": 18000, "senior": 900 },
+        "female": { "under_18": 4500, "working_age": 18500, "senior": 1100 }
+      },
+      "owner": "CHAMPA"
+    },
+    {
+      "id": "VN34",
+      "faction": "CHAMPA",
+      "troops": 0,
+      "total_population": 60000,
+      "demographics": {
+        "male": { "under_18": 6000, "working_age": 21000, "senior": 1100 },
+        "female": { "under_18": 5500, "working_age": 21500, "senior": 1400 }
+      },
+      "owner": "CHAMPA"
+    },
+    {
+      "id": "VN40",
+      "faction": "CHAMPA",
+      "troops": 0,
+      "total_population": 60000,
+      "demographics": {
+        "male": { "under_18": 6000, "working_age": 21000, "senior": 1100 },
+        "female": { "under_18": 5500, "working_age": 21500, "senior": 1400 }
+      },
+      "owner": "CHAMPA"
+    },
+    {
+      "id": "VNSG",
       "faction": "CHAN_LAP",
-      "troops": 30,
+      "troops": 15,
       "total_population": 15000,
       "demographics": {
-        "male": {
-          "under_18": 1500,
-          "working_age": 5500,
-          "senior": 300
-        },
-        "female": {
-          "under_18": 1400,
-          "working_age": 5600,
-          "senior": 400
-        }
+        "male": { "under_18": 1500, "working_age": 5500, "senior": 300 },
+        "female": { "under_18": 1400, "working_age": 5600, "senior": 400 }
       },
       "owner": "CHAN_LAP"
     },
     {
       "id": "VN37",
       "faction": "CHAN_LAP",
-      "troops": 20,
+      "troops": 0,
       "total_population": 10000,
       "demographics": {
-        "male": {
-          "under_18": 1000,
-          "working_age": 3500,
-          "senior": 200
-        },
-        "female": {
-          "under_18": 900,
-          "working_age": 3600,
-          "senior": 200
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VNSG",
-      "faction": "CHAN_LAP",
-      "troops": 50,
-      "total_population": 15000,
-      "demographics": {
-        "male": {
-          "under_18": 1500,
-          "working_age": 5500,
-          "senior": 300
-        },
-        "female": {
-          "under_18": 1400,
-          "working_age": 5600,
-          "senior": 400
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN41",
-      "faction": "CHAN_LAP",
-      "troops": 25,
-      "total_population": 12000,
-      "demographics": {
-        "male": {
-          "under_18": 1200,
-          "working_age": 4200,
-          "senior": 250
-        },
-        "female": {
-          "under_18": 1100,
-          "working_age": 4300,
-          "senior": 350
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN45",
-      "faction": "CHAN_LAP",
-      "troops": 20,
-      "total_population": 10000,
-      "demographics": {
-        "male": {
-          "under_18": 1000,
-          "working_age": 3500,
-          "senior": 200
-        },
-        "female": {
-          "under_18": 900,
-          "working_age": 3600,
-          "senior": 200
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN44",
-      "faction": "CHAN_LAP",
-      "troops": 30,
-      "total_population": 15000,
-      "demographics": {
-        "male": {
-          "under_18": 1500,
-          "working_age": 5500,
-          "senior": 300
-        },
-        "female": {
-          "under_18": 1400,
-          "working_age": 5600,
-          "senior": 400
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN47",
-      "faction": "CHAN_LAP",
-      "troops": 25,
-      "total_population": 12000,
-      "demographics": {
-        "male": {
-          "under_18": 1200,
-          "working_age": 4200,
-          "senior": 250
-        },
-        "female": {
-          "under_18": 1100,
-          "working_age": 4300,
-          "senior": 350
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN52",
-      "faction": "CHAN_LAP",
-      "troops": 15,
-      "total_population": 8000,
-      "demographics": {
-        "male": {
-          "under_18": 800,
-          "working_age": 2800,
-          "senior": 150
-        },
-        "female": {
-          "under_18": 700,
-          "working_age": 2900,
-          "senior": 200
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN46",
-      "faction": "CHAN_LAP",
-      "troops": 20,
-      "total_population": 10000,
-      "demographics": {
-        "male": {
-          "under_18": 1000,
-          "working_age": 3500,
-          "senior": 200
-        },
-        "female": {
-          "under_18": 900,
-          "working_age": 3600,
-          "senior": 200
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN43",
-      "faction": "CHAN_LAP",
-      "troops": 25,
-      "total_population": 12000,
-      "demographics": {
-        "male": {
-          "under_18": 1200,
-          "working_age": 4200,
-          "senior": 250
-        },
-        "female": {
-          "under_18": 1100,
-          "working_age": 4300,
-          "senior": 350
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN49",
-      "faction": "CHAN_LAP",
-      "troops": 15,
-      "total_population": 8000,
-      "demographics": {
-        "male": {
-          "under_18": 800,
-          "working_age": 2800,
-          "senior": 150
-        },
-        "female": {
-          "under_18": 700,
-          "working_age": 2900,
-          "senior": 200
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN51",
-      "faction": "CHAN_LAP",
-      "troops": 15,
-      "total_population": 8000,
-      "demographics": {
-        "male": {
-          "under_18": 800,
-          "working_age": 2800,
-          "senior": 150
-        },
-        "female": {
-          "under_18": 700,
-          "working_age": 2900,
-          "senior": 200
-        }
-      },
-      "owner": "CHAN_LAP"
-    },
-    {
-      "id": "VN50",
-      "faction": "CHAN_LAP",
-      "troops": 10,
-      "total_population": 6000,
-      "demographics": {
-        "male": {
-          "under_18": 600,
-          "working_age": 2100,
-          "senior": 100
-        },
-        "female": {
-          "under_18": 550,
-          "working_age": 2150,
-          "senior": 150
-        }
+        "male": { "under_18": 1000, "working_age": 3500, "senior": 200 },
+        "female": { "under_18": 900, "working_age": 3600, "senior": 200 }
       },
       "owner": "CHAN_LAP"
     },
     {
       "id": "VN39",
       "faction": "CHAN_LAP",
-      "troops": 30,
+      "troops": 0,
       "total_population": 15000,
       "demographics": {
-        "male": {
-          "under_18": 1500,
-          "working_age": 5500,
-          "senior": 300
-        },
-        "female": {
-          "under_18": 1400,
-          "working_age": 5600,
-          "senior": 400
-        }
+        "male": { "under_18": 1500, "working_age": 5500, "senior": 300 },
+        "female": { "under_18": 1400, "working_age": 5600, "senior": 400 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN41",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 12000,
+      "demographics": {
+        "male": { "under_18": 1200, "working_age": 4200, "senior": 250 },
+        "female": { "under_18": 1100, "working_age": 4300, "senior": 350 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN45",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 10000,
+      "demographics": {
+        "male": { "under_18": 1000, "working_age": 3500, "senior": 200 },
+        "female": { "under_18": 900, "working_age": 3600, "senior": 200 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN44",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 15000,
+      "demographics": {
+        "male": { "under_18": 1500, "working_age": 5500, "senior": 300 },
+        "female": { "under_18": 1400, "working_age": 5600, "senior": 400 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN47",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 12000,
+      "demographics": {
+        "male": { "under_18": 1200, "working_age": 4200, "senior": 250 },
+        "female": { "under_18": 1100, "working_age": 4300, "senior": 350 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN52",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 8000,
+      "demographics": {
+        "male": { "under_18": 800, "working_age": 2800, "senior": 150 },
+        "female": { "under_18": 700, "working_age": 2900, "senior": 200 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN46",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 10000,
+      "demographics": {
+        "male": { "under_18": 1000, "working_age": 3500, "senior": 200 },
+        "female": { "under_18": 900, "working_age": 3600, "senior": 200 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN43",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 12000,
+      "demographics": {
+        "male": { "under_18": 1200, "working_age": 4200, "senior": 250 },
+        "female": { "under_18": 1100, "working_age": 4300, "senior": 350 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN49",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 8000,
+      "demographics": {
+        "male": { "under_18": 800, "working_age": 2800, "senior": 150 },
+        "female": { "under_18": 700, "working_age": 2900, "senior": 200 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN51",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 8000,
+      "demographics": {
+        "male": { "under_18": 800, "working_age": 2800, "senior": 150 },
+        "female": { "under_18": 700, "working_age": 2900, "senior": 200 }
+      },
+      "owner": "CHAN_LAP"
+    },
+    {
+      "id": "VN50",
+      "faction": "CHAN_LAP",
+      "troops": 0,
+      "total_population": 6000,
+      "demographics": {
+        "male": { "under_18": 600, "working_age": 2100, "senior": 100 },
+        "female": { "under_18": 550, "working_age": 2150, "senior": 150 }
       },
       "owner": "CHAN_LAP"
     },
     {
       "id": "VN59",
       "faction": "CHAN_LAP",
-      "troops": 15,
+      "troops": 0,
       "total_population": 8000,
       "demographics": {
-        "male": {
-          "under_18": 800,
-          "working_age": 2800,
-          "senior": 150
-        },
-        "female": {
-          "under_18": 700,
-          "working_age": 2900,
-          "senior": 200
-        }
+        "male": { "under_18": 800, "working_age": 2800, "senior": 150 },
+        "female": { "under_18": 700, "working_age": 2900, "senior": 200 }
       },
       "owner": "CHAN_LAP"
     },
     {
       "id": "VN55",
       "faction": "CHAN_LAP",
-      "troops": 10,
+      "troops": 0,
       "total_population": 6000,
       "demographics": {
-        "male": {
-          "under_18": 600,
-          "working_age": 2100,
-          "senior": 100
-        },
-        "female": {
-          "under_18": 550,
-          "working_age": 2150,
-          "senior": 150
-        }
+        "male": { "under_18": 600, "working_age": 2100, "senior": 100 },
+        "female": { "under_18": 550, "working_age": 2150, "senior": 150 }
       },
       "owner": "CHAN_LAP"
     },
     {
       "id": "VN73",
       "faction": "CHAN_LAP",
-      "troops": 15,
+      "troops": 0,
       "total_population": 8000,
       "demographics": {
-        "male": {
-          "under_18": 800,
-          "working_age": 2800,
-          "senior": 150
-        },
-        "female": {
-          "under_18": 700,
-          "working_age": 2900,
-          "senior": 200
-        }
+        "male": { "under_18": 800, "working_age": 2800, "senior": 150 },
+        "female": { "under_18": 700, "working_age": 2900, "senior": 200 }
       },
       "owner": "CHAN_LAP"
     },
     {
       "id": "VNCT",
       "faction": "CHAN_LAP",
-      "troops": 20,
+      "troops": 0,
       "total_population": 10000,
       "demographics": {
-        "male": {
-          "under_18": 1000,
-          "working_age": 3500,
-          "senior": 200
-        },
-        "female": {
-          "under_18": 900,
-          "working_age": 3600,
-          "senior": 200
-        }
+        "male": { "under_18": 1000, "working_age": 3500, "senior": 200 },
+        "female": { "under_18": 900, "working_age": 3600, "senior": 200 }
       },
       "owner": "CHAN_LAP"
     },
     {
-      "id": "VN57",
+      "id": "VN58",
       "faction": "CHAN_LAP",
-      "troops": 25,
-      "total_population": 12000,
+      "troops": 0,
+      "total_population": 15000,
       "demographics": {
-        "male": {
-          "under_18": 1200,
-          "working_age": 4200,
-          "senior": 250
-        },
-        "female": {
-          "under_18": 1100,
-          "working_age": 4300,
-          "senior": 350
-        }
+        "male": { "under_18": 1500, "working_age": 5500, "senior": 300 },
+        "female": { "under_18": 1400, "working_age": 5600, "senior": 400 }
       },
       "owner": "CHAN_LAP"
     }

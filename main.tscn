@@ -47,7 +47,7 @@ offset_top = -315.0
 offset_right = 330.0
 offset_bottom = -20.0
 grow_vertical = 0
-mouse_filter = 2
+mouse_filter = 0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/ProvincePanel" unique_id=295600387]
 layout_mode = 1
@@ -249,6 +249,72 @@ layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(1, 0.95, 0.7, 1)
 text = "🎯 Chọn mục tiêu"
+
+[node name="DisbandContainer" type="VBoxContainer" parent="UI/ProvincePanel/VBoxContainer" unique_id=2058862180]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DisbandHeader" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer" unique_id=2058862181]
+layout_mode = 2
+
+[node name="DisbandTitleLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandHeader" unique_id=2058862182]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_font_sizes/font_size = 12
+text = "Giải tán quân:"
+
+[node name="DisbandCountLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandHeader" unique_id=2058862183]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.65, 0.35, 1)
+theme_override_font_sizes/font_size = 12
+text = "10 / 20 (50%)"
+horizontal_alignment = 2
+
+[node name="DisbandSlider" type="HSlider" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer" unique_id=2058862184]
+layout_mode = 2
+focus_mode = 0
+min_value = 1.0
+value = 10.0
+
+[node name="DisbandPresetHBox" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer" unique_id=2058862185]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DisbandPreset25Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandPresetHBox" unique_id=2058862186]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "25%"
+
+[node name="DisbandPreset50Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandPresetHBox" unique_id=2058862187]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "50%"
+
+[node name="DisbandPreset75Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandPresetHBox" unique_id=2058862188]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "75%"
+
+[node name="DisbandPreset100Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandPresetHBox" unique_id=2058862189]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "100%"
+
+[node name="ConfirmDisbandButton" type="Button" parent="UI/ProvincePanel/VBoxContainer/DisbandContainer" unique_id=2058862190]
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.65, 0.4, 1)
+text = "🗑️ Xác nhận giải tán quân"
 
 [node name="DiplomacyContainer" type="VBoxContainer" parent="UI/ProvincePanel/VBoxContainer" unique_id=2058862160]
 visible = false

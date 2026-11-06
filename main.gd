@@ -36,6 +36,17 @@ var cancel_march_button: Button = null
 @onready var preset_100_button: Button = $UI/ProvincePanel/VBoxContainer/DispatchContainer/PresetHBox/Preset100Button
 @onready var confirm_target_button: Button = $UI/ProvincePanel/VBoxContainer/DispatchContainer/ConfirmTargetButton
 
+# Node Giải tán quân (Disband UI)
+@onready var disband_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/DisbandContainer
+@onready var disband_title_label: Label = $UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandHeader/DisbandTitleLabel
+@onready var disband_count_label: Label = $UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandHeader/DisbandCountLabel
+@onready var disband_slider: HSlider = $UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandSlider
+@onready var disband_preset_25_button: Button = $UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandPresetHBox/DisbandPreset25Button
+@onready var disband_preset_50_button: Button = $UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandPresetHBox/DisbandPreset50Button
+@onready var disband_preset_75_button: Button = $UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandPresetHBox/DisbandPreset75Button
+@onready var disband_preset_100_button: Button = $UI/ProvincePanel/VBoxContainer/DisbandContainer/DisbandPresetHBox/DisbandPreset100Button
+@onready var confirm_disband_button: Button = $UI/ProvincePanel/VBoxContainer/DisbandContainer/ConfirmDisbandButton
+
 # Node Ngoại giao (Diplomacy UI)
 @onready var diplomacy_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer
 @onready var dip_faction_header: Label = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipFactionHeader
@@ -240,6 +251,25 @@ func _ready() -> void:
 		
 		cancel_march_button.pressed.connect(_on_cancel_march_button_pressed)
 		action_buttons_hbox.add_child(cancel_march_button)
+
+		# Nút Giải tán quân (Disband Troops)
+		var disband_button = Button.new()
+		disband_button.name = "DisbandButton"
+		disband_button.text = "🗑️ Giải tán quân"
+		disband_button.visible = false
+		disband_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		disband_button.add_theme_font_size_override("font_size", 11)
+		disband_button.add_theme_color_override("font_color", Color(1.0, 0.6, 0.3))
+
+		var disband_style = StyleBoxFlat.new()
+		disband_style.bg_color = Color(0.5, 0.2, 0.1, 0.9)
+		disband_style.border_color = Color(0.9, 0.4, 0.2, 0.85)
+		disband_style.set_border_width_all(1)
+		disband_style.set_corner_radius_all(4)
+		disband_button.add_theme_stylebox_override("normal", disband_style)
+
+		disband_button.pressed.connect(_on_disband_button_pressed)
+		action_buttons_hbox.add_child(disband_button)
 	if confirm_target_button:
 		confirm_target_button.pressed.connect(_on_confirm_target_pressed)
 	if troop_slider:
@@ -252,6 +282,26 @@ func _ready() -> void:
 		preset_75_button.pressed.connect(func(): _set_slider_preset(0.75))
 	if preset_100_button:
 		preset_100_button.pressed.connect(func(): _set_slider_preset(1.00))
+
+	# Kết nối sự kiện Giải tán quân
+	if disband_slider:
+		disband_slider.mouse_filter = Control.MOUSE_FILTER_STOP
+		disband_slider.value_changed.connect(_on_disband_slider_value_changed)
+	if confirm_disband_button:
+		confirm_disband_button.mouse_filter = Control.MOUSE_FILTER_STOP
+		confirm_disband_button.pressed.connect(_on_confirm_disband_pressed)
+	if disband_preset_25_button:
+		disband_preset_25_button.mouse_filter = Control.MOUSE_FILTER_STOP
+		disband_preset_25_button.pressed.connect(func(): set_disband_preset(0.25))
+	if disband_preset_50_button:
+		disband_preset_50_button.mouse_filter = Control.MOUSE_FILTER_STOP
+		disband_preset_50_button.pressed.connect(func(): set_disband_preset(0.50))
+	if disband_preset_75_button:
+		disband_preset_75_button.mouse_filter = Control.MOUSE_FILTER_STOP
+		disband_preset_75_button.pressed.connect(func(): set_disband_preset(0.75))
+	if disband_preset_100_button:
+		disband_preset_100_button.mouse_filter = Control.MOUSE_FILTER_STOP
+		disband_preset_100_button.pressed.connect(func(): set_disband_preset(1.00))
 	
 	# Kết nối sự kiện Ngoại giao
 	if dip_improve_button:
@@ -1324,8 +1374,8 @@ func update_province_panel_size() -> void:
 		return
 	if diplomacy_container and diplomacy_container.visible:
 		province_panel.offset_top = -370.0
-	elif (dispatch_container and dispatch_container.visible) or (recruit_container and recruit_container.visible):
-		province_panel.offset_top = -475.0
+	elif (dispatch_container and dispatch_container.visible) or (recruit_container and recruit_container.visible) or (disband_container and disband_container.visible):
+		province_panel.offset_top = -485.0
 	else:
 		province_panel.offset_top = -315.0
 
@@ -1359,6 +1409,7 @@ func open_recruit_container() -> void:
 	if selected_province.is_empty() or not can_recruit(selected_province) or is_paused:
 		return
 	close_dispatch_container()
+	close_disband_container()
 	var remaining_quota = get_remaining_pop_quota(selected_province)
 	var max_by_money = int(player_gold / COST_PER_TROOP)
 	var max_rec = min(remaining_quota, max_by_money)
@@ -1465,6 +1516,74 @@ func _on_confirm_recruit_pressed() -> void:
 		player_gold,
 		selected_province["troops"]
 	])
+
+func close_disband_container() -> void:
+	if disband_container:
+		disband_container.visible = false
+	var disband_button = action_buttons_hbox.get_node_or_null("DisbandButton") if action_buttons_hbox else null
+	if disband_button:
+		disband_button.text = "🗑️ Giải tán quân"
+	update_province_panel_size()
+
+func open_disband_container() -> void:
+	if selected_province.is_empty() or not can_recruit(selected_province) or is_paused:
+		return
+	close_dispatch_container()
+	close_recruit_container()
+	cancel_move_mode()
+
+	var troops = int(selected_province.get("troops", 0))
+	if troops <= 0:
+		show_notification("⚠️ %s không có quân để giải tán!" % selected_province.get("name"))
+		return
+
+	if disband_slider:
+		disband_slider.min_value = 1
+		disband_slider.max_value = max(1, troops)
+		disband_slider.step = 1
+		disband_slider.value = max(1, int(ceil(troops * 0.5)))
+	_update_disband_slider_ui()
+
+	if disband_container:
+		disband_container.visible = true
+	var disband_button = action_buttons_hbox.get_node_or_null("DisbandButton") if action_buttons_hbox else null
+	if disband_button:
+		disband_button.text = "Đóng giải tán"
+	update_province_panel_size()
+
+func _update_disband_slider_ui() -> void:
+	if not disband_slider or selected_province.is_empty():
+		return
+	var troops = int(selected_province.get("troops", 0))
+	var count = int(disband_slider.value)
+	var pct = int(round((float(count) / float(max(1, troops))) * 100.0))
+	var returned_pop = int(count * 0.5)
+	if disband_count_label:
+		disband_count_label.text = "%s / %s (%d%%) -> +%s Dân" % [
+			format_number(count), format_number(troops), pct, format_number(returned_pop)
+		]
+
+func _on_disband_slider_value_changed(_val: float) -> void:
+	_update_disband_slider_ui()
+
+func set_disband_preset(ratio: float) -> void:
+	if selected_province.is_empty() or not disband_slider:
+		return
+	var troops = int(selected_province.get("troops", 0))
+	if troops <= 0:
+		return
+	var val = int(round(troops * ratio))
+	if ratio >= 1.0:
+		val = troops
+	disband_slider.value = clamp(val, 1, troops)
+	_update_disband_slider_ui()
+
+func _on_confirm_disband_pressed() -> void:
+	if selected_province.is_empty() or not disband_slider:
+		return
+	var count = int(disband_slider.value)
+	var prov_id = selected_province.get("id")
+	disband_troops(prov_id, count)
 
 func show_province_info(prov: Dictionary) -> void:
 	selected_province = prov
@@ -1576,6 +1695,18 @@ func show_province_info(prov: Dictionary) -> void:
 						cancel_march_button.text = "⛔ Hủy quân đi (%s)" % format_number(outgoing_count)
 					else:
 						cancel_march_button.visible = false
+				# Cập nhật hiển thị nút Giải tán quân (chỉ hiện khi tỉnh có quân và thuộc phe người chơi)
+				var disband_button = action_buttons_hbox.get_node_or_null("DisbandButton")
+				if disband_button:
+					if has_troops:
+						disband_button.visible = true
+						if disband_container and disband_container.visible:
+							disband_button.text = "Đóng giải tán"
+						else:
+							disband_button.text = "🗑️ Giải tán quân"
+					else:
+						disband_button.visible = false
+						close_disband_container()
 		else:
 			# Tỉnh đối phương / trung lập: Chuyển sang Bảng Ngoại giao
 			if population_label:
@@ -1594,6 +1725,7 @@ func show_province_info(prov: Dictionary) -> void:
 				action_buttons_hbox.visible = false
 			close_dispatch_container()
 			close_recruit_container()
+			close_disband_container()
 			
 			if diplomacy_container:
 				diplomacy_container.visible = true
@@ -1850,6 +1982,7 @@ func _on_move_button_pressed() -> void:
 			cancel_move_mode()
 		else:
 			close_recruit_container()
+			close_disband_container()
 			dispatch_container.visible = true
 			move_button.text = "Đóng điều quân"
 			_refresh_dispatch_slider()
@@ -2356,15 +2489,69 @@ func _on_cancel_march_button_pressed() -> void:
 	for a in active_armies:
 		if a.get("faction") == player_faction and a.get("source", {}).get("id") == prov_id:
 			to_cancel.append(a)
-	
+
 	if to_cancel.is_empty():
 		show_notification("Không có đạo quân nào đang xuất phát từ %s!" % selected_province.get("name"))
 		return
-	
+
 	for a in to_cancel:
 		cancel_army_movement(a)
-	
+
 	show_province_info(selected_province)
+
+func _on_disband_button_pressed() -> void:
+	if selected_province.is_empty():
+		return
+	if disband_container and disband_container.visible:
+		close_disband_container()
+	else:
+		open_disband_container()
+
+func disband_troops(province_id: String, amount: int) -> bool:
+	if is_paused:
+		show_notification("⏸ Thời gian đang dừng, hãy tiếp tục thời gian để thực hiện hành động!")
+		return false
+	if province_id.is_empty() or amount <= 0:
+		return false
+	if not provinces_by_id.has(province_id):
+		return false
+	var prov = provinces_by_id[province_id]
+	if not can_recruit(prov):
+		show_notification("⚠️ Bạn chỉ có thể giải tán quân tại tỉnh thuộc phe mình!")
+		return false
+	var current_troops = int(prov.get("troops", 0))
+	if current_troops < amount:
+		show_notification("⚠️ %s không đủ %s quân để giải tán!" % [prov.get("name"), format_number(amount)])
+		return false
+
+	prov["troops"] = current_troops - amount
+	var returned_pop = int(amount * 0.5)
+	prov["total_population"] = int(prov.get("total_population", 0)) + returned_pop
+
+	if not prov.has("demographics"):
+		prov["demographics"] = {"male": {}, "female": {}}
+	if not prov["demographics"].has("male"):
+		prov["demographics"]["male"] = {"under_18": 0, "working_age": 0, "senior": 0}
+	if not prov["demographics"].has("female"):
+		prov["demographics"]["female"] = {"under_18": 0, "working_age": 0, "senior": 0}
+
+	var male_returned = int(returned_pop * 0.5)
+	var male_working_returned = int(male_returned * 0.7)
+	prov["demographics"]["male"]["working_age"] = int(prov["demographics"]["male"].get("working_age", 0)) + male_working_returned
+
+	update_troop_label(prov)
+	update_gold_display()
+
+	var prov_pos = get_province_local_pos(prov)
+	spawn_floating_text("-%s Quân (+%s Dân)" % [format_number(amount), format_number(returned_pop)], prov_pos, Color(1.0, 0.55, 0.2))
+	show_notification("🗑️ Đã giải tán %s quân tại %s (hoàn trả +%s vào dân số)!" % [
+		format_number(amount), prov.get("name"), format_number(returned_pop)
+	])
+
+	close_disband_container()
+	if not selected_province.is_empty() and selected_province.get("id") == province_id:
+		show_province_info(prov)
+	return true
 
 func spawn_floating_text(text: String, pos: Vector2, color: Color = Color(1.0, 0.9, 0.3)) -> void:
 	var label = Label.new()

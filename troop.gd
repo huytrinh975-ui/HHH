@@ -19,12 +19,12 @@ func setup_cancel_button(is_player_owned: bool = true) -> void:
 	cancel_button.tooltip_text = "Ngưng hành quân (Đóng quân tại tỉnh an toàn gần nhất)"
 	cancel_button.focus_mode = Control.FOCUS_NONE
 	
-	# Kích thước nhỏ gọn, đặt lệch lên trên nhóm quân (y = -35)
-	var btn_size = Vector2(28, 14)
+	# Kích thước nhỏ gọn, đặt lệch lên trên nhóm quân (y = -32)
+	var btn_size = Vector2(36, 16)
 	cancel_button.custom_minimum_size = btn_size
 	cancel_button.size = btn_size
 	cancel_button.pivot_offset = btn_size * 0.5
-	cancel_button.position = Vector2(-btn_size.x * 0.5, -35.0)
+	cancel_button.position = Vector2(-btn_size.x * 0.5, -32.0)
 	
 	# Theme & Font
 	cancel_button.add_theme_font_size_override("font_size", 9)

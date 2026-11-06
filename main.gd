@@ -26,6 +26,7 @@ extends Node2D
 @onready var action_buttons_hbox: HBoxContainer = $UI/ProvincePanel/VBoxContainer/ActionButtonsHBox
 @onready var move_button: Button = $UI/ProvincePanel/VBoxContainer/ActionButtonsHBox/MoveButton
 @onready var sweep_button: Button = $UI/ProvincePanel/VBoxContainer/ActionButtonsHBox/SweepButton
+var cancel_march_button: Button = null
 @onready var dispatch_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/DispatchContainer
 @onready var dispatch_count_label: Label = $UI/ProvincePanel/VBoxContainer/DispatchContainer/DispatchHeader/DispatchCountLabel
 @onready var troop_slider: HSlider = $UI/ProvincePanel/VBoxContainer/DispatchContainer/TroopSlider
@@ -199,6 +200,24 @@ func _ready() -> void:
 		move_button.pressed.connect(_on_move_button_pressed)
 	if sweep_button:
 		sweep_button.pressed.connect(_on_sweep_button_pressed)
+	if action_buttons_hbox:
+		cancel_march_button = Button.new()
+		cancel_march_button.name = "CancelMarchButton"
+		cancel_march_button.text = "⛔ Hủy hành quân"
+		cancel_march_button.visible = false
+		cancel_march_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cancel_march_button.add_theme_font_size_override("font_size", 11)
+		cancel_march_button.add_theme_color_override("font_color", Color(1.0, 0.5, 0.5))
+		
+		var cancel_style = StyleBoxFlat.new()
+		cancel_style.bg_color = Color(0.45, 0.1, 0.1, 0.9)
+		cancel_style.border_color = Color(0.9, 0.35, 0.35, 0.85)
+		cancel_style.set_border_width_all(1)
+		cancel_style.set_corner_radius_all(4)
+		cancel_march_button.add_theme_stylebox_override("normal", cancel_style)
+		
+		cancel_march_button.pressed.connect(_on_cancel_march_button_pressed)
+		action_buttons_hbox.add_child(cancel_march_button)
 	if confirm_target_button:
 		confirm_target_button.pressed.connect(_on_confirm_target_pressed)
 	if troop_slider:
@@ -274,12 +293,24 @@ func update_active_armies(dt: float) -> void:
 	while i >= 0:
 		var army = active_armies[i]
 		var path: Array = army.get("path", [])
-		var curr_leg: int = int(army.get("current_leg", 0))
 		var total_legs: int = int(army.get("total_legs", 1))
+
+		# Kiểm tra xem quân này đã bị hủy lệnh (path bị xóa, total_legs = 0)
+		if path.is_empty() or total_legs <= 0:
+			# Quân đã bị hủy lệnh, dọn dẹp visual và xóa khỏi active_armies
+			if is_instance_valid(army.get("badge_root")):
+				army["badge_root"].queue_free()
+			if is_instance_valid(army.get("line")):
+				army["line"].queue_free()
+			active_armies.remove_at(i)
+			i -= 1
+			continue
+
+		var curr_leg: int = int(army.get("current_leg", 0))
 		var leg_duration: float = float(army.get("leg_duration", 1.6))
-		
+
 		army["leg_progress"] = float(army.get("leg_progress", 0.0)) + (dt / leg_duration)
-		
+
 		if army["leg_progress"] >= 1.0:
 			if curr_leg + 1 < total_legs:
 				# Vượt qua 1 chặng tỉnh trung gian an toàn (tuyệt đối KHÔNG kích hoạt giao tranh hay chiếm đất)
@@ -828,6 +859,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_3:
 			set_speed(3)
 			return
+		# ESC: Hủy chế độ chọn mục tiêu / Ngưng hành quân
+		elif event.keycode == KEY_ESCAPE:
+			if is_move_mode:
+				cancel_move_mode()
+				close_dispatch_container()
+				show_notification("Đã hủy lệnh chọn mục tiêu.")
+				get_viewport().set_input_as_handled()
+				return
+
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
+		if event.pressed and is_move_mode:
+			cancel_move_mode()
+			close_dispatch_container()
+			show_notification("Đã hủy lệnh chọn mục tiêu (Right-click).")
+			get_viewport().set_input_as_handled()
+			return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -1269,6 +1316,20 @@ func show_province_info(prov: Dictionary) -> void:
 						sweep_button.text = "⚡ Càn quét"
 					else:
 						sweep_button.text = "Càn quét (≥10)"
+				
+				# Cập nhật hiển thị nút Ngưng hành quân nếu có đạo quân xuất phát từ tỉnh này
+				if cancel_march_button:
+					var prov_id = prov.get("id")
+					var outgoing_count = 0
+					for a in active_armies:
+						if a.get("faction") == player_faction and a.get("source", {}).get("id") == prov_id:
+							outgoing_count += int(a.get("troops", 0))
+					
+					if outgoing_count > 0:
+						cancel_march_button.visible = true
+						cancel_march_button.text = "⛔ Hủy quân đi (%s)" % format_number(outgoing_count)
+					else:
+						cancel_march_button.visible = false
 		else:
 			# Tỉnh đối phương / trung lập: Chuyển sang Bảng Ngoại giao
 			if population_label:
@@ -1500,6 +1561,8 @@ func hide_province_panel() -> void:
 	close_recruit_container()
 	if diplomacy_container:
 		diplomacy_container.visible = false
+	if cancel_march_button:
+		cancel_march_button.visible = false
 	cancel_move_mode()
 	if province_panel:
 		province_panel.visible = false
@@ -1762,12 +1825,13 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 	
 	# 2. Node hiển thị đơn vị lính hành quân trên bản đồ
 	var start_pos = get_province_local_pos(path[0])
-	var badge_root = Node2D.new()
+	var troop_script = load("res://troop.gd")
+	var badge_root = troop_script.new()
 	badge_root.name = "ArmyBadge_%s_%s" % [source_id, target_id]
 	badge_root.position = start_pos
 	badge_root.scale = Vector2(0.65, 0.65) # Đồng bộ thu nhỏ nhãn hành quân
 	badge_root.z_index = 10
-	
+
 	var badge = PanelContainer.new()
 	badge.name = "Panel"
 	var style = StyleBoxFlat.new()
@@ -1814,6 +1878,13 @@ func dispatch_army(source: Dictionary, target: Dictionary, troop_count: int, sho
 		"badge_root": badge_root,
 		"line": line
 	}
+
+	# Gán army_data vào troop node và khởi tạo nút Hủy lệnh nếu là quân của người chơi
+	badge_root.army_data = army_data
+	badge_root.movement_canceled.connect(_on_army_movement_canceled)
+	if source_faction == player_faction and badge_root.has_method("setup_cancel_button"):
+		badge_root.setup_cancel_button(true)
+
 	active_armies.append(army_data)
 	
 	if show_notify:
@@ -1907,6 +1978,125 @@ func _resolve_army_arrival(army: Dictionary) -> void:
 	update_troop_label(target)
 	if not selected_province.is_empty() and selected_province.get("id") == target.get("id"):
 		show_province_info(target)
+
+# ==============================================================================
+# HỆ THỐNG HỦY LỆNH DI CHUYỂN (CANCEL MOVEMENT)
+# ==============================================================================
+func _on_army_movement_canceled(army_data: Dictionary) -> void:
+	# Xử lý khi troop node phát tín hiệu hủy di chuyển
+	var source = army_data.get("source")
+	var troops = int(army_data.get("troops", 0))
+	var badge_root = army_data.get("badge_root")
+	var cancel_pos = Vector2.ZERO
+	if is_instance_valid(badge_root):
+		cancel_pos = badge_root.position
+	elif army_data.has("start_pos"):
+		cancel_pos = army_data["start_pos"]
+
+	# 1. Hoàn trả quân về tỉnh xuất phát (duy nhất tại đây)
+	if source and source is Dictionary:
+		source["troops"] = int(source.get("troops", 0)) + troops
+		update_troop_label(source)
+		if not selected_province.is_empty():
+			show_province_info(selected_province)
+
+	# 2. Xóa khỏi danh sách active_armies
+	if active_armies.has(army_data):
+		active_armies.erase(army_data)
+
+	# 3. Dọn dẹp visual (line)
+	var line = army_data.get("line")
+	if is_instance_valid(line):
+		line.queue_free()
+
+	# 4. Hiệu ứng visual: Floating text nổi lên trên bản đồ
+	spawn_floating_text("⛔ Đã hủy lệnh (+%s quân)" % format_number(troops), cancel_pos, Color(1.0, 0.4, 0.4))
+
+	# 5. Hiệu ứng âm thanh procedural
+	play_cancel_sound()
+
+	# 6. Thông báo trên thanh UI
+	if is_instance_valid(self) and not is_paused:
+		show_notification("⛔ Đã ngưng hành quân! %s quân trở về %s." % [
+			format_number(troops), source.get("name", "tỉnh xuất phát")
+		])
+
+func cancel_army_movement(army_data: Dictionary) -> void:
+	# Hàm công khai để hủy di chuyển từ bên ngoài (UI, hotkey, panel, v.v.)
+	if not army_data or not army_data is Dictionary:
+		return
+
+	var badge_root = army_data.get("badge_root")
+	if is_instance_valid(badge_root) and badge_root.has_method("cancel_movement"):
+		badge_root.cancel_movement()
+	else:
+		_on_army_movement_canceled(army_data)
+
+func _on_cancel_march_button_pressed() -> void:
+	if selected_province.is_empty():
+		return
+	var prov_id = selected_province.get("id")
+	var to_cancel: Array = []
+	for a in active_armies:
+		if a.get("faction") == player_faction and a.get("source", {}).get("id") == prov_id:
+			to_cancel.append(a)
+	
+	if to_cancel.is_empty():
+		show_notification("Không có đạo quân nào đang xuất phát từ %s!" % selected_province.get("name"))
+		return
+	
+	for a in to_cancel:
+		cancel_army_movement(a)
+	
+	show_province_info(selected_province)
+
+func spawn_floating_text(text: String, pos: Vector2, color: Color = Color(1.0, 0.9, 0.3)) -> void:
+	var label = Label.new()
+	label.text = text
+	label.z_index = 35
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.95))
+	label.add_theme_constant_override("outline_size", 4)
+	
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	
+	var initial_size = Vector2(160, 22)
+	label.custom_minimum_size = initial_size
+	label.size = initial_size
+	label.pivot_offset = initial_size * 0.5
+	label.position = pos - Vector2(initial_size.x * 0.5, 28.0)
+	
+	if armies_container:
+		armies_container.add_child(label)
+	else:
+		add_child(label)
+	
+	var tween = create_tween().set_parallel(true)
+	tween.tween_property(label, "position:y", label.position.y - 32.0, 1.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "scale", Vector2(1.15, 1.15), 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 1.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(label.queue_free)
+
+func play_cancel_sound() -> void:
+	var player = AudioStreamPlayer.new()
+	var gen = AudioStreamGenerator.new()
+	gen.mix_rate = 22050
+	gen.buffer_length = 0.15
+	player.stream = gen
+	add_child(player)
+	player.play()
+	var playback = player.get_stream_playback()
+	if playback:
+		var sample_count = int(22050 * 0.1)
+		for i in range(sample_count):
+			var t = float(i) / 22050.0
+			var freq = lerp(460.0, 220.0, float(i) / sample_count)
+			var env = (1.0 - float(i) / sample_count) * 0.18
+			var sample = sin(2.0 * PI * freq * t) * env
+			playback.push_frame(Vector2(sample, sample))
+	get_tree().create_timer(0.25).timeout.connect(player.queue_free)
 
 func show_notification(msg: String) -> void:
 	if notification_panel and notification_label:

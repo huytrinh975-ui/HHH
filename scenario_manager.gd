@@ -164,6 +164,18 @@ func apply_scenario(scenario_data: Dictionary, target_scene: Node = null) -> boo
 		if target_scene.has_method("update_gold_display"):
 			target_scene.update_gold_display()
 
+		# Đồng bộ mốc thời gian lịch sử từ kịch bản
+		var scenario_year = int(scenario_data.get("year", 0))
+		if scenario_year > 0:
+			if "current_year" in target_scene:
+				target_scene.current_year = scenario_year
+			if "current_month" in target_scene:
+				target_scene.current_month = 1
+			if "current_day" in target_scene:
+				target_scene.current_day = 1
+			if target_scene.has_method("update_date_display"):
+				target_scene.update_date_display()
+
 	# Khởi tạo lại DiplomacyManager với phe phái mới
 	var dm = _get_diplomacy_manager()
 	if dm:

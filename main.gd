@@ -103,7 +103,7 @@ var faction_colors: Dictionary = {
 # ==============================================================================
 var current_day: int = 1
 var current_month: int = 1
-var current_year: int = 2026
+var current_year: int = 1611
 
 var is_paused: bool = false
 var game_speed: int = 1 # 1, 2, 3
@@ -325,6 +325,15 @@ func _ready() -> void:
 	if speed_3_button:
 		speed_3_button.pressed.connect(func(): set_speed(3))
 	
+	# Thiết lập mốc thời gian theo chế độ chơi
+	if GameManager:
+		if GameManager.current_mode == GameManager.MODE_SCENARIO_1611:
+			current_year = 1611
+		elif GameManager.current_mode == GameManager.MODE_FOUR_FACTIONS or GameManager.current_mode == GameManager.MODE_63_WARLORDS:
+			current_year = 2026
+	current_day = 1
+	current_month = 1
+
 	# Khởi tạo hiển thị ban đầu
 	update_date_display()
 	update_gold_display()
@@ -354,6 +363,13 @@ func _load_scenario_1611() -> void:
 		var sc_data = ScenarioManager.active_scenario
 		if sc_data.is_empty():
 			sc_data = ScenarioManager.load_scenario("res://data/scenarios/scenario_1611.json")
+		if sc_data.has("year"):
+			current_year = int(sc_data["year"])
+		else:
+			current_year = 1611
+		current_day = 1
+		current_month = 1
+		update_date_display()
 		var success = ScenarioManager.apply_scenario(sc_data, self)
 		if success and not is_lobby_mode:
 			var fac_display = player_faction
@@ -547,6 +563,14 @@ func reset_to_lobby_mode() -> void:
 	set_province_selection_shader(Color(0, 0, 0, 0), false)
 	if pause_button:
 		pause_button.text = "▶ Tiếp tục"
+	if GameManager:
+		if GameManager.current_mode == GameManager.MODE_SCENARIO_1611:
+			current_year = 1611
+		elif GameManager.current_mode == GameManager.MODE_FOUR_FACTIONS or GameManager.current_mode == GameManager.MODE_63_WARLORDS:
+			current_year = 2026
+	current_day = 1
+	current_month = 1
+	update_date_display()
 
 func cache_province_pixels() -> void:
 	if not id_map_image:

@@ -125,14 +125,14 @@
     },
     {
       "id": "VN54",
-      "faction": "LE_TRINH",
+      "faction": "MAC",
       "troops": 0,
       "total_population": 185000,
       "demographics": {
         "male": { "under_18": 18500, "working_age": 65000, "senior": 4100 },
         "female": { "under_18": 17500, "working_age": 66000, "senior": 5900 }
       },
-      "owner": "LE_TRINH"
+      "owner": "MAC"
     },
     {
       "id": "VN63",
@@ -169,14 +169,14 @@
     },
     {
       "id": "VN69",
-      "faction": "LE_TRINH",
+      "faction": "MAC",
       "troops": 0,
       "total_population": 210000,
       "demographics": {
         "male": { "under_18": 21000, "working_age": 74000, "senior": 4800 },
         "female": { "under_18": 20000, "working_age": 75000, "senior": 6200 }
       },
-      "owner": "LE_TRINH"
+      "owner": "MAC"
     },
     {
       "id": "VN14",
@@ -268,14 +268,14 @@
     },
     {
       "id": "VN57",
-      "faction": "LE_TRINH",
+      "faction": "CHAN_LAP",
       "troops": 0,
-      "total_population": 120000,
+      "total_population": 10000,
       "demographics": {
-        "male": { "under_18": 12000, "working_age": 42000, "senior": 2500 },
-        "female": { "under_18": 11000, "working_age": 43000, "senior": 3500 }
+        "male": { "under_18": 1000, "working_age": 3500, "senior": 200 },
+        "female": { "under_18": 900, "working_age": 3600, "senior": 200 }
       },
-      "owner": "LE_TRINH"
+      "owner": "CHAN_LAP"
     },
     {
       "id": "VN04",

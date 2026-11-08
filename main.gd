@@ -202,14 +202,15 @@ var is_left_mouse_down: bool = false
 var was_godot_double_click: bool = false
 
 # Cơ chế Quét chuột kéo ô (Drag-select Box) & Ra lệnh Chuột phải (RTS Controls)
+var Claude = self # Tham chiếu hỗ trợ lệnh gọi mass_move_troops
 var is_box_select_mode: bool = false # Chế độ quét chọn quân
 var is_box_selecting: bool = false
 var box_select_start_pos: Vector2 = Vector2.ZERO
 var box_select_current_pos: Vector2 = Vector2.ZERO
 var selected_provinces: Array = [] # Danh sách các tỉnh thuộc phe người chơi được quét chọn
 var selection_box_drawer: Node2D = null
-var right_mouse_press_pos: Vector2 = Vector2.ZERO
-var is_right_mouse_down: bool = false
+var selection_status_pill: PanelContainer = null
+var selection_status_label: Label = null
 
 # ==============================================================================
 # CHẾ ĐỘ SẢNH CHỌN QUỐC GIA (LOBBY SELECTION)
@@ -288,6 +289,44 @@ func _ready() -> void:
 	selection_box_drawer.z_as_relative = false
 	add_child(selection_box_drawer)
 	selection_box_drawer.draw.connect(_on_selection_box_draw)
+	
+	# Khởi tạo thanh trạng thái nổi hiển thị số tỉnh và quân số được quét chọn (Floating UI)
+	selection_status_pill = PanelContainer.new()
+	selection_status_pill.name = "SelectionStatusPill"
+	selection_status_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	selection_status_pill.visible = false
+	selection_status_pill.anchors_preset = Control.PRESET_CENTER_TOP
+	selection_status_pill.anchor_left = 0.5
+	selection_status_pill.anchor_right = 0.5
+	selection_status_pill.offset_left = -210.0
+	selection_status_pill.offset_right = 210.0
+	selection_status_pill.offset_top = 65.0
+	selection_status_pill.offset_bottom = 100.0
+	selection_status_pill.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	
+	var pill_style = StyleBoxFlat.new()
+	pill_style.bg_color = Color(0.06, 0.12, 0.10, 0.94)
+	pill_style.border_color = Color(0.25, 1.0, 0.45, 0.95)
+	pill_style.set_border_width_all(2)
+	pill_style.set_corner_radius_all(16)
+	pill_style.content_margin_left = 16
+	pill_style.content_margin_right = 16
+	pill_style.content_margin_top = 4
+	pill_style.content_margin_bottom = 4
+	selection_status_pill.add_theme_stylebox_override("panel", pill_style)
+	
+	selection_status_label = Label.new()
+	selection_status_label.name = "StatusLabel"
+	selection_status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	selection_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	selection_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	selection_status_label.add_theme_font_size_override("font_size", 12)
+	selection_status_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.35, 1.0))
+	selection_status_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.95))
+	selection_status_label.add_theme_constant_override("outline_size", 3)
+	selection_status_pill.add_child(selection_status_label)
+	
+	$UI.add_child(selection_status_pill)
 	
 	spawn_troop_markers()
 	hide_province_panel()
@@ -1214,6 +1253,43 @@ func set_province_selection_shader(color: Color, selected: bool) -> void:
 		map_sprite.material.set_shader_parameter("target_color", color)
 		map_sprite.material.set_shader_parameter("is_selected", selected)
 
+func set_multi_province_selection_shader(selected_provs: Array) -> void:
+	if not map_sprite or not (map_sprite.material is ShaderMaterial):
+		return
+	var mat = map_sprite.material as ShaderMaterial
+	if selected_provs.is_empty():
+		mat.set_shader_parameter("is_multi_selected", false)
+		mat.set_shader_parameter("multi_selected_count", 0)
+		return
+		
+	var colors: PackedColorArray = PackedColorArray()
+	for prov in selected_provs:
+		var c_str = prov.get("original_color", prov.get("color", "#000000"))
+		var c = Color.from_string(c_str, Color.BLACK)
+		colors.append(c)
+		if colors.size() >= 64:
+			break
+			
+	mat.set_shader_parameter("multi_selected_colors", colors)
+	mat.set_shader_parameter("multi_selected_count", colors.size())
+	mat.set_shader_parameter("is_multi_selected", true)
+
+func _update_selection_status_ui() -> void:
+	if not selection_status_pill or not selection_status_label:
+		return
+		
+	if selected_provinces.is_empty():
+		selection_status_pill.visible = false
+	else:
+		var total_troops = 0
+		for p in selected_provinces:
+			total_troops += int(p.get("troops", 0))
+		selection_status_label.text = "📦 Đã chọn: %d tỉnh | ⚔️ Tổng quân: %s lính" % [
+			selected_provinces.size(),
+			format_number(total_troops)
+		]
+		selection_status_pill.visible = true
+
 # ==============================================================================
 # HỆ THỐNG NHÃN SỐ QUÂN TRỰC TIẾP TRÊN BẢN ĐỒ
 # ==============================================================================
@@ -1244,6 +1320,7 @@ func spawn_troop_markers() -> void:
 		
 		var badge = PanelContainer.new()
 		badge.name = "Badge"
+		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		
 		var style = StyleBoxFlat.new()
 		style.bg_color = Color(0.08, 0.08, 0.08, 0.85)
@@ -1258,6 +1335,7 @@ func spawn_troop_markers() -> void:
 		
 		var label = Label.new()
 		label.name = "CountLabel"
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var troops = int(prov.get("troops", 0))
 		label.text = format_number(troops)
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1418,18 +1496,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 
 	# XỬ LÝ CHUỘT PHẢI: Ra lệnh di chuyển / tấn công (RTS Right-click) hoặc Hủy lệnh
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
-		if event.pressed:
-			right_mouse_press_pos = event.position
-			is_right_mouse_down = true
-		else:
-			if is_right_mouse_down:
-				is_right_mouse_down = false
-				var cam = get_node_or_null("Camera2D")
-				var is_cam_panning = cam and (cam.is_dragging or cam.is_right_dragging or cam.is_middle_dragging)
-				if not is_cam_panning and right_mouse_press_pos.distance_to(event.position) < 15.0:
-					handle_right_click(get_global_mouse_position())
-					get_viewport().set_input_as_handled()
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		handle_right_click(get_global_mouse_position())
+		get_viewport().set_input_as_handled()
+		return
 
 	# XỬ LÝ CHUỘT TRÁI: Click chọn tỉnh & Quét kéo ô chọn nhiều tỉnh
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -1468,6 +1538,8 @@ func _unhandled_input(event: InputEvent) -> void:
 							else:
 								selected_provinces.append(clicked_prov)
 								_highlight_province_marker(prov_id, true)
+							set_multi_province_selection_shader(selected_provinces)
+							_update_selection_status_ui()
 							if selection_box_drawer:
 								selection_box_drawer.queue_redraw()
 				else:
@@ -1588,17 +1660,22 @@ func _highlight_province_marker(prov_id: String, is_selected: bool) -> void:
 	var badge = marker.get_node_or_null("Badge")
 	if not badge:
 		return
+	var label = badge.get_node_or_null("CountLabel")
 	if is_selected:
 		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.06, 0.26, 0.12, 0.95)
-		style.border_color = Color(0.3, 1.0, 0.5, 1.0)
+		style.bg_color = Color(0.12, 0.68, 0.28, 0.98) # Nền xanh lá rực rỡ
+		style.border_color = Color(1.0, 0.92, 0.2, 1.0) # Viền vàng rực rỡ
 		style.set_border_width_all(2)
-		style.set_corner_radius_all(3)
+		style.set_corner_radius_all(4)
 		style.content_margin_left = 3
 		style.content_margin_right = 3
 		style.content_margin_top = 2
 		style.content_margin_bottom = 2
 		badge.add_theme_stylebox_override("panel", style)
+		if label:
+			label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
+			label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.95))
+			label.add_theme_constant_override("outline_size", 3)
 	else:
 		var style = StyleBoxFlat.new()
 		style.bg_color = Color(0.08, 0.08, 0.08, 0.85)
@@ -1610,11 +1687,17 @@ func _highlight_province_marker(prov_id: String, is_selected: bool) -> void:
 		style.content_margin_top = 1
 		style.content_margin_bottom = 1
 		badge.add_theme_stylebox_override("panel", style)
+		if label:
+			label.add_theme_color_override("font_color", Color.WHITE)
+			label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.8))
+			label.add_theme_constant_override("outline_size", 2)
 
 func clear_box_selection() -> void:
 	for p in selected_provinces:
 		_highlight_province_marker(p.get("id"), false)
 	selected_provinces.clear()
+	set_multi_province_selection_shader([])
+	_update_selection_status_ui()
 	if selection_box_drawer:
 		selection_box_drawer.queue_redraw()
 
@@ -1641,14 +1724,19 @@ func _finish_box_selection() -> void:
 			_highlight_province_marker(prov.get("id"), true)
 			
 	if not selected_provinces.is_empty():
+		set_multi_province_selection_shader(selected_provinces)
+		_update_selection_status_ui()
 		if selection_box_drawer:
 			selection_box_drawer.queue_redraw()
 		if province_panel:
 			province_panel.visible = false
-		show_notification("📦 ĐÃ QUÉT CHỌN %d TỈNH (%s quân)! Nhấp CHUỘT PHẢI vào tỉnh đích để điều quân." % [
+		show_notification("📦 Đã chọn: %d tỉnh | Tổng quân: %s lính (Nhấp Chuột Phải vào tỉnh đích để điều quân)" % [
 			selected_provinces.size(),
 			format_number(total_troops)
 		])
+	else:
+		set_multi_province_selection_shader([])
+		_update_selection_status_ui()
 
 func handle_right_click(click_pos: Vector2) -> void:
 	if is_lobby_mode:
@@ -1662,12 +1750,48 @@ func handle_right_click(click_pos: Vector2) -> void:
 		
 	if not selected_provinces.is_empty():
 		var target_prov = get_province_data_at_pos(click_pos)
+		
+		# Fallback nếu click gần marker/tâm tỉnh mục tiêu
+		if target_prov.is_empty():
+			var min_dist = 28.0
+			var nearest_prov = {}
+			for p in provinces_data:
+				var c_pos = get_province_center(p)
+				if map_sprite and map_sprite.centered and map_sprite.texture:
+					c_pos = map_sprite.to_global(c_pos - map_sprite.texture.get_size() / 2.0)
+				else:
+					c_pos = map_sprite.to_global(c_pos)
+				var d = click_pos.distance_to(c_pos)
+				if d < min_dist:
+					min_dist = d
+					nearest_prov = p
+			if not nearest_prov.is_empty():
+				target_prov = nearest_prov
+				
 		if target_prov.is_empty():
 			clear_box_selection()
+			set_box_select_mode(false)
 			show_notification("Đã hủy chọn các tỉnh.")
 			return
 			
-		mass_move_troops(selected_provinces, target_prov, true)
+		var target_id = str(target_prov.get("id", ""))
+		var target_name = target_prov.get("name", target_id)
+		
+		# Sao chép danh sách nguồn trước khi điều động
+		var sources_to_move = selected_provinces.duplicate()
+		
+		# Gọi hàm mass_move_troops điều quân
+		mass_move_troops(sources_to_move, target_prov, true)
+		
+		# Xóa danh sách selected_provinces = [], trả viền và badge về mặc định
+		clear_box_selection()
+		
+		# Tự động tắt nút [v] Đang Quét Quân về lại [ ] Quét Quân
+		set_box_select_mode(false)
+		
+	elif is_box_select_mode:
+		# Nhấp chuột phải khi chưa chọn tỉnh nào trong chế độ quét quân -> Tắt chế độ
+		set_box_select_mode(false)
 
 func mass_move_troops(provs_list: Array, target_province_or_id: Variant, full_troops: bool = true) -> Dictionary:
 	var target_province: Dictionary = {}

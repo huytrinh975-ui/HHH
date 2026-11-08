@@ -11,10 +11,8 @@ extends Camera2D
 @export var touch_drag_threshold: float = 10.0 # Ngưỡng di chuyển tối thiểu để nhận diện vuốt 1 ngón (pixel)
 
 var target_zoom: Vector2 = Vector2.ONE
-var is_dragging: bool = false # Cho PC chuột phải/chuột giữa
+var is_dragging: bool = false
 var is_middle_dragging: bool = false
-var is_right_dragging: bool = false
-var right_mouse_press_pos: Vector2 = Vector2.ZERO
 var zoom_anchor_mouse_pos: Vector2 = Vector2.ZERO
 var is_box_select_mode: bool = false # Khi bật chế độ quét quân, vô hiệu hóa pan camera bằng chuột trái
 
@@ -193,22 +191,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_MIDDLE:
 			is_middle_dragging = event.pressed
-			is_dragging = is_middle_dragging or is_right_dragging
+			is_dragging = is_middle_dragging
 			if is_middle_dragging:
 				get_viewport().set_input_as_handled()
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			if event.pressed:
-				right_mouse_press_pos = event.position
-				is_right_dragging = false
-				# Không gọi set_input_as_handled() để main.gd có thể nhận diện click chuột phải ra lệnh
-			else:
-				if is_right_dragging:
-					is_right_dragging = false
-					is_dragging = is_middle_dragging
-					get_viewport().set_input_as_handled()
-				else:
-					is_right_dragging = false
-					is_dragging = is_middle_dragging
+			# Chuột phải dành riêng cho ra lệnh di chuyển/tấn công RTS (main.gd xử lý trực tiếp)
+			pass
 		elif event.is_pressed():
 			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 				_start_zoom(zoom_factor, event.position)
@@ -221,13 +209,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		if is_middle_dragging:
 			position -= event.relative / zoom.x
 			get_viewport().set_input_as_handled()
-		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-			if not is_right_dragging and right_mouse_press_pos.distance_to(event.position) >= 12.0:
-				is_right_dragging = true
-				is_dragging = true
-			if is_right_dragging:
-				position -= event.relative / zoom.x
-				get_viewport().set_input_as_handled()
 
 func _start_zoom(factor: float, mouse_screen_pos: Vector2) -> void:
 	zoom_anchor_mouse_pos = mouse_screen_pos

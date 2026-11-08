@@ -85,6 +85,7 @@ var cancel_march_button: Button = null
 @onready var dip_alliance_button: Button = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipActionsGrid/DipAllianceButton
 @onready var dip_war_button: Button = $UI/ProvincePanel/VBoxContainer/DiplomacyContainer/DipWarButton
 @onready var menu_button: Button = $UI/MenuButton
+@onready var btn_selection_mode: Button = $UI/btn_selection_mode
 @onready var notification_panel: PanelContainer = $UI/NotificationPanel
 @onready var notification_label: Label = $UI/NotificationPanel/MarginContainer/NotificationLabel
 
@@ -201,6 +202,7 @@ var is_left_mouse_down: bool = false
 var was_godot_double_click: bool = false
 
 # Cơ chế Quét chuột kéo ô (Drag-select Box) & Ra lệnh Chuột phải (RTS Controls)
+var is_box_select_mode: bool = false # Chế độ quét chọn quân
 var is_box_selecting: bool = false
 var box_select_start_pos: Vector2 = Vector2.ZERO
 var box_select_current_pos: Vector2 = Vector2.ZERO
@@ -294,6 +296,12 @@ func _ready() -> void:
 	# Kết nối sự kiện nút tỉnh & điều quân chi tiết
 	if menu_button:
 		menu_button.pressed.connect(func(): get_tree().change_scene_to_file("res://MainMenu.tscn"))
+	if btn_selection_mode:
+		btn_selection_mode.mouse_filter = Control.MOUSE_FILTER_STOP
+		btn_selection_mode.focus_mode = Control.FOCUS_NONE
+		btn_selection_mode.pressed.connect(_on_btn_selection_mode_pressed)
+		btn_selection_mode.visible = not is_lobby_mode
+		_update_selection_mode_button_ui()
 	if recruit_button:
 		recruit_button.pressed.connect(_on_recruit_button_pressed)
 	if recruit_slider:
@@ -658,6 +666,8 @@ func _on_lobby_confirm_pressed() -> void:
 	
 	if lobby_panel:
 		lobby_panel.visible = false
+	if btn_selection_mode:
+		btn_selection_mode.visible = true
 	
 	var fac_display = player_faction
 	if ScenarioManager and ScenarioManager.active_scenario.has("factions") and ScenarioManager.active_scenario["factions"].has(player_faction):
@@ -686,6 +696,9 @@ func reset_to_lobby_mode() -> void:
 	is_paused = true
 	lobby_selected_faction = ""
 	lobby_selected_province = {}
+	set_box_select_mode(false)
+	if btn_selection_mode:
+		btn_selection_mode.visible = false
 	clear_box_selection()
 	if lobby_panel:
 		lobby_panel.visible = true
@@ -1375,8 +1388,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_3:
 			set_speed(3)
 			return
-		# ESC: Đóng popup xây dựng / Hủy chọn nhiều tỉnh / Hủy chế độ chọn mục tiêu
+		# Phím Q: Bật/Tắt chế độ Quét chọn quân
+		elif event.keycode == KEY_Q:
+			if not is_lobby_mode:
+				set_box_select_mode(not is_box_select_mode)
+				get_viewport().set_input_as_handled()
+				return
+		# ESC: Tắt chế độ quét quân / Đóng popup xây dựng / Hủy chọn nhiều tỉnh / Hủy chế độ chọn mục tiêu
 		elif event.keycode == KEY_ESCAPE:
+			if is_box_select_mode:
+				set_box_select_mode(false)
+				show_notification("Đã tắt chế độ quét quân.")
+				get_viewport().set_input_as_handled()
+				return
 			if build_dialog and build_dialog.visible:
 				close_build_dialog()
 				get_viewport().set_input_as_handled()
@@ -1420,13 +1444,34 @@ func _unhandled_input(event: InputEvent) -> void:
 			if is_left_mouse_down:
 				is_left_mouse_down = false
 				
-				if is_box_selecting:
-					is_box_selecting = false
-					if selection_box_drawer:
-						selection_box_drawer.queue_redraw()
-					_finish_box_selection()
+				if is_box_select_mode:
+					if is_box_selecting:
+						is_box_selecting = false
+						if selection_box_drawer:
+							selection_box_drawer.queue_redraw()
+						_finish_box_selection()
+					elif mouse_press_pos.distance_to(event.position) < 15.0:
+						# Nhấp chuột nhẹ tại chỗ trong chế độ quét quân
+						var clicked_prov = get_province_data_at_pos(get_global_mouse_position())
+						if clicked_prov.is_empty():
+							clear_box_selection()
+						elif clicked_prov.get("faction", clicked_prov.get("owner", "")) == player_faction and int(clicked_prov.get("troops", 0)) > 0:
+							var prov_id = str(clicked_prov.get("id", ""))
+							var idx = -1
+							for i in range(selected_provinces.size()):
+								if str(selected_provinces[i].get("id", "")) == prov_id:
+									idx = i
+									break
+							if idx >= 0:
+								_highlight_province_marker(prov_id, false)
+								selected_provinces.remove_at(idx)
+							else:
+								selected_provinces.append(clicked_prov)
+								_highlight_province_marker(prov_id, true)
+							if selection_box_drawer:
+								selection_box_drawer.queue_redraw()
 				else:
-					# Kiểm tra xem có đang hoặc vừa thực hiện vuốt / pan camera không
+					# is_box_select_mode == false: Chuột trái kéo rê bản đồ hoặc click chọn tỉnh thông thường
 					var camera_is_panning = false
 					var cam = get_node_or_null("Camera2D")
 					if cam and (cam.is_touch_dragging or cam.just_finished_touch_drag or cam.is_dragging or cam.is_right_dragging or cam.is_middle_dragging):
@@ -1439,17 +1484,77 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	# CẬP NHẬT KÉO KHUNG QUÉT CHỌN KHI DI CHUỘT
 	if event is InputEventMouseMotion and is_left_mouse_down and not is_lobby_mode:
-		if not is_box_selecting:
-			if mouse_press_pos.distance_to(event.position) >= 15.0:
-				is_box_selecting = true
-		if is_box_selecting:
-			box_select_current_pos = get_global_mouse_position()
-			if selection_box_drawer:
-				selection_box_drawer.queue_redraw()
+		if is_box_select_mode:
+			if not is_box_selecting:
+				if mouse_press_pos.distance_to(event.position) >= 10.0:
+					is_box_selecting = true
+			if is_box_selecting:
+				box_select_current_pos = get_global_mouse_position()
+				if selection_box_drawer:
+					selection_box_drawer.queue_redraw()
 
 # ==============================================================================
 # HỆ THỐNG QUÉT CHUỘT KÉO Ô (DRAG-SELECT BOX) & ĐIỀU QUÂN CHUỘT PHẢI (RTS)
 # ==============================================================================
+
+func _on_btn_selection_mode_pressed() -> void:
+	if is_lobby_mode:
+		show_notification("⚠️ Hãy chọn phe và vào trận trước khi điều quân!")
+		return
+	set_box_select_mode(not is_box_select_mode)
+
+func set_box_select_mode(enabled: bool) -> void:
+	is_box_select_mode = enabled
+	
+	# Đồng bộ với Camera2D
+	var cam = get_node_or_null("Camera2D")
+	if cam and "is_box_select_mode" in cam:
+		cam.is_box_select_mode = enabled
+		
+	_update_selection_mode_button_ui()
+	
+	if not enabled:
+		is_box_selecting = false
+		clear_box_selection()
+	else:
+		show_notification("📦 BẬT CHẾ ĐỘ QUÉT QUÂN: Kéo chuột trái để quét chọn, chuột phải để điều quân. (Nhấn Q hoặc ESC để tắt)")
+
+func _update_selection_mode_button_ui() -> void:
+	if not btn_selection_mode:
+		return
+		
+	if is_box_select_mode:
+		btn_selection_mode.text = "[v] Đang Quét Quân"
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.08, 0.22, 0.12, 0.95)
+		style.border_color = Color(0.25, 1.0, 0.45, 1.0)
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(6)
+		style.content_margin_left = 10
+		style.content_margin_right = 10
+		style.content_margin_top = 4
+		style.content_margin_bottom = 4
+		btn_selection_mode.add_theme_stylebox_override("normal", style)
+		btn_selection_mode.add_theme_stylebox_override("hover", style)
+		btn_selection_mode.add_theme_stylebox_override("pressed", style)
+		btn_selection_mode.add_theme_color_override("font_color", Color(0.3, 1.0, 0.5, 1.0))
+		btn_selection_mode.add_theme_color_override("font_hover_color", Color(0.45, 1.0, 0.65, 1.0))
+	else:
+		btn_selection_mode.text = "[ ] Quét Quân"
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.14, 0.16, 0.2, 0.9)
+		style.border_color = Color(0.35, 0.4, 0.48, 0.8)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(6)
+		style.content_margin_left = 10
+		style.content_margin_right = 10
+		style.content_margin_top = 4
+		style.content_margin_bottom = 4
+		btn_selection_mode.add_theme_stylebox_override("normal", style)
+		btn_selection_mode.add_theme_stylebox_override("hover", style)
+		btn_selection_mode.add_theme_stylebox_override("pressed", style)
+		btn_selection_mode.add_theme_color_override("font_color", Color(0.85, 0.88, 0.92, 1.0))
+		btn_selection_mode.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
 
 func _on_selection_box_draw() -> void:
 	if not selection_box_drawer:

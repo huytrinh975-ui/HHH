@@ -16,6 +16,7 @@ var is_middle_dragging: bool = false
 var is_right_dragging: bool = false
 var right_mouse_press_pos: Vector2 = Vector2.ZERO
 var zoom_anchor_mouse_pos: Vector2 = Vector2.ZERO
+var is_box_select_mode: bool = false # Khi bật chế độ quét quân, vô hiệu hóa pan camera bằng chuột trái
 
 # Quản lý cảm ứng đa điểm cho Mobile / Web Mobile
 var touch_points: Dictionary = {}
@@ -146,6 +147,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 			
+			# Vô hiệu hóa pan camera bằng 1 ngón tay / chuột trái khi đang bật chế độ quét quân
+			if is_box_select_mode:
+				return
+
 			var start_pos: Vector2 = touch_start_positions.get(event.index, event.position)
 			var total_dist: float = start_pos.distance_to(event.position)
 			

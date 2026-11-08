@@ -7,42 +7,58 @@
     "LE_TRINH": {
       "name": "Đàng Ngoài (Lê - Trịnh)",
       "color": "#B71C1C",
-      "display_name": "Lê - Trịnh"
+      "display_name": "Lê - Trịnh",
+      "capital_id": "VNHN",
+      "capital_name": "Đông Kinh (Hà Nội)"
     },
     "MAC": {
       "name": "Nhà Mạc",
       "color": "#4A148C",
-      "display_name": "Nhà Mạc"
+      "display_name": "Nhà Mạc",
+      "capital_id": "VN04",
+      "capital_name": "Cao Bằng"
     },
     "CHUA_BAU": {
       "name": "Chúa Bầu (Họ Vũ)",
       "color": "#5D4037",
-      "display_name": "Chúa Bầu"
+      "display_name": "Chúa Bầu",
+      "capital_id": "VN07",
+      "capital_name": "Tuyên Quang"
     },
     "NGUYEN": {
       "name": "Đàng Trong (Chúa Nguyễn)",
       "color": "#0277BD",
-      "display_name": "Chúa Nguyễn"
+      "display_name": "Chúa Nguyễn",
+      "capital_id": "VN26",
+      "capital_name": "Phú Xuân (Huế)"
     },
     "HOA_ANH": {
       "name": "Tiểu Quốc Hoa Anh",
       "color": "#00695C",
-      "display_name": "Hoa Anh"
+      "display_name": "Hoa Anh",
+      "capital_id": "VN32",
+      "capital_name": "Phú Yên"
     },
     "NAM_BAN": {
       "name": "Tiểu Quốc Nam Bàn",
       "color": "#AD1457",
-      "display_name": "Nam Bàn"
+      "display_name": "Nam Bàn",
+      "capital_id": "VN33",
+      "capital_name": "Đắk Lắk"
     },
     "CHAMPA": {
       "name": "Champa (Panduranga)",
       "color": "#F9A825",
-      "display_name": "Champa"
+      "display_name": "Champa",
+      "capital_id": "VN36",
+      "capital_name": "Phan Rang (Ninh Thuận)"
     },
     "CHAN_LAP": {
       "name": "Thủy Chân Lạp",
       "color": "#558B2F",
-      "display_name": "Chân Lạp"
+      "display_name": "Chân Lạp",
+      "capital_id": "VNSG",
+      "capital_name": "Gia Định (Sài Gòn)"
     }
   },
   "provinces": [

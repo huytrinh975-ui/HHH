@@ -571,7 +571,7 @@ text = "💰 100 (+25/thg)"
 
 [node name="DateLabel" type="Label" parent="UI/TimePanel/VBoxContainer/TopRow" unique_id=1982736454]
 layout_mode = 2
-text = "📅 01/01/2026"
+text = "📅 01/01/1611"
 horizontal_alignment = 2
 
 [node name="BottomRow" type="HBoxContainer" parent="UI/TimePanel/VBoxContainer" unique_id=1982736455]

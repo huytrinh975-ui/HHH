@@ -516,6 +516,10 @@ func _ready() -> void:
 			current_year = 1611
 		elif GameManager.current_mode == GameManager.MODE_FOUR_FACTIONS or GameManager.current_mode == GameManager.MODE_63_WARLORDS:
 			current_year = 2026
+		else:
+			current_year = 1611
+	else:
+		current_year = 1611
 	current_day = 1
 	current_month = 1
 
@@ -657,6 +661,71 @@ func _update_lobby_button_style(enabled: bool) -> void:
 	lobby_confirm_button.add_theme_stylebox_override("pressed", btn_style)
 	lobby_confirm_button.add_theme_stylebox_override("disabled", btn_style)
 
+func get_faction_info(fac: String) -> Dictionary:
+	var info = {
+		"name": fac,
+		"display_name": fac,
+		"capital_id": "",
+		"capital_name": "",
+		"total_provinces": 0,
+		"total_troops": 0,
+		"capital_province": {}
+	}
+	
+	if ScenarioManager and ScenarioManager.active_scenario.has("factions") and ScenarioManager.active_scenario["factions"].has(fac):
+		var f_data = ScenarioManager.active_scenario["factions"][fac]
+		info["display_name"] = f_data.get("display_name", f_data.get("name", fac))
+		info["capital_id"] = f_data.get("capital_id", "")
+		info["capital_name"] = f_data.get("capital_name", "")
+	
+	for prov in provinces_data:
+		var p_fac = prov.get("owner", prov.get("faction", ""))
+		if p_fac == fac:
+			info["total_provinces"] += 1
+			info["total_troops"] += int(prov.get("troops", 0))
+	
+	if info["capital_id"] != "" and provinces_by_id.has(info["capital_id"]):
+		info["capital_province"] = provinces_by_id[info["capital_id"]]
+		if info["capital_name"] == "":
+			info["capital_name"] = info["capital_province"].get("name", "")
+	else:
+		var tu_quoc_capitals = {
+			"Quân Đội Miền Bắc": {"id": "VNHN", "name": "Hà Nội"},
+			"Liên Minh Miền Trung": {"id": "VNDN", "name": "Đà Nẵng"},
+			"Quân Phiệt Cao Nguyên": {"id": "VN33", "name": "Đắk Lắk"},
+			"Lực Lượng Miền Nam": {"id": "VNSG", "name": "TP. Hồ Chí Minh"}
+		}
+		if tu_quoc_capitals.has(fac):
+			info["capital_id"] = tu_quoc_capitals[fac]["id"]
+			info["capital_name"] = tu_quoc_capitals[fac]["name"]
+			if provinces_by_id.has(info["capital_id"]):
+				info["capital_province"] = provinces_by_id[info["capital_id"]]
+		else:
+			# Fallback: Tỉnh có nhiều quân nhất hoặc tỉnh đầu tiên thuộc phe
+			var best_p = {}
+			var max_tr = -1
+			for prov in provinces_data:
+				var p_fac = prov.get("owner", prov.get("faction", ""))
+				if p_fac == fac:
+					var tr = int(prov.get("troops", 0))
+					if tr > max_tr:
+						max_tr = tr
+						best_p = prov
+			if not best_p.is_empty():
+				info["capital_province"] = best_p
+				info["capital_id"] = best_p.get("id", "")
+				info["capital_name"] = best_p.get("name", "")
+	
+	return info
+
+func center_camera_on_province(prov: Dictionary) -> void:
+	if prov.is_empty():
+		return
+	var cam = get_node_or_null("Camera2D")
+	if cam and map_sprite:
+		var target_world_pos = map_sprite.to_global(get_province_local_pos(prov))
+		cam.position = target_world_pos
+
 func _handle_lobby_click(click_pos: Vector2) -> void:
 	var clicked_prov = get_province_data_at_pos(click_pos)
 	if clicked_prov.is_empty():
@@ -673,17 +742,22 @@ func _handle_lobby_click(click_pos: Vector2) -> void:
 	var id_hex = clicked_prov.get("id_color", clicked_prov.get("original_color", clicked_prov.get("color", "")))
 	set_province_selection_shader(Color.from_string(id_hex, Color.BLACK), true)
 	
-	var fac_display = fac
-	if ScenarioManager and ScenarioManager.active_scenario.has("factions") and ScenarioManager.active_scenario["factions"].has(fac):
-		fac_display = ScenarioManager.active_scenario["factions"][fac].get("display_name", ScenarioManager.active_scenario["factions"][fac].get("name", fac))
+	var fac_info = get_faction_info(fac)
+	var fac_display = fac_info["display_name"]
+	var cap_name = fac_info["capital_name"]
+	var total_provs = fac_info["total_provinces"]
+	var total_troops = fac_info["total_troops"]
 	
 	var prov_name = clicked_prov.get("name", "Tỉnh")
 	var prov_troops = int(clicked_prov.get("troops", 0))
 	
 	if lobby_faction_label:
-		lobby_faction_label.text = "👑 Bạn đang chọn: " + fac_display
+		lobby_faction_label.text = "👑 Phe: %s (%d tỉnh • %d lính)" % [fac_display, total_provs, total_troops]
 	if lobby_capital_label:
-		lobby_capital_label.text = "📍 Thủ phủ: %s • ⚔️ Quân số: %d" % [prov_name, prov_troops]
+		if clicked_prov.get("id", "") == fac_info["capital_id"]:
+			lobby_capital_label.text = "📍 Thủ phủ: %s • ⚔️ Quân đồn trú: %d" % [cap_name, prov_troops]
+		else:
+			lobby_capital_label.text = "📍 Thủ phủ: %s | 📌 Đang xem: %s (%d lính)" % [cap_name, prov_name, prov_troops]
 	
 	if lobby_confirm_button:
 		lobby_confirm_button.disabled = false
@@ -695,11 +769,16 @@ func _on_lobby_confirm_pressed() -> void:
 		show_notification("⚠️ Vui lòng nhấp chọn một tỉnh trên bản đồ trước!")
 		return
 	
+	var fac_info = get_faction_info(lobby_selected_faction)
+	var capital_prov = fac_info.get("capital_province", {})
+	if capital_prov.is_empty():
+		capital_prov = lobby_selected_province
+	
 	player_faction = lobby_selected_faction
 	if GameManager:
 		GameManager.selected_player_faction = lobby_selected_faction
 		GameManager.player_faction = lobby_selected_faction
-		GameManager.player_province_id = lobby_selected_province.get("id", "")
+		GameManager.player_province_id = capital_prov.get("id", lobby_selected_province.get("id", ""))
 		GameManager.is_lobby_mode = false
 	is_lobby_mode = false
 	
@@ -708,17 +787,22 @@ func _on_lobby_confirm_pressed() -> void:
 	if btn_selection_mode:
 		btn_selection_mode.visible = true
 	
-	var fac_display = player_faction
-	if ScenarioManager and ScenarioManager.active_scenario.has("factions") and ScenarioManager.active_scenario["factions"].has(player_faction):
-		fac_display = ScenarioManager.active_scenario["factions"][player_faction].get("display_name", ScenarioManager.active_scenario["factions"][player_faction].get("name", player_faction))
+	# Bỏ highlight shader của sảnh lobby
+	set_province_selection_shader(Color(0, 0, 0, 0), false)
+	
+	var fac_display = fac_info["display_name"]
+	var cap_name = fac_info["capital_name"]
+	if cap_name == "":
+		cap_name = capital_prov.get("name", "Thủ phủ")
 	
 	show_notification("🚩 BẮT ĐẦU VÁN ĐẤU! Bạn đang thống lĩnh phe [%s] (Thủ phủ: %s). Chúc bách chiến bách thắng!" % [
 		fac_display,
-		lobby_selected_province.get("name", "")
+		cap_name
 	])
 	
-	# Mở bảng thông tin của tỉnh thủ phủ đã chọn
-	show_province_info(lobby_selected_province)
+	# Căn Camera và mở bảng thông tin của Thủ phủ thực sự
+	center_camera_on_province(capital_prov)
+	show_province_info(capital_prov)
 	
 	# Cập nhật kinh tế & ngày tháng
 	update_gold_display()
@@ -759,6 +843,10 @@ func reset_to_lobby_mode() -> void:
 			current_year = 1611
 		elif GameManager.current_mode == GameManager.MODE_FOUR_FACTIONS or GameManager.current_mode == GameManager.MODE_63_WARLORDS:
 			current_year = 2026
+		else:
+			current_year = 1611
+	else:
+		current_year = 1611
 	current_day = 1
 	current_month = 1
 	update_date_display()
@@ -1546,8 +1634,14 @@ func _unhandled_input(event: InputEvent) -> void:
 					# is_box_select_mode == false: Chuột trái kéo rê bản đồ hoặc click chọn tỉnh thông thường
 					var camera_is_panning = false
 					var cam = get_node_or_null("Camera2D")
-					if cam and (cam.is_touch_dragging or cam.just_finished_touch_drag or cam.is_dragging or cam.is_right_dragging or cam.is_middle_dragging):
-						camera_is_panning = true
+					if cam:
+						var cam_touch = ("is_touch_dragging" in cam and cam.is_touch_dragging)
+						var cam_just_touch = ("just_finished_touch_drag" in cam and cam.just_finished_touch_drag)
+						var cam_drag = ("is_dragging" in cam and cam.is_dragging)
+						var cam_right = ("is_right_dragging" in cam and cam.is_right_dragging)
+						var cam_middle = ("is_middle_dragging" in cam and cam.is_middle_dragging)
+						if cam_touch or cam_just_touch or cam_drag or cam_right or cam_middle:
+							camera_is_panning = true
 					
 					# Chỉ xử lý chọn tỉnh nếu không kéo camera và quãng đường chạm/nhấc < 15px
 					if not camera_is_panning and mouse_press_pos.distance_to(event.position) < 15.0:

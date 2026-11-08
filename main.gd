@@ -200,6 +200,15 @@ var mouse_press_pos: Vector2 = Vector2.ZERO
 var is_left_mouse_down: bool = false
 var was_godot_double_click: bool = false
 
+# Cơ chế Quét chuột kéo ô (Drag-select Box) & Ra lệnh Chuột phải (RTS Controls)
+var is_box_selecting: bool = false
+var box_select_start_pos: Vector2 = Vector2.ZERO
+var box_select_current_pos: Vector2 = Vector2.ZERO
+var selected_provinces: Array = [] # Danh sách các tỉnh thuộc phe người chơi được quét chọn
+var selection_box_drawer: Node2D = null
+var right_mouse_press_pos: Vector2 = Vector2.ZERO
+var is_right_mouse_down: bool = false
+
 # ==============================================================================
 # CHẾ ĐỘ SẢNH CHỌN QUỐC GIA (LOBBY SELECTION)
 # ==============================================================================
@@ -269,6 +278,14 @@ func _ready() -> void:
 	armies_container.name = "ArmiesContainer"
 	armies_container.z_index = 5
 	map_sprite.add_child(armies_container)
+	
+	# Khởi tạo node vẽ khung quét chọn (Drag-select Box Drawer)
+	selection_box_drawer = Node2D.new()
+	selection_box_drawer.name = "SelectionBoxDrawer"
+	selection_box_drawer.z_index = 25
+	selection_box_drawer.z_as_relative = false
+	add_child(selection_box_drawer)
+	selection_box_drawer.draw.connect(_on_selection_box_draw)
 	
 	spawn_troop_markers()
 	hide_province_panel()
@@ -669,6 +686,7 @@ func reset_to_lobby_mode() -> void:
 	is_paused = true
 	lobby_selected_faction = ""
 	lobby_selected_province = {}
+	clear_box_selection()
 	if lobby_panel:
 		lobby_panel.visible = true
 	if lobby_faction_label:
@@ -708,6 +726,10 @@ func cache_province_pixels() -> void:
 				province_pixel_cache[target_b].append(Vector2i(x, y))
 
 func _process(delta: float) -> void:
+	# Cập nhật vòng tròn xung nhịp cho các tỉnh đang được quét chọn
+	if not selected_provinces.is_empty() and selection_box_drawer:
+		selection_box_drawer.queue_redraw()
+
 	if not is_paused:
 		var duration = SPEED_DURATIONS.get(game_speed, 1.0)
 		day_timer += delta
@@ -1353,10 +1375,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_3:
 			set_speed(3)
 			return
-		# ESC: Đóng popup xây dựng / Hủy chế độ chọn mục tiêu
+		# ESC: Đóng popup xây dựng / Hủy chọn nhiều tỉnh / Hủy chế độ chọn mục tiêu
 		elif event.keycode == KEY_ESCAPE:
 			if build_dialog and build_dialog.visible:
 				close_build_dialog()
+				get_viewport().set_input_as_handled()
+				return
+			if not selected_provinces.is_empty():
+				clear_box_selection()
+				show_notification("Đã hủy chọn các tỉnh.")
 				get_viewport().set_input_as_handled()
 				return
 			if is_move_mode:
@@ -1366,38 +1393,271 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 
+	# XỬ LÝ CHUỘT PHẢI: Ra lệnh di chuyển / tấn công (RTS Right-click) hoặc Hủy lệnh
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
-		if event.pressed and is_move_mode:
-			cancel_move_mode()
-			close_dispatch_container()
-			show_notification("Đã hủy lệnh chọn mục tiêu (Right-click).")
-			get_viewport().set_input_as_handled()
-			return
+		if event.pressed:
+			right_mouse_press_pos = event.position
+			is_right_mouse_down = true
+		else:
+			if is_right_mouse_down:
+				is_right_mouse_down = false
+				var cam = get_node_or_null("Camera2D")
+				var is_cam_panning = cam and (cam.is_dragging or cam.is_right_dragging or cam.is_middle_dragging)
+				if not is_cam_panning and right_mouse_press_pos.distance_to(event.position) < 15.0:
+					handle_right_click(get_global_mouse_position())
+					get_viewport().set_input_as_handled()
 
+	# XỬ LÝ CHUỘT TRÁI: Click chọn tỉnh & Quét kéo ô chọn nhiều tỉnh
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			mouse_press_pos = event.position
+			box_select_start_pos = get_global_mouse_position()
+			box_select_current_pos = box_select_start_pos
 			is_left_mouse_down = true
+			is_box_selecting = false
 			was_godot_double_click = event.double_click
 		else:
 			if is_left_mouse_down:
 				is_left_mouse_down = false
 				
-				# Kiểm tra xem có đang hoặc vừa thực hiện vuốt / pan camera không
-				var camera_is_panning = false
-				var cam = get_node_or_null("Camera2D")
-				if cam and (cam.is_touch_dragging or cam.just_finished_touch_drag or cam.is_dragging):
-					camera_is_panning = true
-				
-				# Chỉ xử lý chọn tỉnh nếu không kéo camera và quãng đường chạm/nhấc < 15px
-				if not camera_is_panning and mouse_press_pos.distance_to(event.position) < 15.0:
-					var is_dbl = was_godot_double_click or event.double_click
-					handle_left_click(get_global_mouse_position(), is_dbl)
+				if is_box_selecting:
+					is_box_selecting = false
+					if selection_box_drawer:
+						selection_box_drawer.queue_redraw()
+					_finish_box_selection()
+				else:
+					# Kiểm tra xem có đang hoặc vừa thực hiện vuốt / pan camera không
+					var camera_is_panning = false
+					var cam = get_node_or_null("Camera2D")
+					if cam and (cam.is_touch_dragging or cam.just_finished_touch_drag or cam.is_dragging or cam.is_right_dragging or cam.is_middle_dragging):
+						camera_is_panning = true
+					
+					# Chỉ xử lý chọn tỉnh nếu không kéo camera và quãng đường chạm/nhấc < 15px
+					if not camera_is_panning and mouse_press_pos.distance_to(event.position) < 15.0:
+						var is_dbl = was_godot_double_click or event.double_click
+						handle_left_click(get_global_mouse_position(), is_dbl)
+
+	# CẬP NHẬT KÉO KHUNG QUÉT CHỌN KHI DI CHUỘT
+	if event is InputEventMouseMotion and is_left_mouse_down and not is_lobby_mode:
+		if not is_box_selecting:
+			if mouse_press_pos.distance_to(event.position) >= 15.0:
+				is_box_selecting = true
+		if is_box_selecting:
+			box_select_current_pos = get_global_mouse_position()
+			if selection_box_drawer:
+				selection_box_drawer.queue_redraw()
+
+# ==============================================================================
+# HỆ THỐNG QUÉT CHUỘT KÉO Ô (DRAG-SELECT BOX) & ĐIỀU QUÂN CHUỘT PHẢI (RTS)
+# ==============================================================================
+
+func _on_selection_box_draw() -> void:
+	if not selection_box_drawer:
+		return
+		
+	# 1. Vẽ khung chữ nhật quét chọn mờ bán trong suốt viền xanh lá
+	if is_box_selecting:
+		var rect = Rect2(box_select_start_pos, box_select_current_pos - box_select_start_pos).abs()
+		selection_box_drawer.draw_rect(rect, Color(0.18, 0.85, 0.35, 0.18), true)
+		selection_box_drawer.draw_rect(rect, Color(0.25, 1.0, 0.45, 0.95), false, 2.0)
+		
+	# 2. Vẽ vòng tròn hào quang xung nhịp cho các tỉnh đang được chọn
+	if not selected_provinces.is_empty():
+		var time_ms = Time.get_ticks_msec()
+		var pulse_radius = 22.0 + 3.0 * sin(time_ms * 0.008)
+		var ring_alpha = 0.75 + 0.25 * sin(time_ms * 0.008)
+		var ring_color = Color(0.25, 1.0, 0.45, ring_alpha)
+		var fill_color = Color(0.18, 0.85, 0.35, 0.15)
+		
+		for prov in selected_provinces:
+			var center_pos = get_province_center(prov)
+			selection_box_drawer.draw_circle(center_pos, pulse_radius, fill_color)
+			selection_box_drawer.draw_arc(center_pos, pulse_radius, 0.0, TAU, 32, ring_color, 2.0)
+
+func _highlight_province_marker(prov_id: String, is_selected: bool) -> void:
+	if not province_markers.has(prov_id):
+		return
+	var marker: Node2D = province_markers[prov_id]
+	if not marker or not is_instance_valid(marker):
+		return
+	var badge = marker.get_node_or_null("Badge")
+	if not badge:
+		return
+	if is_selected:
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.06, 0.26, 0.12, 0.95)
+		style.border_color = Color(0.3, 1.0, 0.5, 1.0)
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(3)
+		style.content_margin_left = 3
+		style.content_margin_right = 3
+		style.content_margin_top = 2
+		style.content_margin_bottom = 2
+		badge.add_theme_stylebox_override("panel", style)
+	else:
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.08, 0.08, 0.08, 0.85)
+		style.border_color = Color(1.0, 1.0, 1.0, 0.9)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(3)
+		style.content_margin_left = 2
+		style.content_margin_right = 2
+		style.content_margin_top = 1
+		style.content_margin_bottom = 1
+		badge.add_theme_stylebox_override("panel", style)
+
+func clear_box_selection() -> void:
+	for p in selected_provinces:
+		_highlight_province_marker(p.get("id"), false)
+	selected_provinces.clear()
+	if selection_box_drawer:
+		selection_box_drawer.queue_redraw()
+
+func _finish_box_selection() -> void:
+	var rect = Rect2(box_select_start_pos, box_select_current_pos - box_select_start_pos).abs()
+	if rect.size.x < 10.0 and rect.size.y < 10.0:
+		return
+		
+	clear_box_selection()
+	
+	var total_troops = 0
+	for prov in provinces_data:
+		var center_pos = get_province_center(prov)
+		if not rect.has_point(center_pos):
+			continue
+			
+		var prov_owner = prov.get("faction", prov.get("owner", ""))
+		var troops = int(prov.get("troops", 0))
+		
+		# Điều kiện: thuộc phe người chơi và có lính (> 0)
+		if prov_owner == player_faction and troops > 0:
+			selected_provinces.append(prov)
+			total_troops += troops
+			_highlight_province_marker(prov.get("id"), true)
+			
+	if not selected_provinces.is_empty():
+		if selection_box_drawer:
+			selection_box_drawer.queue_redraw()
+		if province_panel:
+			province_panel.visible = false
+		show_notification("📦 ĐÃ QUÉT CHỌN %d TỈNH (%s quân)! Nhấp CHUỘT PHẢI vào tỉnh đích để điều quân." % [
+			selected_provinces.size(),
+			format_number(total_troops)
+		])
+
+func handle_right_click(click_pos: Vector2) -> void:
+	if is_lobby_mode:
+		return
+		
+	if is_move_mode:
+		cancel_move_mode()
+		close_dispatch_container()
+		show_notification("Đã hủy lệnh chọn mục tiêu (Right-click).")
+		return
+		
+	if not selected_provinces.is_empty():
+		var target_prov = get_province_data_at_pos(click_pos)
+		if target_prov.is_empty():
+			clear_box_selection()
+			show_notification("Đã hủy chọn các tỉnh.")
+			return
+			
+		mass_move_troops(selected_provinces, target_prov, true)
+
+func mass_move_troops(provs_list: Array, target_province_or_id: Variant, full_troops: bool = true) -> Dictionary:
+	var target_province: Dictionary = {}
+	if target_province_or_id is Dictionary:
+		target_province = target_province_or_id
+	elif target_province_or_id is String:
+		target_province = provinces_by_id.get(target_province_or_id, {})
+		
+	if provs_list.is_empty() or target_province.is_empty():
+		clear_box_selection()
+		return {"total_attacking_troops": 0, "sources": [], "success": false}
+		
+	if is_paused:
+		show_notification("⏸ Thời gian đang dừng, hãy tiếp tục thời gian để điều quân!")
+		return {"total_attacking_troops": 0, "sources": [], "success": false}
+		
+	var target_id = str(target_province.get("id", ""))
+	var target_name = target_province.get("name", target_id)
+	
+	# Lọc các tỉnh nguồn khác tỉnh đích và có quân
+	var valid_sources: Array = []
+	for p in provs_list:
+		var prov = provinces_by_id.get(p, {}) if p is String else p
+		if not prov.is_empty() and str(prov.get("id", "")) != target_id and int(prov.get("troops", 0)) > 0:
+			valid_sources.append(prov)
+			
+	if valid_sources.is_empty():
+		clear_box_selection()
+		return {"total_attacking_troops": 0, "sources": [], "success": false}
+		
+	# Cổng kiểm tra Ngoại giao (Diplomacy Guard Check) theo Gameplay Rule 1.4
+	if not can_send_troops_to(valid_sources[0], target_province, true):
+		clear_box_selection()
+		return {"total_attacking_troops": 0, "sources": [], "success": false}
+		
+	var dispatched_count = 0
+	var total_troops_sent = 0
+	var sources_info: Array = []
+	
+	for prov in valid_sources:
+		var troops = int(prov.get("troops", 0))
+		var count_to_send = troops if full_troops else max(1, int(troops * 0.5))
+		var ok = dispatch_army(prov, target_province, count_to_send, false)
+		if ok:
+			dispatched_count += 1
+			total_troops_sent += count_to_send
+			sources_info.append({
+				"source_id": prov.get("id", ""),
+				"source_name": prov.get("name", ""),
+				"troops_moved": count_to_send
+			})
+			
+	if dispatched_count > 0:
+		play_march_sound()
+		show_notification("⚔️ XUẤT QUÂN TẬP KẾT: Đã điều động %s quân từ %d tỉnh tiến về %s!" % [
+			format_number(total_troops_sent),
+			dispatched_count,
+			target_name
+		])
+	else:
+		show_notification("⚠️ Không tìm thấy lộ trình an toàn từ các tỉnh đã chọn đến %s!" % target_name)
+		
+	clear_box_selection()
+	return {"total_attacking_troops": total_troops_sent, "sources": sources_info, "success": dispatched_count > 0}
+
+func play_march_sound() -> void:
+	var player = AudioStreamPlayer.new()
+	var gen = AudioStreamGenerator.new()
+	gen.mix_rate = 22050
+	gen.buffer_length = 0.25
+	player.stream = gen
+	add_child(player)
+	player.play()
+	var playback = player.get_stream_playback()
+	if playback:
+		var sample_count = int(22050 * 0.22)
+		for i in range(sample_count):
+			var t = float(i) / 22050.0
+			var freq1 = 261.63 # C4
+			if i > sample_count * 0.45:
+				freq1 = 392.0 # G4
+			var freq2 = freq1 * 1.5
+			var env = sin(PI * float(i) / sample_count) * 0.22
+			var sample = (sin(2.0 * PI * freq1 * t) * 0.7 + sin(2.0 * PI * freq2 * t) * 0.3) * env
+			playback.push_frame(Vector2(sample, sample))
+	get_tree().create_timer(0.35).timeout.connect(player.queue_free)
 
 func handle_left_click(click_pos: Vector2, is_godot_double_click: bool = false) -> void:
 	if is_lobby_mode:
 		_handle_lobby_click(click_pos)
 		return
+
+	# Nếu trước đó đang quét chọn nhiều tỉnh, nhấp chuột trái đơn lẻ sẽ hủy vùng chọn cũ
+	if not selected_provinces.is_empty():
+		clear_box_selection()
 
 	var clicked_prov = get_province_data_at_pos(click_pos)
 	var current_time = Time.get_ticks_msec() / 1000.0
@@ -2469,6 +2729,7 @@ func hide_province_panel() -> void:
 	close_recruit_container()
 	close_disband_container()
 	close_build_dialog()
+	clear_box_selection()
 	if diplomacy_container:
 		diplomacy_container.visible = false
 	if cancel_march_button:

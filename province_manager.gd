@@ -264,3 +264,21 @@ func get_building_jobs_building_type(building_type: String) -> int:
 func get_building_cost(building_type: String) -> int:
 	"""Lấy chi phí xây dựng công trình."""
 	return _main_node.BUILDING_DATA[building_type]["cost"] if _main_node.BUILDING_DATA.has(building_type) else 0
+
+# ==============================================================================
+# ĐIỀU ĐỘNG QUÂN ĐẠI TẬP TRUNG
+# ==============================================================================
+func mass_move_troops(source_province_ids: Array, target_province_id: String, keep_garrison: bool = true) -> Dictionary:
+	"""
+	Điều động quân tập trung từ nhiều tỉnh đến một tỉnh đích.
+	Trả về Dictionary: {"total_attacking_troops": int, "sources": Array, "success": bool}
+	"""
+	if not _main_node:
+		_get_main_node()
+	if not _main_node:
+		return {"total_attacking_troops": 0, "sources": [], "success": false}
+
+	if _main_node.has_method("mass_move_troops"):
+		return _main_node.mass_move_troops(source_province_ids, target_province_id, not keep_garrison)
+
+	return {"total_attacking_troops": 0, "sources": [], "success": false}

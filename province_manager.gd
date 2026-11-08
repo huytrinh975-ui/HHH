@@ -102,12 +102,6 @@ func disband_troops(province_id: String, amount: int) -> bool:
 
 	return true
 
-	print("ProvinceManager: Đã giải tán %d quân tại %s (còn lại: %d, dân số +%d)" % [
-		amount, prov.get("name", province_id), prov["troops"], returned_pop
-	])
-
-	return true
-
 func recruit_troops(province_id: String, amount: int) -> bool:
 	"""
 	Tuyển quân tại một tỉnh (logic tập trung từ main.gd).
@@ -200,3 +194,73 @@ func add_province_troops(province_id: String, amount: int) -> bool:
 		_main_node.call_deferred("update_troop_label", prov)
 		return true
 	return false
+
+# ==============================================================================
+# HỆ THỐNG CÔNG TRÌNH, LAO ĐỘC, THẤT NGHIỆP
+# ==============================================================================
+
+func can_build(province_id: String, faction_id: String, building_type: String) -> bool:
+	"""Kiểm tra xem có thể xây công trình tại tỉnh hay không."""
+	if not _main_node:
+		_get_main_node()
+	if not _main_node:
+		return false
+
+	if _main_node.has_method("can_build"):
+		return _main_node.can_build(province_id, faction_id, building_type)
+
+	return false
+
+func build_structure(province_id: String, faction_id: String, building_type: String) -> bool:
+	"""Xây dựng công trình mới tại tỉnh."""
+	if not _main_node:
+		_get_main_node()
+	if not _main_node:
+		return false
+
+	return _main_node.build_structure(province_id, faction_id, building_type)
+
+func damage_buildings_on_combat(province_id: String) -> void:
+	"""Khi tỉnh xảy ra đánh trận/đổi chủ, các công trình có xác suất bị hư."""
+	if not _main_node:
+		_get_main_node()
+	if not _main_node:
+		return
+
+	_main_node.damage_buildings_on_combat(province_id)
+
+func repair_building(province_id: String, building_index: int, payer_faction_id: String) -> bool:
+	"""Sửa chữa công trình bị hư."""
+	if not _main_node:
+		_get_main_node()
+	if not _main_node:
+		return false
+
+	return _main_node.repair_building(province_id, building_index, payer_faction_id)
+
+func calculate_monthly_economy(province_id: String) -> Dictionary:
+	"""Tính toán kinh tế hàng tháng của tỉnh."""
+	if not _main_node:
+		_get_main_node()
+	if not _main_node:
+		return {}
+
+	return _main_node.calculate_monthly_economy(province_id)
+
+func get_building_list(province_id: String) -> Array:
+	"""Lấy danh sách công trình của tỉnh."""
+	if not _main_node:
+		_get_main_node()
+	if not _main_node:
+		return []
+
+	var prov = get_province(province_id)
+	return prov.get("buildings", [])
+
+func get_building_jobs_building_type(building_type: String) -> int:
+	"""Lấy số việc làm cung cấp bởi từng loại công trình."""
+	return _main_node.BUILDING_DATA[building_type]["jobs"] if _main_node.BUILDING_DATA.has(building_type) else 0
+
+func get_building_cost(building_type: String) -> int:
+	"""Lấy chi phí xây dựng công trình."""
+	return _main_node.BUILDING_DATA[building_type]["cost"] if _main_node.BUILDING_DATA.has(building_type) else 0

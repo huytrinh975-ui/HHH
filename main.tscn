@@ -81,6 +81,19 @@ theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_font_sizes/font_size = 12
 text = "Dân số: --"
 
+[node name="EmploymentLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=198301011]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.95, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Lao động: 0 / 0 (Thất nghiệp: 0)"
+
+[node name="UnemploymentWarningLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=198301012]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "⚠️ [!] Thất nghiệp cao"
+
 [node name="DemographicsLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=198301002]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
@@ -102,6 +115,103 @@ text = "Thu nhập: +0 đồng/tháng"
 [node name="TroopsLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer" unique_id=1300955317]
 layout_mode = 2
 text = "Quân đội: --"
+
+[node name="BuildingsContainer" type="VBoxContainer" parent="UI/ProvincePanel/VBoxContainer" unique_id=198301020]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BuildingsHeader" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer" unique_id=198301021]
+layout_mode = 2
+
+[node name="BuildingsTitleLabel" type="Label" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/BuildingsHeader" unique_id=198301022]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "🏗️ Công trình (0/3):"
+
+[node name="Slot0" type="PanelContainer" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer" unique_id=198301023]
+layout_mode = 2
+mouse_filter = 0
+
+[node name="HBox" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot0" unique_id=198301024]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/separation = 4
+
+[node name="Icon" type="Label" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot0/HBox" unique_id=198301025]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "➕"
+
+[node name="Info" type="Label" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot0/HBox" unique_id=198301026]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Ô trống 1"
+
+[node name="Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot0/HBox" unique_id=198301027]
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 0
+theme_override_font_sizes/font_size = 10
+text = "+ Xây dựng"
+
+[node name="Slot1" type="PanelContainer" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer" unique_id=198301028]
+layout_mode = 2
+mouse_filter = 0
+
+[node name="HBox" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot1" unique_id=198301029]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/separation = 4
+
+[node name="Icon" type="Label" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot1/HBox" unique_id=198301030]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "➕"
+
+[node name="Info" type="Label" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot1/HBox" unique_id=198301031]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Ô trống 2"
+
+[node name="Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot1/HBox" unique_id=198301032]
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 0
+theme_override_font_sizes/font_size = 10
+text = "+ Xây dựng"
+
+[node name="Slot2" type="PanelContainer" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer" unique_id=198301033]
+layout_mode = 2
+mouse_filter = 0
+
+[node name="HBox" type="HBoxContainer" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot2" unique_id=198301034]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/separation = 4
+
+[node name="Icon" type="Label" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot2/HBox" unique_id=198301035]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "➕"
+
+[node name="Info" type="Label" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot2/HBox" unique_id=198301036]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Ô trống 3"
+
+[node name="Button" type="Button" parent="UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot2/HBox" unique_id=198301037]
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 0
+theme_override_font_sizes/font_size = 10
+text = "+ Xây dựng"
 
 [node name="RecruitButton" type="Button" parent="UI/ProvincePanel/VBoxContainer" unique_id=876189340]
 layout_mode = 2
@@ -482,3 +592,175 @@ custom_minimum_size = Vector2(34, 0)
 layout_mode = 2
 focus_mode = 0
 text = "3x"
+
+[node name="BuildDialog" type="PanelContainer" parent="UI" unique_id=198301040]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = -170.0
+offset_right = 210.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="Margin" type="MarginContainer" parent="UI/BuildDialog" unique_id=198301041]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="UI/BuildDialog/Margin" unique_id=198301042]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/separation = 10
+
+[node name="HeaderHBox" type="HBoxContainer" parent="UI/BuildDialog/Margin/VBox" unique_id=198301043]
+layout_mode = 2
+mouse_filter = 0
+
+[node name="TitleLabel" type="Label" parent="UI/BuildDialog/Margin/VBox/HeaderHBox" unique_id=198301044]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "🏗️ XÂY DỰNG CÔNG TRÌNH"
+
+[node name="CloseButton" type="Button" parent="UI/BuildDialog/Margin/VBox/HeaderHBox" unique_id=198301045]
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 0
+text = " ✕ "
+
+[node name="ForeignNoticeLabel" type="Label" parent="UI/BuildDialog/Margin/VBox" unique_id=198301046]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "🤝 Lãnh thổ nước ngoài: Chỉ được phép xây Chợ / Thương điếm."
+autowrap_mode = 3
+
+[node name="CardsVBox" type="VBoxContainer" parent="UI/BuildDialog/Margin/VBox" unique_id=198301047]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/separation = 8
+
+[node name="FarmCard" type="PanelContainer" parent="UI/BuildDialog/Margin/VBox/CardsVBox" unique_id=198301048]
+layout_mode = 2
+mouse_filter = 0
+
+[node name="HBox" type="HBoxContainer" parent="UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard" unique_id=198301049]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/separation = 8
+
+[node name="Icon" type="Label" parent="UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard/HBox" unique_id=198301050]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "🌾"
+
+[node name="DescVBox" type="VBoxContainer" parent="UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard/HBox" unique_id=198301051]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 0
+
+[node name="Name" type="Label" parent="UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard/HBox/DescVBox" unique_id=198301052]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Ruộng đồng / Nông trại"
+
+[node name="Effect" type="Label" parent="UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard/HBox/DescVBox" unique_id=198301053]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 10
+text = "+20% việc làm, +15 Vàng/tháng"
+
+[node name="BuildButton" type="Button" parent="UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard/HBox" unique_id=198301054]
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 0
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "Xây (50💰)"
+
+[node name="MarketCard" type="PanelContainer" parent="UI/BuildDialog/Margin/VBox/CardsVBox" unique_id=198301055]
+layout_mode = 2
+mouse_filter = 0
+
+[node name="HBox" type="HBoxContainer" parent="UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard" unique_id=198301056]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/separation = 8
+
+[node name="Icon" type="Label" parent="UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard/HBox" unique_id=198301057]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "🏪"
+
+[node name="DescVBox" type="VBoxContainer" parent="UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard/HBox" unique_id=198301058]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 0
+
+[node name="Name" type="Label" parent="UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard/HBox/DescVBox" unique_id=198301059]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Chợ / Thương điếm"
+
+[node name="Effect" type="Label" parent="UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard/HBox/DescVBox" unique_id=198301060]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 10
+text = "+15% việc làm, +30 Vàng/tháng"
+
+[node name="BuildButton" type="Button" parent="UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard/HBox" unique_id=198301061]
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 0
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "Xây (75💰)"
+
+[node name="BarracksCard" type="PanelContainer" parent="UI/BuildDialog/Margin/VBox/CardsVBox" unique_id=198301062]
+layout_mode = 2
+mouse_filter = 0
+
+[node name="HBox" type="HBoxContainer" parent="UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard" unique_id=198301063]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/separation = 8
+
+[node name="Icon" type="Label" parent="UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard/HBox" unique_id=198301064]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "🛡️"
+
+[node name="DescVBox" type="VBoxContainer" parent="UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard/HBox" unique_id=198301065]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 0
+
+[node name="Name" type="Label" parent="UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard/HBox/DescVBox" unique_id=198301066]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Doanh trại quân đội"
+
+[node name="Effect" type="Label" parent="UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard/HBox/DescVBox" unique_id=198301067]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 10
+text = "+10% việc làm, +5 Vàng/tháng"
+
+[node name="BuildButton" type="Button" parent="UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard/HBox" unique_id=198301068]
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 0
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "Xây (100💰)"

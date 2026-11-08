@@ -8,7 +8,7 @@
     "faction": "Quân Phiệt Cao Nguyên",
     "troops": 0,
     "center": [
-      624.0,
+      624,
       586.8
     ],
     "neighbors": [
@@ -29,7 +29,10 @@
         "working_age": 205175,
         "senior": 20194
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN72",
@@ -61,7 +64,10 @@
         "working_age": 239111,
         "senior": 23532
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN33",
@@ -95,7 +101,10 @@
         "working_age": 669240,
         "senior": 65865
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN30",
@@ -116,7 +125,7 @@
       "VN31",
       "VN29"
     ],
-    "area_km2": 15511.0,
+    "area_km2": 15511,
     "total_population": 1613900,
     "demographics": {
       "male": {
@@ -129,7 +138,10 @@
         "working_age": 560007,
         "senior": 55115
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN58",
@@ -163,7 +175,10 @@
         "working_age": 363021,
         "senior": 35728
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN37",
@@ -196,7 +211,10 @@
         "working_age": 416804,
         "senior": 41022
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN41",
@@ -229,7 +247,10 @@
         "working_age": 618614,
         "senior": 60883
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN45",
@@ -241,7 +262,7 @@
     "troops": 0,
     "center": [
       488.2,
-      830.0
+      830
     ],
     "neighbors": [
       "VN41",
@@ -262,7 +283,10 @@
         "working_age": 556607,
         "senior": 54780
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN44",
@@ -294,7 +318,10 @@
         "working_age": 664312,
         "senior": 65380
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN47",
@@ -315,7 +342,7 @@
       "VN73",
       "VNCT"
     ],
-    "area_km2": 6352.0,
+    "area_km2": 6352,
     "total_population": 1754700,
     "demographics": {
       "male": {
@@ -328,7 +355,10 @@
         "working_age": 608863,
         "senior": 59923
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN71",
@@ -359,7 +389,10 @@
         "working_age": 224364,
         "senior": 22082
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN05",
@@ -395,7 +428,10 @@
         "working_age": 456986,
         "senior": 44974
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN21",
@@ -428,7 +464,10 @@
         "working_age": 1301629,
         "senior": 128104
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN22",
@@ -439,7 +478,7 @@
     "faction": "Liên Minh Miền Trung",
     "troops": 0,
     "center": [
-      448.0,
+      448,
       307.1
     ],
     "neighbors": [
@@ -459,7 +498,10 @@
         "working_age": 1200134,
         "senior": 118114
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN23",
@@ -490,7 +532,10 @@
         "working_age": 461427,
         "senior": 45413
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN24",
@@ -521,7 +566,10 @@
         "working_age": 320029,
         "senior": 31496
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN25",
@@ -552,7 +600,10 @@
         "working_age": 227868,
         "senior": 22426
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN26",
@@ -584,7 +635,10 @@
         "working_age": 404764,
         "senior": 39836
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN27",
@@ -617,7 +671,10 @@
         "working_age": 529680,
         "senior": 52130
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN03",
@@ -629,7 +686,7 @@
     "troops": 0,
     "center": [
       446.6,
-      92.0
+      92
     ],
     "neighbors": [
       "VN04",
@@ -651,7 +708,10 @@
         "working_age": 313540,
         "senior": 30859
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN04",
@@ -684,7 +744,10 @@
         "working_age": 191122,
         "senior": 18809
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN02",
@@ -717,7 +780,10 @@
         "working_age": 270513,
         "senior": 26624
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN01",
@@ -729,7 +795,7 @@
     "troops": 0,
     "center": [
       352.8,
-      109.0
+      109
     ],
     "neighbors": [
       "VN71",
@@ -749,7 +815,10 @@
         "working_age": 170823,
         "senior": 16812
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN09",
@@ -783,7 +852,10 @@
         "working_age": 280194,
         "senior": 27577
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN13",
@@ -816,7 +888,10 @@
         "working_age": 479263,
         "senior": 47168
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN52",
@@ -848,7 +923,10 @@
         "working_age": 418401,
         "senior": 41178
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN46",
@@ -883,7 +961,10 @@
         "working_age": 619759,
         "senior": 60995
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN43",
@@ -915,7 +996,10 @@
         "working_age": 411114,
         "senior": 40460
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VNSG",
@@ -926,7 +1010,7 @@
     "faction": "Lực Lượng Miền Nam",
     "troops": 100,
     "center": [
-      549.0,
+      549,
       820.8
     ],
     "neighbors": [
@@ -950,7 +1034,10 @@
         "working_age": 3284503,
         "senior": 323254
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN34",
@@ -961,7 +1048,7 @@
     "faction": "Liên Minh Miền Trung",
     "troops": 0,
     "center": [
-      686.0,
+      686,
       731.5
     ],
     "neighbors": [
@@ -983,7 +1070,10 @@
         "working_age": 437624,
         "senior": 43069
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN59",
@@ -1014,7 +1104,10 @@
         "working_age": 422773,
         "senior": 41608
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN55",
@@ -1026,7 +1119,7 @@
     "troops": 0,
     "center": [
       481.6,
-      911.0
+      911
     ],
     "neighbors": [
       "VN47",
@@ -1034,7 +1127,7 @@
       "VN59",
       "VN73"
     ],
-    "area_km2": 2669.0,
+    "area_km2": 2669,
     "total_population": 927700,
     "demographics": {
       "male": {
@@ -1047,7 +1140,10 @@
         "working_age": 321903,
         "senior": 31680
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN73",
@@ -1081,7 +1177,10 @@
         "working_age": 254691,
         "senior": 25067
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN49",
@@ -1115,7 +1214,10 @@
         "working_age": 357053,
         "senior": 35140
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN51",
@@ -1134,7 +1236,7 @@
       "VN49",
       "VN50"
     ],
-    "area_km2": 2391.0,
+    "area_km2": 2391,
     "total_population": 1020800,
     "demographics": {
       "male": {
@@ -1147,7 +1249,10 @@
         "working_age": 354207,
         "senior": 34861
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN50",
@@ -1179,7 +1284,10 @@
         "working_age": 451156,
         "senior": 44403
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN39",
@@ -1214,7 +1322,10 @@
         "working_age": 1150133,
         "senior": 113194
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN40",
@@ -1247,7 +1358,10 @@
         "working_age": 437173,
         "senior": 43025
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN36",
@@ -1279,7 +1393,10 @@
         "working_age": 208333,
         "senior": 20504
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN32",
@@ -1312,7 +1429,10 @@
         "working_age": 304865,
         "senior": 30005
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN31",
@@ -1323,7 +1443,7 @@
     "faction": "Liên Minh Miền Trung",
     "troops": 0,
     "center": [
-      683.0,
+      683,
       615.9
     ],
     "neighbors": [
@@ -1344,7 +1464,10 @@
         "working_age": 522671,
         "senior": 51440
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN29",
@@ -1355,7 +1478,7 @@
     "faction": "Liên Minh Miền Trung",
     "troops": 0,
     "center": [
-      667.0,
+      667,
       564.2
     ],
     "neighbors": [
@@ -1377,7 +1500,10 @@
         "working_age": 432211,
         "senior": 42537
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VNDN",
@@ -1408,7 +1534,10 @@
         "working_age": 434431,
         "senior": 42756
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN18",
@@ -1419,7 +1548,7 @@
     "faction": "Quân Đội Miền Bắc",
     "troops": 0,
     "center": [
-      503.0,
+      503,
       242.5
     ],
     "neighbors": [
@@ -1441,7 +1570,10 @@
         "working_age": 354763,
         "senior": 34915
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN67",
@@ -1452,7 +1584,7 @@
     "faction": "Quân Đội Miền Bắc",
     "troops": 0,
     "center": [
-      527.0,
+      527,
       244.8
     ],
     "neighbors": [
@@ -1473,7 +1605,10 @@
         "working_age": 656436,
         "senior": 64605
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN20",
@@ -1507,7 +1642,10 @@
         "working_age": 656644,
         "senior": 64625
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VNHP",
@@ -1539,7 +1677,10 @@
         "working_age": 730414,
         "senior": 71886
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN14",
@@ -1574,7 +1715,10 @@
         "working_age": 304657,
         "senior": 29984
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN07",
@@ -1597,7 +1741,7 @@
       "VN53",
       "VN69"
     ],
-    "area_km2": 5868.0,
+    "area_km2": 5868,
     "total_population": 810700,
     "demographics": {
       "male": {
@@ -1610,7 +1754,10 @@
         "working_age": 281305,
         "senior": 27685
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN06",
@@ -1644,7 +1791,10 @@
         "working_age": 297093,
         "senior": 29238
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN70",
@@ -1664,7 +1814,7 @@
       "VNHN",
       "VN69"
     ],
-    "area_km2": 1236.0,
+    "area_km2": 1236,
     "total_population": 1211300,
     "demographics": {
       "male": {
@@ -1677,7 +1827,10 @@
         "working_age": 420309,
         "senior": 41366
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN68",
@@ -1712,7 +1865,10 @@
         "working_age": 526523,
         "senior": 51819
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VNHN",
@@ -1749,7 +1905,10 @@
         "working_age": 2979638,
         "senior": 293249
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN53",
@@ -1783,7 +1942,10 @@
         "working_age": 114056,
         "senior": 11225
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN66",
@@ -1817,7 +1979,10 @@
         "working_age": 452406,
         "senior": 44524
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN56",
@@ -1850,7 +2015,10 @@
         "working_age": 526523,
         "senior": 51819
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN54",
@@ -1885,7 +2053,10 @@
         "working_age": 667192,
         "senior": 65663
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN69",
@@ -1920,7 +2091,10 @@
         "working_age": 472080,
         "senior": 46461
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN61",
@@ -1955,7 +2129,10 @@
         "working_age": 679025,
         "senior": 66828
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN63",
@@ -1990,7 +2167,10 @@
         "working_age": 308335,
         "senior": 30346
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN57",
@@ -2001,7 +2181,7 @@
     "faction": "Lực Lượng Miền Nam",
     "troops": 0,
     "center": [
-      553.0,
+      553,
       799.6
     ],
     "neighbors": [
@@ -2023,7 +2203,10 @@
         "working_age": 982953,
         "senior": 96740
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VN35",
@@ -2059,7 +2242,10 @@
         "working_age": 464411,
         "senior": 45707
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   },
   {
     "id": "VNCT",
@@ -2094,6 +2280,9 @@
         "working_age": 436375,
         "senior": 42946
       }
-    }
+    },
+    "working_age_ratio": 0.55,
+    "buildings": [],
+    "building_slots": 3
   }
 ]

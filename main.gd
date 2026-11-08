@@ -10,10 +10,35 @@ extends Node2D
 @onready var nation_label: Label = $UI/ProvincePanel/VBoxContainer/NationLabel
 @onready var faction_label: Label = $UI/ProvincePanel/VBoxContainer/FactionLabel
 @onready var population_label: Label = $UI/ProvincePanel/VBoxContainer/PopulationLabel
+@onready var employment_label: Label = $UI/ProvincePanel/VBoxContainer/EmploymentLabel
+@onready var unemployment_warning_label: Label = $UI/ProvincePanel/VBoxContainer/UnemploymentWarningLabel
 @onready var demographics_label: Label = $UI/ProvincePanel/VBoxContainer/DemographicsLabel
 @onready var manpower_label: Label = $UI/ProvincePanel/VBoxContainer/ManpowerLabel
 @onready var income_label: Label = $UI/ProvincePanel/VBoxContainer/IncomeLabel
 @onready var troops_label: Label = $UI/ProvincePanel/VBoxContainer/TroopsLabel
+
+# Node Quản lý Công trình (Buildings UI)
+@onready var buildings_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/BuildingsContainer
+@onready var buildings_title_label: Label = $UI/ProvincePanel/VBoxContainer/BuildingsContainer/BuildingsHeader/BuildingsTitleLabel
+@onready var building_slot_0: PanelContainer = $UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot0
+@onready var building_slot_1: PanelContainer = $UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot1
+@onready var building_slot_2: PanelContainer = $UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot2
+var building_slot_panels: Array = []
+var building_slot_icons: Array = []
+var building_slot_info_labels: Array = []
+var building_slot_buttons: Array = []
+
+# Node Popup Xây dựng (Build Dialog)
+@onready var build_dialog: PanelContainer = $UI/BuildDialog
+@onready var build_dialog_title_label: Label = $UI/BuildDialog/Margin/VBox/HeaderHBox/TitleLabel
+@onready var close_build_dialog_button: Button = $UI/BuildDialog/Margin/VBox/HeaderHBox/CloseButton
+@onready var foreign_notice_label: Label = $UI/BuildDialog/Margin/VBox/ForeignNoticeLabel
+@onready var farm_card: PanelContainer = $UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard
+@onready var farm_build_button: Button = $UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard/HBox/BuildButton
+@onready var market_card: PanelContainer = $UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard
+@onready var market_build_button: Button = $UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard/HBox/BuildButton
+@onready var barracks_card: PanelContainer = $UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard
+@onready var barracks_build_button: Button = $UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard/HBox/BuildButton
 @onready var recruit_button: Button = $UI/ProvincePanel/VBoxContainer/RecruitButton
 @onready var recruit_container: VBoxContainer = $UI/ProvincePanel/VBoxContainer/RecruitContainer
 @onready var recruit_cost_label: Label = $UI/ProvincePanel/VBoxContainer/RecruitContainer/RecruitHeader/RecruitCostLabel
@@ -121,6 +146,43 @@ const COST_PER_TROOP: int = 2          # Chi phí mỗi lính = 2 Vàng
 const BASE_INCOME_PER_PROVINCE: int = 10 # Thuế cơ bản = 10 đồng/tỉnh/tháng
 const UPKEEP_PER_TROOP: float = 0.1    # Chi phí duy trì quân đội = 0.1 đồng/lính/tháng
 const RECRUIT_COST: int = 20           # Chi phí cũ (+10 lính)
+
+# Hệ thống Công trình (Buildings System)
+const BUILDING_DATA: Dictionary = {
+	"farm": {
+		"name": "Ruộng đồng / Nông trại",
+		"short_name": "Ruộng",
+		"cost": 50,
+		"repair_cost": 20,
+		"jobs": 0.20,
+		"jobs_ratio": 0.20,
+		"income": 15,
+		"icon": "🌾",
+		"description": "+20% việc làm, +15 Vàng/tháng"
+	},
+	"market": {
+		"name": "Chợ / Thương điếm",
+		"short_name": "Chợ",
+		"cost": 75,
+		"repair_cost": 25,
+		"jobs": 0.15,
+		"jobs_ratio": 0.15,
+		"income": 30,
+		"icon": "🏪",
+		"description": "+15% việc làm, +30 Vàng/tháng"
+	},
+	"barracks": {
+		"name": "Doanh trại quân đội",
+		"short_name": "Doanh trại",
+		"cost": 100,
+		"repair_cost": 35,
+		"jobs": 0.10,
+		"jobs_ratio": 0.10,
+		"income": 5,
+		"icon": "🛡️",
+		"description": "+10% việc làm, +5 Vàng/tháng"
+	}
+}
 
 # Trạng thái di chuyển quân & Double-click
 var is_move_mode: bool = false
@@ -314,6 +376,65 @@ func _ready() -> void:
 		dip_alliance_button.pressed.connect(_on_dip_alliance_button_pressed)
 	if dip_war_button:
 		dip_war_button.pressed.connect(_on_dip_war_button_pressed)
+	
+	# Khởi tạo tham chiếu và style cho hệ thống Công trình
+	if buildings_container:
+		building_slot_panels = [building_slot_0, building_slot_1, building_slot_2]
+		building_slot_icons = [
+			$UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot0/HBox/Icon,
+			$UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot1/HBox/Icon,
+			$UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot2/HBox/Icon
+		]
+		building_slot_info_labels = [
+			$UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot0/HBox/Info,
+			$UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot1/HBox/Info,
+			$UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot2/HBox/Info
+		]
+		building_slot_buttons = [
+			$UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot0/HBox/Button,
+			$UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot1/HBox/Button,
+			$UI/ProvincePanel/VBoxContainer/BuildingsContainer/Slot2/HBox/Button
+		]
+
+		var slot_sb = StyleBoxFlat.new()
+		slot_sb.bg_color = Color(0.12, 0.15, 0.20, 0.85)
+		slot_sb.border_color = Color(0.28, 0.35, 0.45, 0.70)
+		slot_sb.set_border_width_all(1)
+		slot_sb.set_corner_radius_all(4)
+		for sp in building_slot_panels:
+			if sp:
+				sp.add_theme_stylebox_override("panel", slot_sb)
+
+	# Kết nối sự kiện & style cho BuildDialog
+	if build_dialog:
+		build_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
+		var dialog_sb = StyleBoxFlat.new()
+		dialog_sb.bg_color = Color(0.10, 0.13, 0.18, 0.96)
+		dialog_sb.border_color = Color(0.85, 0.70, 0.25, 0.90)
+		dialog_sb.set_border_width_all(2)
+		dialog_sb.set_corner_radius_all(8)
+		build_dialog.add_theme_stylebox_override("panel", dialog_sb)
+
+		var card_sb = StyleBoxFlat.new()
+		card_sb.bg_color = Color(0.15, 0.19, 0.26, 0.90)
+		card_sb.border_color = Color(0.32, 0.40, 0.52, 0.80)
+		card_sb.set_border_width_all(1)
+		card_sb.set_corner_radius_all(6)
+		if farm_card:
+			farm_card.add_theme_stylebox_override("panel", card_sb)
+		if market_card:
+			market_card.add_theme_stylebox_override("panel", card_sb)
+		if barracks_card:
+			barracks_card.add_theme_stylebox_override("panel", card_sb)
+
+		if close_build_dialog_button:
+			close_build_dialog_button.pressed.connect(close_build_dialog)
+		if farm_build_button:
+			farm_build_button.pressed.connect(func(): _on_build_building_pressed("farm"))
+		if market_build_button:
+			market_build_button.pressed.connect(func(): _on_build_building_pressed("market"))
+		if barracks_build_button:
+			barracks_build_button.pressed.connect(func(): _on_build_building_pressed("barracks"))
 	
 	# Kết nối sự kiện điều khiển thời gian
 	if pause_button:
@@ -856,12 +977,62 @@ func get_working_age_population(prov: Dictionary) -> int:
 			total_working += int(demo["male"].get("working_age", 0))
 		if demo.has("female"):
 			total_working += int(demo["female"].get("working_age", 0))
-	return total_working
+	if total_working > 0:
+		return total_working
+	var tot_pop = get_total_population(prov)
+	var ratio = float(prov.get("working_age_ratio", 0.55))
+	return int(round(tot_pop * ratio))
+
+func get_province_employment_data(prov: Dictionary) -> Dictionary:
+	var working_pop = get_working_age_population(prov)
+	if working_pop <= 0:
+		return {
+			"working_pop": 0,
+			"employed": 0,
+			"unemployed": 0,
+			"unemployment_rate": 0.0,
+			"base_employed": 0,
+			"building_jobs": 0
+		}
+	
+	# Việc làm nông nghiệp truyền thống / tự nhiên: 50% dân số lao động
+	var base_employed = int(working_pop * 0.50)
+	
+	# Việc làm từ các công trình chưa bị hư hại
+	var building_jobs = 0
+	var buildings: Array = prov.get("buildings", [])
+	for b in buildings:
+		if not b.get("is_damaged", false):
+			var b_type = b.get("type", "")
+			if BUILDING_DATA.has(b_type):
+				var ratio = float(BUILDING_DATA[b_type].get("jobs_ratio", 0.0))
+				building_jobs += int(working_pop * ratio)
+				
+	var employed = clamp(base_employed + building_jobs, 0, working_pop)
+	var unemployed = max(0, working_pop - employed)
+	var rate = float(unemployed) / float(working_pop) if working_pop > 0 else 0.0
+	
+	return {
+		"working_pop": working_pop,
+		"employed": employed,
+		"unemployed": unemployed,
+		"unemployment_rate": rate,
+		"base_employed": base_employed,
+		"building_jobs": building_jobs
+	}
 
 func get_province_income(prov: Dictionary) -> int:
 	var total_working_age = get_working_age_population(prov)
 	var labor_income = int(total_working_age / 100000)
-	return BASE_INCOME_PER_PROVINCE + labor_income
+	var building_income = 0
+	var prov_owner = prov.get("faction", prov.get("owner", ""))
+	for b in prov.get("buildings", []):
+		if not b.get("is_damaged", false):
+			var b_type = b.get("type", "")
+			if BUILDING_DATA.has(b_type):
+				if b.get("investor", "") == prov_owner:
+					building_income += int(BUILDING_DATA[b_type].get("income", 0))
+	return BASE_INCOME_PER_PROVINCE + labor_income + building_income
 
 func get_total_player_troops() -> int:
 	var total = 0
@@ -882,6 +1053,13 @@ func get_player_total_province_income() -> int:
 	for prov in provinces_data:
 		if can_recruit(prov):
 			total += get_province_income(prov)
+		else:
+			# Với các tỉnh nước khác: Người chơi nhận cổ tức từ các công trình mình đã đầu tư (ví dụ Chợ)
+			for b in prov.get("buildings", []):
+				if not b.get("is_damaged", false) and b.get("investor", "") == player_faction:
+					var b_type = b.get("type", "")
+					if BUILDING_DATA.has(b_type):
+						total += int(BUILDING_DATA[b_type].get("income", 0))
 	return total
 
 func get_player_net_monthly_gold() -> int:
@@ -1175,8 +1353,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_3:
 			set_speed(3)
 			return
-		# ESC: Hủy chế độ chọn mục tiêu / Ngưng hành quân
+		# ESC: Đóng popup xây dựng / Hủy chế độ chọn mục tiêu
 		elif event.keycode == KEY_ESCAPE:
+			if build_dialog and build_dialog.visible:
+				close_build_dialog()
+				get_viewport().set_input_as_handled()
+				return
 			if is_move_mode:
 				cancel_move_mode()
 				close_dispatch_container()
@@ -1397,11 +1579,11 @@ func update_province_panel_size() -> void:
 	if not province_panel:
 		return
 	if diplomacy_container and diplomacy_container.visible:
-		province_panel.offset_top = -370.0
+		province_panel.offset_top = -480.0
 	elif (dispatch_container and dispatch_container.visible) or (recruit_container and recruit_container.visible) or (disband_container and disband_container.visible):
-		province_panel.offset_top = -485.0
+		province_panel.offset_top = -545.0
 	else:
-		province_panel.offset_top = -315.0
+		province_panel.offset_top = -410.0
 
 func close_dispatch_container() -> void:
 	if dispatch_container:
@@ -1609,54 +1791,380 @@ func _on_confirm_disband_pressed() -> void:
 	var prov_id = selected_province.get("id")
 	disband_troops(prov_id, count)
 
+# ==============================================================================
+# HỆ THỐNG CÔNG TRÌNH, LAO ĐỘNG VÀ QUẢN LÝ TỈNH
+# ==============================================================================
+
+func get_faction_display_name(fac: String) -> String:
+	if ScenarioManager and ScenarioManager.active_scenario.has("factions") and ScenarioManager.active_scenario["factions"].has(fac):
+		var f_data = ScenarioManager.active_scenario["factions"][fac]
+		return f_data.get("display_name", f_data.get("name", fac))
+	return fac
+
+func can_build(province_id: String, faction_id: String, building_type: String) -> bool:
+	var prov = provinces_by_id.get(province_id)
+	if not prov:
+		return false
+	
+	if not BUILDING_DATA.has(building_type):
+		return false
+		
+	var buildings: Array = prov.get("buildings", [])
+	var max_slots: int = prov.get("building_slots", 3)
+	if buildings.size() >= max_slots:
+		return false
+		
+	var cost: int = BUILDING_DATA[building_type]["cost"]
+	if faction_id == player_faction and player_gold < cost:
+		return false
+		
+	var prov_faction = prov.get("faction", prov.get("owner", ""))
+	if prov_faction == faction_id:
+		# Đất nhà: Có thể xây cả 3 loại công trình
+		return true
+	else:
+		# Đất nước khác:
+		# 1. Chỉ được phép xây Chợ / Thương điếm
+		if building_type != "market":
+			return false
+		# 2. Kiểm tra quan hệ ngoại giao: không có chiến tranh và có hòa hảo (≥20) hoặc đồng minh hoặc quyền hành quân
+		if DiplomacyManager:
+			if DiplomacyManager.is_at_war(faction_id, prov_faction):
+				return false
+			var is_allied = DiplomacyManager.is_allied(faction_id, prov_faction)
+			var has_access = DiplomacyManager.has_military_access(faction_id, prov_faction)
+			var rel = DiplomacyManager.get_relation(faction_id, prov_faction)
+			return is_allied or has_access or (rel >= 20)
+		return true
+
+func build_structure(province_id: String, faction_id: String, building_type: String) -> bool:
+	if not can_build(province_id, faction_id, building_type):
+		return false
+		
+	var prov = provinces_by_id.get(province_id)
+	if not prov:
+		return false
+		
+	var cost: int = BUILDING_DATA[building_type]["cost"]
+	if faction_id == player_faction:
+		player_gold -= cost
+		update_gold_display()
+		
+	if not prov.has("buildings") or not (prov["buildings"] is Array):
+		prov["buildings"] = []
+		
+	var new_b = {
+		"type": building_type,
+		"investor": faction_id,
+		"is_damaged": false
+	}
+	prov["buildings"].append(new_b)
+	
+	var b_name = BUILDING_DATA[building_type]["name"]
+	var prov_name = prov.get("name", province_id)
+	show_notification("🏗️ Đã xây dựng %s tại %s (-%d💰)!" % [b_name, prov_name, cost])
+	
+	if not selected_province.is_empty() and selected_province.get("id") == province_id:
+		show_province_info(prov)
+		
+	return true
+
+func damage_buildings_on_combat(province_id: String) -> void:
+	var prov = provinces_by_id.get(province_id)
+	if not prov:
+		return
+	var damaged_count = 0
+	var buildings: Array = prov.get("buildings", [])
+	for b in buildings:
+		if not b.get("is_damaged", false):
+			# 60% xác suất công trình bị hư hại do giao tranh
+			if randf() < 0.60:
+				b["is_damaged"] = true
+				damaged_count += 1
+				
+	if damaged_count > 0:
+		show_notification("💥 Chiến sự đã làm hư hại %d công trình tại %s!" % [damaged_count, prov.get("name", province_id)])
+		if not selected_province.is_empty() and selected_province.get("id") == province_id:
+			show_province_info(prov)
+
+func repair_building(province_id: String, building_index: int, payer_faction_id: String) -> bool:
+	var prov = provinces_by_id.get(province_id)
+	if not prov:
+		return false
+		
+	var buildings: Array = prov.get("buildings", [])
+	if building_index < 0 or building_index >= buildings.size():
+		return false
+		
+	var b = buildings[building_index]
+	if not b.get("is_damaged", false):
+		return false
+		
+	var b_type = b.get("type", "")
+	var repair_cost = BUILDING_DATA.get(b_type, {}).get("repair_cost", 20)
+	
+	if payer_faction_id == player_faction:
+		if player_gold < repair_cost:
+			show_notification("⚠️ Không đủ Vàng để tu sửa công trình (Cần %d💰)!" % repair_cost)
+			return false
+		player_gold -= repair_cost
+		update_gold_display()
+		
+	b["is_damaged"] = false
+	var b_name = BUILDING_DATA.get(b_type, {}).get("name", "Công trình")
+	show_notification("🔧 Đã tu sửa xong %s tại %s (-%d💰)!" % [b_name, prov.get("name", province_id), repair_cost])
+	
+	if not selected_province.is_empty() and selected_province.get("id") == province_id:
+		show_province_info(prov)
+		
+	return true
+
+func calculate_monthly_economy(province_id: String) -> Dictionary:
+	var prov = provinces_by_id.get(province_id)
+	if not prov:
+		return {
+			"base_income": 0,
+			"labor_income": 0,
+			"building_income": 0,
+			"total_income": 0,
+			"jobs_created": 0
+		}
+	
+	var total_working_age = get_working_age_population(prov)
+	var labor_income = int(total_working_age / 100000)
+	var base_income = BASE_INCOME_PER_PROVINCE
+	var building_income = 0
+	var jobs_created = 0
+	
+	for b in prov.get("buildings", []):
+		if not b.get("is_damaged", false):
+			var b_type = b.get("type", "")
+			if BUILDING_DATA.has(b_type):
+				var b_info = BUILDING_DATA[b_type]
+				building_income += int(b_info.get("income", 0))
+				jobs_created += int(total_working_age * b_info.get("jobs_ratio", 0.0))
+				
+	return {
+		"base_income": base_income,
+		"labor_income": labor_income,
+		"building_income": building_income,
+		"total_income": base_income + labor_income + building_income,
+		"jobs_created": jobs_created
+	}
+
+func _update_building_slots_ui(prov: Dictionary) -> void:
+	if not buildings_container:
+		return
+	if building_slot_panels.is_empty():
+		return
+		
+	var prov_id = prov.get("id", "")
+	var buildings: Array = prov.get("buildings", [])
+	var max_slots: int = prov.get("building_slots", 3)
+	var is_player_prov = can_recruit(prov)
+	var prov_owner = prov.get("faction", prov.get("owner", ""))
+	
+	if buildings_title_label:
+		buildings_title_label.text = "🏗️ Công trình (%d/%d):" % [buildings.size(), max_slots]
+		
+	for i in range(3):
+		if i >= building_slot_panels.size():
+			break
+		var icon_lbl = building_slot_icons[i]
+		var info_lbl = building_slot_info_labels[i]
+		var action_btn = building_slot_buttons[i]
+		
+		# Hủy kết nối cũ để tránh chồng chéo sự kiện
+		for conn in action_btn.pressed.get_connections():
+			action_btn.pressed.disconnect(conn.callable)
+			
+		if i < buildings.size():
+			var b = buildings[i]
+			var b_type = b.get("type", "")
+			var b_info = BUILDING_DATA.get(b_type, {})
+			var b_name = b_info.get("short_name", b_type)
+			var b_icon = b_info.get("icon", "🏛️")
+			var investor = b.get("investor", prov_owner)
+			var investor_name = get_faction_display_name(investor)
+			var is_damaged = b.get("is_damaged", false)
+			
+			icon_lbl.text = b_icon
+			if is_damaged:
+				info_lbl.text = "%s [Hư hại] (%s)" % [b_name, investor_name]
+				info_lbl.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+				
+				var can_repair_permission = (is_player_prov or investor == player_faction)
+				var repair_cost = b_info.get("repair_cost", 20)
+				
+				if can_repair_permission:
+					action_btn.visible = true
+					action_btn.text = "🔧 Tu sửa (%d💰)" % repair_cost
+					action_btn.disabled = (player_gold < repair_cost)
+					var slot_idx = i
+					action_btn.pressed.connect(func(): _on_repair_building_pressed(prov_id, slot_idx))
+				else:
+					action_btn.visible = false
+			else:
+				info_lbl.text = "%s (%s)" % [b_name, investor_name]
+				info_lbl.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0))
+				action_btn.visible = false
+		else:
+			# Ô slot trống
+			icon_lbl.text = "➕"
+			info_lbl.text = "Ô trống %d" % (i + 1)
+			info_lbl.add_theme_color_override("font_color", Color(0.6, 0.65, 0.7))
+			
+			action_btn.visible = true
+			if is_player_prov:
+				action_btn.text = "+ Xây dựng"
+				action_btn.disabled = false
+				var slot_idx = i
+				action_btn.pressed.connect(func(): open_build_dialog(prov, slot_idx))
+			else:
+				# Tỉnh nước ngoài: Kiểm tra quan hệ ngoại giao
+				var can_build_foreign = can_build(prov_id, player_faction, "market")
+				if can_build_foreign:
+					action_btn.text = "+ Xây Thương điếm"
+					action_btn.disabled = false
+					var slot_idx = i
+					action_btn.pressed.connect(func(): open_build_dialog(prov, slot_idx))
+				else:
+					action_btn.text = "+ Xây (Ngoại giao)"
+					action_btn.disabled = false
+					action_btn.pressed.connect(func():
+						show_notification("⚠️ Cần hòa bình & quan hệ tốt (≥20 hoặc đồng minh) để mở thương điếm tại %s!" % prov.get("name", prov_id))
+					)
+
+func open_build_dialog(prov: Dictionary, slot_index: int = -1) -> void:
+	if not build_dialog:
+		return
+	var prov_id = prov.get("id", "")
+	var prov_name = prov.get("name", prov_id)
+	var is_player_prov = can_recruit(prov)
+	var prov_owner = prov.get("faction", prov.get("owner", ""))
+	var owner_name = get_faction_display_name(prov_owner)
+	
+	if build_dialog_title_label:
+		build_dialog_title_label.text = "🏗️ XÂY DỰNG: %s" % prov_name
+		
+	if foreign_notice_label:
+		if is_player_prov:
+			foreign_notice_label.visible = false
+		else:
+			foreign_notice_label.visible = true
+			foreign_notice_label.text = "🤝 Lãnh thổ của %s: Chỉ được phép xây Chợ / Thương điếm phục vụ giao thương liên quốc gia." % owner_name
+			
+	if farm_card:
+		farm_card.visible = is_player_prov
+		var farm_cost = BUILDING_DATA["farm"]["cost"]
+		if farm_build_button:
+			farm_build_button.disabled = (player_gold < farm_cost)
+			farm_build_button.text = "Xây (%d💰)" % farm_cost if player_gold >= farm_cost else "Thiếu vàng (%d💰)" % farm_cost
+			
+	if market_card:
+		market_card.visible = true
+		var market_cost = BUILDING_DATA["market"]["cost"]
+		var can_afford = player_gold >= market_cost
+		var can_diplomacy = is_player_prov or can_build(prov_id, player_faction, "market")
+		if market_build_button:
+			market_build_button.disabled = not (can_afford and can_diplomacy)
+			if not can_diplomacy:
+				market_build_button.text = "Quan hệ chưa đủ"
+			elif not can_afford:
+				market_build_button.text = "Thiếu vàng (%d💰)" % market_cost
+			else:
+				market_build_button.text = "Xây (%d💰)" % market_cost
+				
+	if barracks_card:
+		barracks_card.visible = is_player_prov
+		var barracks_cost = BUILDING_DATA["barracks"]["cost"]
+		if barracks_build_button:
+			barracks_build_button.disabled = (player_gold < barracks_cost)
+			barracks_build_button.text = "Xây (%d💰)" % barracks_cost if player_gold >= barracks_cost else "Thiếu vàng (%d💰)" % barracks_cost
+			
+	build_dialog.visible = true
+
+func close_build_dialog() -> void:
+	if build_dialog:
+		build_dialog.visible = false
+
+func _on_build_building_pressed(building_type: String) -> void:
+	if selected_province.is_empty():
+		return
+	var prov_id = selected_province.get("id", "")
+	var success = build_structure(prov_id, player_faction, building_type)
+	if success:
+		close_build_dialog()
+
+func _on_repair_building_pressed(province_id: String, building_index: int) -> void:
+	repair_building(province_id, building_index, player_faction)
+
 func show_province_info(prov: Dictionary) -> void:
 	selected_province = prov
 	if province_panel:
 		name_label.text = "🏛️ " + str(prov.get("name", "Không rõ"))
 		nation_label.text = "Quốc gia: " + str(prov.get("nation", "VIE"))
-		faction_label.text = "Phe: " + str(prov.get("faction", prov.get("owner", "Vô chủ")))
+		faction_label.text = "Phe: " + get_faction_display_name(str(prov.get("faction", prov.get("owner", "Vô chủ"))))
 		
 		var is_player_prov = can_recruit(prov)
 		var target_fac = prov.get("faction", prov.get("owner", ""))
+		
+		var tot_pop = get_total_population(prov)
+		var m_pop = get_male_population(prov)
+		var f_pop = get_female_population(prov)
+		var m_work = get_male_working_age(prov)
+		var current_troops = int(prov.get("troops", 0))
+		var emp_data = get_province_employment_data(prov)
+		
+		# 1. Hiển thị thông số dân cư mới: Tổng dân số & Việc làm / Thất nghiệp
+		if population_label:
+			population_label.visible = true
+			population_label.text = "👥 Tổng dân số: %s người" % format_number(tot_pop)
+			
+		if employment_label:
+			employment_label.visible = true
+			employment_label.text = "💼 Lao động: %s / %s (Thất nghiệp: %s)" % [
+				format_number(emp_data.employed),
+				format_number(emp_data.working_pop),
+				format_number(emp_data.unemployed)
+			]
+			
+		if unemployment_warning_label:
+			if emp_data.unemployment_rate > 0.40:
+				unemployment_warning_label.visible = true
+				unemployment_warning_label.text = "⚠️ [!] Thất nghiệp cao (%.1f%%)" % (emp_data.unemployment_rate * 100.0)
+			else:
+				unemployment_warning_label.visible = false
+				
+		# 2. Cập nhật danh sách công trình (hiển thị cho cả đất nhà và đất ngoài)
+		if buildings_container:
+			buildings_container.visible = true
+			_update_building_slots_ui(prov)
 		
 		if is_player_prov:
 			if diplomacy_container:
 				diplomacy_container.visible = false
 			
-			if population_label:
-				population_label.visible = true
 			if demographics_label:
 				demographics_label.visible = true
-			if manpower_label:
-				manpower_label.visible = true
-			if income_label:
-				income_label.visible = true
-			if troops_label:
-				troops_label.visible = true
-			if recruit_button:
-				recruit_button.visible = true
-			if action_buttons_hbox:
-				action_buttons_hbox.visible = true
-			
-			var tot_pop = get_total_population(prov)
-			var m_pop = get_male_population(prov)
-			var f_pop = get_female_population(prov)
-			var m_work = get_male_working_age(prov)
-			var current_troops = int(prov.get("troops", 0))
-			
-			if population_label:
-				population_label.text = "👥 Dân số: %s người" % format_number(tot_pop)
-			if demographics_label:
 				demographics_label.text = "  • Nam: %s | Nữ: %s" % [format_number(m_pop), format_number(f_pop)]
 			if manpower_label:
+				manpower_label.visible = true
 				manpower_label.text = "  • Nam độ tuổi lao động (15-64): %s" % format_number(m_work)
 			
 			var prov_income = get_province_income(prov)
 			if income_label:
+				income_label.visible = true
 				income_label.text = "💰 Thu nhập: +%s đồng/tháng" % format_number(prov_income)
 			
 			if troops_label:
+				troops_label.visible = true
 				troops_label.text = "⚔️ Quân đồn trú: %s quân" % format_number(current_troops)
+			
+			if recruit_button:
+				recruit_button.visible = true
+			if action_buttons_hbox:
+				action_buttons_hbox.visible = true
 			
 			var has_troops = current_troops > 0
 			var can_sweep = current_troops >= 10
@@ -1708,10 +2216,10 @@ func show_province_info(prov: Dictionary) -> void:
 				
 				# Cập nhật hiển thị nút Ngưng hành quân nếu có đạo quân xuất phát từ tỉnh này
 				if cancel_march_button:
-					var prov_id = prov.get("id")
+					var o_prov_id = prov.get("id")
 					var outgoing_count = 0
 					for a in active_armies:
-						if a.get("faction") == player_faction and a.get("source", {}).get("id") == prov_id:
+						if a.get("faction") == player_faction and a.get("source", {}).get("id") == o_prov_id:
 							outgoing_count += int(a.get("troops", 0))
 					
 					if outgoing_count > 0:
@@ -1733,8 +2241,6 @@ func show_province_info(prov: Dictionary) -> void:
 						close_disband_container()
 		else:
 			# Tỉnh đối phương / trung lập: Chuyển sang Bảng Ngoại giao
-			if population_label:
-				population_label.visible = false
 			if demographics_label:
 				demographics_label.visible = false
 			if manpower_label:
@@ -1961,6 +2467,8 @@ func hide_province_panel() -> void:
 	selected_province = {}
 	close_dispatch_container()
 	close_recruit_container()
+	close_disband_container()
+	close_build_dialog()
 	if diplomacy_container:
 		diplomacy_container.visible = false
 	if cancel_march_button:
@@ -2355,6 +2863,9 @@ func _resolve_army_arrival(army: Dictionary) -> void:
 		print("--- GIAO TRANH BẮT ĐẦU ---")
 		print("Công: %s (%s) mang %d quân" % [source.get("name"), army_faction, moving_troops])
 		print("Thủ: %s (%s) có %d quân" % [target.get("name"), target_faction, defender_troops])
+		
+		# Giao tranh làm hư hại các công trình trong tỉnh
+		damage_buildings_on_combat(target.get("id"))
 		
 		if moving_troops > defender_troops:
 			var leftover_at_target = moving_troops - defender_troops

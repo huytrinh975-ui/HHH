@@ -34,8 +34,12 @@ var building_slot_buttons: Array = []
 @onready var close_build_dialog_button: Button = $UI/BuildDialog/Margin/VBox/HeaderHBox/CloseButton
 @onready var foreign_notice_label: Label = $UI/BuildDialog/Margin/VBox/ForeignNoticeLabel
 @onready var farm_card: PanelContainer = $UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard
+@onready var farm_name_label: Label = $UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard/HBox/DescVBox/Name
+@onready var farm_effect_label: Label = $UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard/HBox/DescVBox/Effect
 @onready var farm_build_button: Button = $UI/BuildDialog/Margin/VBox/CardsVBox/FarmCard/HBox/BuildButton
 @onready var market_card: PanelContainer = $UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard
+@onready var market_name_label: Label = $UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard/HBox/DescVBox/Name
+@onready var market_effect_label: Label = $UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard/HBox/DescVBox/Effect
 @onready var market_build_button: Button = $UI/BuildDialog/Margin/VBox/CardsVBox/MarketCard/HBox/BuildButton
 @onready var barracks_card: PanelContainer = $UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard
 @onready var barracks_build_button: Button = $UI/BuildDialog/Margin/VBox/CardsVBox/BarracksCard/HBox/BuildButton
@@ -1187,8 +1191,13 @@ func get_province_income(prov: Dictionary) -> int:
 		if not b.get("is_damaged", false):
 			var b_type = b.get("type", "")
 			if BUILDING_DATA.has(b_type):
-				if b.get("investor", "") == prov_owner:
-					building_income += int(BUILDING_DATA[b_type].get("income", 0))
+				var base_inc = int(BUILDING_DATA[b_type].get("income", 0))
+				var investor = b.get("investor", prov_owner)
+				if investor == prov_owner:
+					building_income += base_inc
+				else:
+					# Đầu tư ngoại thương: 35% giữ lại cho chủ đất
+					building_income += int(round(base_inc * 0.35))
 	return BASE_INCOME_PER_PROVINCE + labor_income + building_income
 
 func get_total_player_troops() -> int:
@@ -1211,12 +1220,13 @@ func get_player_total_province_income() -> int:
 		if can_recruit(prov):
 			total += get_province_income(prov)
 		else:
-			# Với các tỉnh nước khác: Người chơi nhận cổ tức từ các công trình mình đã đầu tư (ví dụ Chợ)
+			# Với các tỉnh nước khác: Người chơi nhận 65% lợi nhuận từ các công trình mình đã đầu tư ngoại thương
 			for b in prov.get("buildings", []):
 				if not b.get("is_damaged", false) and b.get("investor", "") == player_faction:
 					var b_type = b.get("type", "")
 					if BUILDING_DATA.has(b_type):
-						total += int(BUILDING_DATA[b_type].get("income", 0))
+						var base_inc = int(BUILDING_DATA[b_type].get("income", 0))
+						total += int(round(base_inc * 0.65))
 	return total
 
 func get_player_net_monthly_gold() -> int:
@@ -1228,6 +1238,26 @@ func get_player_net_monthly_gold() -> int:
 	return total_prov_income - total_upkeep - diplomat_expense
 
 func trigger_monthly_economy() -> void:
+	# Cập nhật tăng trưởng dân số tự nhiên và quan hệ ngoại giao từ các đồn điền/trang trại ngoại thương
+	for prov in provinces_data:
+		var prov_owner = prov.get("faction", prov.get("owner", ""))
+		for b in prov.get("buildings", []):
+			if not b.get("is_damaged", false) and b.get("type", "") == "farm":
+				var investor = b.get("investor", prov_owner)
+				if investor != prov_owner:
+					# Đóng góp tăng nhẹ dân số tự nhiên tại chỗ (+0.2%/tháng)
+					var cur_pop = int(prov.get("total_population", 0))
+					var pop_growth = max(1, int(round(cur_pop * 0.002)))
+					prov["total_population"] = cur_pop + pop_growth
+					if prov.has("demographics") and prov["demographics"].has("male") and prov["demographics"].has("female"):
+						var half_growth = int(pop_growth * 0.5)
+						prov["demographics"]["male"]["working_age"] = int(prov["demographics"]["male"].get("working_age", 0)) + int(half_growth * 0.7)
+						prov["demographics"]["female"]["working_age"] = int(prov["demographics"]["female"].get("working_age", 0)) + int(half_growth * 0.7)
+					
+					# Củng cố quan hệ ngoại giao giữa 2 phe (+1 điểm mỗi quý ~ 33% cơ hội mỗi tháng nếu quan hệ < 100)
+					if DiplomacyManager and randf() < 0.35:
+						DiplomacyManager.change_relation(investor, prov_owner, 1)
+
 	var dip_result = {}
 	if DiplomacyManager:
 		dip_result = DiplomacyManager.monthly_tick(player_faction, player_gold)
@@ -2350,8 +2380,8 @@ func can_build(province_id: String, faction_id: String, building_type: String) -
 		return true
 	else:
 		# Đất nước khác:
-		# 1. Chỉ được phép xây Chợ / Thương điếm
-		if building_type != "market":
+		# 1. Cho phép đầu tư Trang trại (Đồn điền) hoặc Chợ (Thương điếm)
+		if building_type != "market" and building_type != "farm":
 			return false
 		# 2. Kiểm tra quan hệ ngoại giao: không có chiến tranh và có hòa hảo (≥20) hoặc đồng minh hoặc quyền hành quân
 		if DiplomacyManager:
@@ -2394,6 +2424,30 @@ func build_structure(province_id: String, faction_id: String, building_type: Str
 		show_province_info(prov)
 		
 	return true
+
+func confiscate_foreign_investments_on_war(facA: String, facB: String) -> void:
+	var normA = facA.strip_edges()
+	var normB = facB.strip_edges()
+	var confiscated_count = 0
+	
+	for prov in provinces_data:
+		var prov_owner = prov.get("faction", prov.get("owner", ""))
+		var buildings: Array = prov.get("buildings", [])
+		for b in buildings:
+			var investor = b.get("investor", prov_owner)
+			# Nếu chủ đất là A và nhà đầu tư là B (hoặc ngược lại)
+			if (prov_owner == normA and investor == normB) or (prov_owner == normB and investor == normA):
+				b["investor"] = prov_owner # Tịch thu toàn bộ quyền sở hữu về cho chủ đất
+				confiscated_count += 1
+				
+	if confiscated_count > 0:
+		var nameA = get_faction_display_name(normA)
+		var nameB = get_faction_display_name(normB)
+		show_notification("⚖️ Chiến sự bùng nổ: Toàn bộ %d công trình đầu tư nước ngoài giữa [%s] và [%s] đã bị chính quyền sở tại tịch thu!" % [
+			confiscated_count, nameA, nameB
+		])
+		if not selected_province.is_empty():
+			show_province_info(selected_province)
 
 func damage_buildings_on_combat(province_id: String) -> void:
 	var prov = provinces_by_id.get(province_id)
@@ -2514,9 +2568,16 @@ func _update_building_slots_ui(prov: Dictionary) -> void:
 			var investor_name = get_faction_display_name(investor)
 			var is_damaged = b.get("is_damaged", false)
 			
+			# Tên hiển thị quyền sở hữu: nếu là đất nước khác hoặc có nhà đầu tư
+			var display_title = b_name
+			if b_type == "farm":
+				display_title = "Trang trại" if investor != prov_owner else b_name
+			elif b_type == "market":
+				display_title = "Thương điếm" if investor != prov_owner else b_name
+			
 			icon_lbl.text = b_icon
 			if is_damaged:
-				info_lbl.text = "%s [Hư hại] (%s)" % [b_name, investor_name]
+				info_lbl.text = "%s [Hư hại] (%s)" % [display_title, investor_name]
 				info_lbl.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
 				
 				var can_repair_permission = (is_player_prov or investor == player_faction)
@@ -2531,7 +2592,7 @@ func _update_building_slots_ui(prov: Dictionary) -> void:
 				else:
 					action_btn.visible = false
 			else:
-				info_lbl.text = "%s (%s)" % [b_name, investor_name]
+				info_lbl.text = "%s (%s)" % [display_title, investor_name]
 				info_lbl.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0))
 				action_btn.visible = false
 		else:
@@ -2548,9 +2609,9 @@ func _update_building_slots_ui(prov: Dictionary) -> void:
 				action_btn.pressed.connect(func(): open_build_dialog(prov, slot_idx))
 			else:
 				# Tỉnh nước ngoài: Kiểm tra quan hệ ngoại giao
-				var can_build_foreign = can_build(prov_id, player_faction, "market")
+				var can_build_foreign = can_build(prov_id, player_faction, "market") or can_build(prov_id, player_faction, "farm")
 				if can_build_foreign:
-					action_btn.text = "+ Xây Thương điếm"
+					action_btn.text = "+ Đầu tư công trình"
 					action_btn.disabled = false
 					var slot_idx = i
 					action_btn.pressed.connect(func(): open_build_dialog(prov, slot_idx))
@@ -2558,7 +2619,7 @@ func _update_building_slots_ui(prov: Dictionary) -> void:
 					action_btn.text = "+ Xây (Ngoại giao)"
 					action_btn.disabled = false
 					action_btn.pressed.connect(func():
-						show_notification("⚠️ Cần hòa bình & quan hệ tốt (≥20 hoặc đồng minh) để mở thương điếm tại %s!" % prov.get("name", prov_id))
+						show_notification("⚠️ Cần hòa bình & quan hệ tốt (≥20 hoặc đồng minh) để đầu tư công trình tại %s!" % prov.get("name", prov_id))
 					)
 
 func open_build_dialog(prov: Dictionary, slot_index: int = -1) -> void:
@@ -2578,20 +2639,45 @@ func open_build_dialog(prov: Dictionary, slot_index: int = -1) -> void:
 			foreign_notice_label.visible = false
 		else:
 			foreign_notice_label.visible = true
-			foreign_notice_label.text = "🤝 Lãnh thổ của %s: Chỉ được phép xây Chợ / Thương điếm phục vụ giao thương liên quốc gia." % owner_name
+			foreign_notice_label.text = "🤝 Lãnh thổ của %s: Cho phép đầu tư Trang trại (Đồn điền) hoặc Chợ (Thương điếm) phục vụ hợp tác song phương." % owner_name
 			
 	if farm_card:
-		farm_card.visible = is_player_prov
-		var farm_cost = BUILDING_DATA["farm"]["cost"]
+		farm_card.visible = true
+		var farm_cost = 60 if not is_player_prov else BUILDING_DATA["farm"]["cost"]
+		var can_afford_farm = player_gold >= farm_cost
+		var can_diplomacy_farm = is_player_prov or can_build(prov_id, player_faction, "farm")
+		
+		if farm_name_label:
+			farm_name_label.text = "Trang trại / Đồn điền" if not is_player_prov else "Ruộng đồng / Nông trại"
+		if farm_effect_label:
+			if not is_player_prov:
+				farm_effect_label.text = "+15% việc làm sở tại, +65% lợi nhuận về nước (+10💰/thg), +0.2% dân số/thg"
+			else:
+				farm_effect_label.text = "+20% việc làm, +15 Vàng/tháng"
+				
 		if farm_build_button:
-			farm_build_button.disabled = (player_gold < farm_cost)
-			farm_build_button.text = "Xây (%d💰)" % farm_cost if player_gold >= farm_cost else "Thiếu vàng (%d💰)" % farm_cost
+			farm_build_button.disabled = not (can_afford_farm and can_diplomacy_farm)
+			if not can_diplomacy_farm:
+				farm_build_button.text = "Quan hệ chưa đủ"
+			elif not can_afford_farm:
+				farm_build_button.text = "Thiếu vàng (%d💰)" % farm_cost
+			else:
+				farm_build_button.text = "Đầu tư (%d💰)" % farm_cost if not is_player_prov else "Xây (%d💰)" % farm_cost
 			
 	if market_card:
 		market_card.visible = true
 		var market_cost = BUILDING_DATA["market"]["cost"]
 		var can_afford = player_gold >= market_cost
 		var can_diplomacy = is_player_prov or can_build(prov_id, player_faction, "market")
+		
+		if market_name_label:
+			market_name_label.text = "Chợ / Thương điếm"
+		if market_effect_label:
+			if not is_player_prov:
+				market_effect_label.text = "+15% việc làm sở tại, +65% lợi nhuận về nước (+20💰/thg)"
+			else:
+				market_effect_label.text = "+15% việc làm, +30 Vàng/tháng"
+				
 		if market_build_button:
 			market_build_button.disabled = not (can_afford and can_diplomacy)
 			if not can_diplomacy:
@@ -2599,7 +2685,7 @@ func open_build_dialog(prov: Dictionary, slot_index: int = -1) -> void:
 			elif not can_afford:
 				market_build_button.text = "Thiếu vàng (%d💰)" % market_cost
 			else:
-				market_build_button.text = "Xây (%d💰)" % market_cost
+				market_build_button.text = "Đầu tư (%d💰)" % market_cost if not is_player_prov else "Xây (%d💰)" % market_cost
 				
 	if barracks_card:
 		barracks_card.visible = is_player_prov
@@ -2995,6 +3081,7 @@ func _on_dip_war_button_pressed() -> void:
 		return
 	var target_name = get_faction_display_name(target_fac)
 	DiplomacyManager.declare_war(player_faction, target_fac)
+	confiscate_foreign_investments_on_war(player_faction, target_fac)
 	show_notification("⚔️ BẠN ĐÃ CHÍNH THỨC TUYÊN CHIẾN VỚI PHE [%s]! Quan hệ tụt xuống -100." % target_name)
 	_update_diplomacy_ui(target_fac)
 
@@ -3393,6 +3480,7 @@ func _resolve_army_arrival(army: Dictionary) -> void:
 		# Giao tranh (Combat)!
 		if DiplomacyManager and not DiplomacyManager.is_at_war(army_faction, target_faction):
 			DiplomacyManager.declare_war(army_faction, target_faction)
+			confiscate_foreign_investments_on_war(army_faction, target_faction)
 			show_notification("⚔️ CHIẾN TRANH BÙNG NỔ giữa %s và %s!" % [army_faction, target_faction])
 		
 		var defender_troops = target.get("troops", 0)

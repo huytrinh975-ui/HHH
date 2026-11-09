@@ -855,10 +855,6 @@ func cache_province_pixels() -> void:
 				province_pixel_cache[target_b].append(Vector2i(x, y))
 
 func _process(delta: float) -> void:
-	# Cập nhật vòng tròn xung nhịp cho các tỉnh đang được quét chọn
-	if not selected_provinces.is_empty() and selection_box_drawer:
-		selection_box_drawer.queue_redraw()
-
 	if not is_paused:
 		var duration = SPEED_DURATIONS.get(game_speed, 1.0)
 		day_timer += delta
@@ -1687,27 +1683,11 @@ func _on_selection_box_draw() -> void:
 	if not selection_box_drawer:
 		return
 		
-	# 1. Vẽ khung chữ nhật quét chọn mờ bán trong suốt viền xanh lá
+	# Vẽ khung chữ nhật quét chọn mờ bán trong suốt viền xanh lá khi đang kéo chuột
 	if is_box_selecting:
 		var rect = Rect2(box_start_pos, Vector2.ZERO).expand(box_current_pos)
 		selection_box_drawer.draw_rect(rect, Color(0.2, 0.8, 0.2, 0.25), true)
 		selection_box_drawer.draw_rect(rect, Color(0.2, 1.0, 0.2, 0.9), false, 2.0)
-		
-	# 2. Vẽ vòng tròn hào quang xung nhịp cho các tỉnh đang được chọn
-	if not selected_provinces.is_empty():
-		var time_ms = Time.get_ticks_msec()
-		var pulse_radius = 22.0 + 3.0 * sin(time_ms * 0.008)
-		var ring_alpha = 0.75 + 0.25 * sin(time_ms * 0.008)
-		var ring_color = Color(0.2, 1.0, 0.2, ring_alpha)
-		var fill_color = Color(0.2, 0.8, 0.2, 0.2)
-		
-		for p in selected_provinces:
-			var prov = _get_prov_dict(p)
-			if prov.is_empty():
-				continue
-			var center_pos = get_province_world_pos(prov)
-			selection_box_drawer.draw_circle(center_pos, pulse_radius, fill_color)
-			selection_box_drawer.draw_arc(center_pos, pulse_radius, 0.0, TAU, 32, ring_color, 2.0)
 
 func _highlight_province_marker(prov_id: String, is_selected: bool) -> void:
 	if not province_markers.has(prov_id):

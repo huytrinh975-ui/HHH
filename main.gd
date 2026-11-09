@@ -1,7 +1,7 @@
 extends Node2D
 
 # Phe mà người chơi đang điều khiển
-@export var player_faction: String = "Quân Đội Miền Bắc"
+@export var player_faction: String = "LE_TRINH"
 
 # Node tham chiếu
 @onready var map_sprite: Sprite2D = $Test
@@ -115,12 +115,17 @@ var markers_container: Node2D = null
 var armies_container: Node2D = null
 var active_armies: Array = []
 
-# Bảng màu đại diện cho các phe phái
+# Bảng màu đại diện cho các phe phái kịch bản 1611
 var faction_colors: Dictionary = {
-	"Quân Đội Miền Bắc": Color("#d32f2f"),       # Đỏ
-	"Liên Minh Miền Trung": Color("#2e7d32"),     # Xanh lá
-	"Quân Phiệt Cao Nguyên": Color("#f57f17"),    # Vàng cam
-	"Lực Lượng Miền Nam": Color("#1565c0")       # Xanh dương
+	"LE_TRINH": Color("#B71C1C"),
+	"MAC": Color("#4A148C"),
+	"CHUA_BAU": Color("#5D4037"),
+	"NGUYEN": Color("#0277BD"),
+	"HOA_ANH": Color("#00695C"),
+	"NAM_BAN": Color("#AD1457"),
+	"CHAMPA": Color("#F9A825"),
+	"CHAN_LAP": Color("#558B2F"),
+	"THUY_CHAN_LAP": Color("#558B2F")
 }
 
 # ==============================================================================
@@ -683,15 +688,20 @@ func get_faction_info(fac: String) -> Dictionary:
 		if info["capital_name"] == "":
 			info["capital_name"] = info["capital_province"].get("name", "")
 	else:
-		var tu_quoc_capitals = {
-			"Quân Đội Miền Bắc": {"id": "VNHN", "name": "Hà Nội"},
-			"Liên Minh Miền Trung": {"id": "VNDN", "name": "Đà Nẵng"},
-			"Quân Phiệt Cao Nguyên": {"id": "VN33", "name": "Đắk Lắk"},
-			"Lực Lượng Miền Nam": {"id": "VNSG", "name": "TP. Hồ Chí Minh"}
+		var historical_1611_capitals = {
+			"LE_TRINH": {"id": "VNHN", "name": "Đông Kinh (Hà Nội)"},
+			"MAC": {"id": "VN04", "name": "Cao Bằng"},
+			"CHUA_BAU": {"id": "VN07", "name": "Tuyên Quang"},
+			"NGUYEN": {"id": "VN26", "name": "Phú Xuân (Huế)"},
+			"HOA_ANH": {"id": "VN32", "name": "Phú Yên"},
+			"NAM_BAN": {"id": "VN33", "name": "Đắk Lắk"},
+			"CHAMPA": {"id": "VN36", "name": "Phan Rang (Ninh Thuận)"},
+			"CHAN_LAP": {"id": "VNSG", "name": "Gia Định (Sài Gòn)"},
+			"THUY_CHAN_LAP": {"id": "VNSG", "name": "Gia Định (Sài Gòn)"}
 		}
-		if tu_quoc_capitals.has(fac):
-			info["capital_id"] = tu_quoc_capitals[fac]["id"]
-			info["capital_name"] = tu_quoc_capitals[fac]["name"]
+		if historical_1611_capitals.has(fac):
+			info["capital_id"] = historical_1611_capitals[fac]["id"]
+			info["capital_name"] = historical_1611_capitals[fac]["name"]
 			if provinces_by_id.has(info["capital_id"]):
 				info["capital_province"] = provinces_by_id[info["capital_id"]]
 		else:
@@ -964,7 +974,7 @@ func load_provinces_json() -> void:
 				var fac = p.get("faction", "")
 				if fac != "" and not fac_list.has(fac):
 					fac_list.append(fac)
-			if DiplomacyManager:
+			if DiplomacyManager and not (GameManager and GameManager.current_mode == GameManager.MODE_SCENARIO_1611):
 				DiplomacyManager.init_factions(fac_list)
 		else:
 			print("Lỗi parse JSON provinces.json")
@@ -2294,11 +2304,28 @@ func _on_confirm_disband_pressed() -> void:
 # HỆ THỐNG CÔNG TRÌNH, LAO ĐỘNG VÀ QUẢN LÝ TỈNH
 # ==============================================================================
 
+const FACTION_NAMES_1611: Dictionary = {
+	"LE_TRINH": "Lê - Trịnh",
+	"MAC": "Nhà Mạc",
+	"CHUA_BAU": "Chúa Bầu",
+	"NGUYEN": "Chúa Nguyễn",
+	"HOA_ANH": "Hoa Anh",
+	"NAM_BAN": "Nam Bàn",
+	"CHAMPA": "Champa",
+	"THUY_CHAN_LAP": "Thủy Chân Lạp",
+	"CHAN_LAP": "Thủy Chân Lạp"
+}
+
 func get_faction_display_name(fac: String) -> String:
-	if ScenarioManager and ScenarioManager.active_scenario.has("factions") and ScenarioManager.active_scenario["factions"].has(fac):
-		var f_data = ScenarioManager.active_scenario["factions"][fac]
-		return f_data.get("display_name", f_data.get("name", fac))
-	return fac
+	var s = fac.strip_edges()
+	if FACTION_NAMES_1611.has(s):
+		return FACTION_NAMES_1611[s]
+	if ScenarioManager and ScenarioManager.active_scenario.has("factions") and ScenarioManager.active_scenario["factions"].has(s):
+		var f_data = ScenarioManager.active_scenario["factions"][s]
+		return f_data.get("display_name", f_data.get("name", s))
+	if DiplomacyManager and DiplomacyManager.has_method("get_faction_display_name"):
+		return DiplomacyManager.get_faction_display_name(s)
+	return s
 
 func can_build(province_id: String, faction_id: String, building_type: String) -> bool:
 	var prov = provinces_by_id.get(province_id)
@@ -2777,8 +2804,9 @@ func _update_diplomacy_ui(target_fac: String) -> void:
 		if p.get("faction") == target_fac:
 			prov_count += 1
 	
+	var target_display = get_faction_display_name(target_fac)
 	if dip_faction_header:
-		dip_faction_header.text = "🏛️ Phe: %s (Chiếm giữ: %d tỉnh)" % [target_fac, prov_count]
+		dip_faction_header.text = "🏛️ Phe: %s (Chiếm giữ: %d tỉnh)" % [target_display, prov_count]
 	
 	var rel = DiplomacyManager.get_relation(player_faction, target_fac)
 	var is_war = DiplomacyManager.is_at_war(player_faction, target_fac)
@@ -2828,7 +2856,8 @@ func _update_diplomacy_ui(target_fac: String) -> void:
 		else:
 			var arr = []
 			for f in friends:
-				arr.append("%s (%+d)" % [f["faction"], f["relations"]])
+				var f_name = f.get("display_name", get_faction_display_name(f["faction"]))
+				arr.append("%s (%+d)" % [f_name, f["relations"]])
 			dip_top_friends_label.text = "🟢 Thân nhất: %s" % ", ".join(arr)
 	
 	if dip_top_enemies_label:
@@ -2837,7 +2866,8 @@ func _update_diplomacy_ui(target_fac: String) -> void:
 		else:
 			var arr = []
 			for e in enemies:
-				arr.append("%s (%+d)" % [e["faction"], e["relations"]])
+				var e_name = e.get("display_name", get_faction_display_name(e["faction"]))
+				arr.append("%s (%+d)" % [e_name, e["relations"]])
 			dip_top_enemies_label.text = "🔴 Thù địch nhất: %s" % ", ".join(arr)
 	
 	# Nút Cải thiện quan hệ
@@ -2897,16 +2927,17 @@ func _on_dip_improve_button_pressed() -> void:
 	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
 	if target_fac == "" or target_fac == player_faction:
 		return
+	var target_name = get_faction_display_name(target_fac)
 	var is_improving = DiplomacyManager.is_improving_relations(player_faction, target_fac)
 	if is_improving:
 		DiplomacyManager.set_improving_relations(player_faction, target_fac, false)
-		show_notification("🕊️ Đã triệu hồi nhà ngoại giao về từ phe [%s]!" % target_fac)
+		show_notification("🕊️ Đã triệu hồi nhà ngoại giao về từ phe [%s]!" % target_name)
 	else:
 		if player_gold < 5:
 			show_notification("⚠️ Không đủ Vàng (Cần 5 Vàng để bắt đầu cử nhà ngoại giao)!")
 			return
 		DiplomacyManager.set_improving_relations(player_faction, target_fac, true)
-		show_notification("🕊️ Đã cử nhà ngoại giao sang [%s] (Chi phí: 5 Vàng/tháng, +3 điểm/tháng)!" % target_fac)
+		show_notification("🕊️ Đã cử nhà ngoại giao sang [%s] (Chi phí: 5 Vàng/tháng, +3 điểm/tháng)!" % target_name)
 	update_gold_display()
 	_update_diplomacy_ui(target_fac)
 
@@ -2916,12 +2947,13 @@ func _on_dip_insult_button_pressed() -> void:
 	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
 	if target_fac == "" or target_fac == player_faction:
 		return
+	var target_name = get_faction_display_name(target_fac)
 	if not DiplomacyManager.can_insult(player_faction, target_fac):
 		show_notification("⚠️ Vừa mới xúc phạm phe này! Cần chờ hồi phục quan hệ.")
 		return
 	DiplomacyManager.insult(player_faction, target_fac)
 	var new_rel = DiplomacyManager.get_relation(player_faction, target_fac)
-	show_notification("🤬 Bạn đã gửi tối hậu thư xúc phạm phe [%s]! Quan hệ giảm -30 (Còn: %+d)." % [target_fac, new_rel])
+	show_notification("🤬 Bạn đã gửi tối hậu thư xúc phạm phe [%s]! Quan hệ giảm -30 (Còn: %+d)." % [target_name, new_rel])
 	_update_diplomacy_ui(target_fac)
 
 func _on_dip_access_button_pressed() -> void:
@@ -2930,12 +2962,13 @@ func _on_dip_access_button_pressed() -> void:
 	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
 	if target_fac == "" or target_fac == player_faction:
 		return
+	var target_name = get_faction_display_name(target_fac)
 	var rel = DiplomacyManager.get_relation(player_faction, target_fac)
 	if rel < 20:
 		show_notification("⚠️ Quan hệ chưa đủ tin cậy (cần ≥ +20, hiện tại: %+d) để xin quyền hành quân!" % rel)
 		return
 	DiplomacyManager.grant_military_access(player_faction, target_fac)
-	show_notification("📜 Phe [%s] đã đồng ý cấp quyền hành quân qua địa phận của họ!" % target_fac)
+	show_notification("📜 Phe [%s] đã đồng ý cấp quyền hành quân qua địa phận của họ!" % target_name)
 	_update_diplomacy_ui(target_fac)
 
 func _on_dip_alliance_button_pressed() -> void:
@@ -2944,12 +2977,14 @@ func _on_dip_alliance_button_pressed() -> void:
 	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
 	if target_fac == "" or target_fac == player_faction:
 		return
+	var target_name = get_faction_display_name(target_fac)
+	var player_name = get_faction_display_name(player_faction)
 	var rel = DiplomacyManager.get_relation(player_faction, target_fac)
 	if rel < 75:
 		show_notification("⚠️ Quan hệ chưa đạt mức đồng minh (cần ≥ +75, hiện tại: %+d)!" % rel)
 		return
 	DiplomacyManager.form_alliance(player_faction, target_fac)
-	show_notification("🎉 LIÊN MINH QUÂN SỰ thành lập giữa [%s] và [%s]! Mở quyền hành quân 2 chiều." % [player_faction, target_fac])
+	show_notification("🎉 LIÊN MINH QUÂN SỰ thành lập giữa [%s] và [%s]! Mở quyền hành quân 2 chiều." % [player_name, target_name])
 	_update_diplomacy_ui(target_fac)
 
 func _on_dip_war_button_pressed() -> void:
@@ -2958,8 +2993,9 @@ func _on_dip_war_button_pressed() -> void:
 	var target_fac = selected_province.get("faction", selected_province.get("owner", ""))
 	if target_fac == "" or target_fac == player_faction:
 		return
+	var target_name = get_faction_display_name(target_fac)
 	DiplomacyManager.declare_war(player_faction, target_fac)
-	show_notification("⚔️ BẠN ĐÃ CHÍNH THỨC TUYÊN CHIẾN VỚI PHE [%s]! Quan hệ tụt xuống -100." % target_fac)
+	show_notification("⚔️ BẠN ĐÃ CHÍNH THỨC TUYÊN CHIẾN VỚI PHE [%s]! Quan hệ tụt xuống -100." % target_name)
 	_update_diplomacy_ui(target_fac)
 
 func hide_province_panel() -> void:

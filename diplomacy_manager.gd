@@ -28,13 +28,46 @@ func _ready() -> void:
 	pass
 
 func get_pair_key(facA: String, facB: String) -> String:
-	if facA < facB:
-		return facA + "<#>" + facB
-	return facB + "<#>" + facA
+	var a = normalize_faction_id(facA)
+	var b = normalize_faction_id(facB)
+	if a < b:
+		return a + "<#>" + b
+	return b + "<#>" + a
+
+# Bảng map ID phe -> Tên tiếng Việt chuẩn xác kịch bản 1611
+const FACTION_DISPLAY_NAMES: Dictionary = {
+	"LE_TRINH": "Lê - Trịnh",
+	"MAC": "Nhà Mạc",
+	"CHUA_BAU": "Chúa Bầu",
+	"NGUYEN": "Chúa Nguyễn",
+	"HOA_ANH": "Hoa Anh",
+	"NAM_BAN": "Nam Bàn",
+	"CHAMPA": "Champa",
+	"THUY_CHAN_LAP": "Thủy Chân Lạp",
+	"CHAN_LAP": "Thủy Chân Lạp"
+}
+
+func get_faction_display_name(fac: String) -> String:
+	if FACTION_DISPLAY_NAMES.has(fac):
+		return FACTION_DISPLAY_NAMES[fac]
+	var alias = normalize_faction_id(fac)
+	if FACTION_DISPLAY_NAMES.has(alias):
+		return FACTION_DISPLAY_NAMES[alias]
+	return fac
+
+func normalize_faction_id(fac: String) -> String:
+	var s = fac.strip_edges()
+	if s == "THUY_CHAN_LAP":
+		return "CHAN_LAP"
+	return s
 
 func init_factions(factions_list: Array) -> void:
+	# Làm sạch danh sách và ma trận quan hệ
+	all_factions.clear()
+	diplomacy_matrix.clear()
+	
 	for f in factions_list:
-		var fac_str = str(f).strip_edges()
+		var fac_str = normalize_faction_id(str(f))
 		if fac_str != "" and not all_factions.has(fac_str):
 			all_factions.append(fac_str)
 	
@@ -43,28 +76,29 @@ func init_factions(factions_list: Array) -> void:
 			var f1 = all_factions[i]
 			var f2 = all_factions[j]
 			var key = get_pair_key(f1, f2)
-			if not diplomacy_matrix.has(key):
-				diplomacy_matrix[key] = {
-					"relations": 0,
-					"is_at_war": false,
-					"is_allied": false,
-					"access": { f1: false, f2: false },
-					"improving": { f1: false, f2: false },
-					"insult_cooldown": { f1: 0, f2: 0 }
-				}
+			diplomacy_matrix[key] = {
+				"relations": 0,
+				"is_at_war": false,
+				"is_allied": false,
+				"access": { f1: false, f2: false },
+				"improving": { f1: false, f2: false },
+				"insult_cooldown": { f1: 0, f2: 0 }
+			}
 
 func _get_or_create_record(facA: String, facB: String) -> Dictionary:
-	if facA == facB:
+	var a = normalize_faction_id(facA)
+	var b = normalize_faction_id(facB)
+	if a == b:
 		return {}
-	var key = get_pair_key(facA, facB)
+	var key = get_pair_key(a, b)
 	if not diplomacy_matrix.has(key):
 		diplomacy_matrix[key] = {
 			"relations": 0,
 			"is_at_war": false,
 			"is_allied": false,
-			"access": { facA: false, facB: false },
-			"improving": { facA: false, facB: false },
-			"insult_cooldown": { facA: 0, facB: 0 }
+			"access": { a: false, b: false },
+			"improving": { a: false, b: false },
+			"insult_cooldown": { a: 0, b: 0 }
 		}
 	return diplomacy_matrix[key]
 
@@ -204,24 +238,36 @@ func insult(from_fac: String, to_fac: String) -> void:
 # --- DANH SÁCH TOP PHE THÂN THIẾT & THÙ ĐỊCH ---
 
 func get_top_friends(fac: String, limit: int = 3) -> Array:
+	var my_fac = normalize_faction_id(fac)
 	var list: Array = []
 	for other in all_factions:
-		if other != fac and other != "":
-			list.append({
-				"faction": other,
-				"relations": get_relation(fac, other)
-			})
+		var other_fac = normalize_faction_id(other)
+		if other_fac != my_fac and other_fac != "":
+			var rel = get_relation(my_fac, other_fac)
+			# Chỉ lấy các phe có điểm quan hệ thực sự thiên lệch > 0
+			if rel > 0:
+				list.append({
+					"faction": other_fac,
+					"display_name": get_faction_display_name(other_fac),
+					"relations": rel
+				})
 	list.sort_custom(func(a, b): return a["relations"] > b["relations"])
 	return list.slice(0, limit)
 
 func get_top_enemies(fac: String, limit: int = 3) -> Array:
+	var my_fac = normalize_faction_id(fac)
 	var list: Array = []
 	for other in all_factions:
-		if other != fac and other != "":
-			list.append({
-				"faction": other,
-				"relations": get_relation(fac, other)
-			})
+		var other_fac = normalize_faction_id(other)
+		if other_fac != my_fac and other_fac != "":
+			var rel = get_relation(my_fac, other_fac)
+			# Chỉ lấy các phe có điểm quan hệ thực sự thiên lệch < 0
+			if rel < 0:
+				list.append({
+					"faction": other_fac,
+					"display_name": get_faction_display_name(other_fac),
+					"relations": rel
+				})
 	list.sort_custom(func(a, b): return a["relations"] < b["relations"])
 	return list.slice(0, limit)
 

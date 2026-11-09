@@ -37,15 +37,6 @@ offset_bottom = 54.0
 focus_mode = 0
 text = "🏠 Menu Chính"
 
-[node name="btn_selection_mode" type="Button" parent="UI" unique_id=1982736470]
-offset_left = 148.0
-offset_top = 18.0
-offset_right = 296.0
-offset_bottom = 54.0
-focus_mode = 0
-mouse_filter = 0
-text = "[ ] Quét Quân"
-
 [node name="ProvincePanel" type="Panel" parent="UI" unique_id=799651786]
 visible = false
 anchors_preset = 2

@@ -13,9 +13,7 @@ extends Camera2D
 var target_zoom: Vector2 = Vector2.ONE
 var is_dragging: bool = false
 var is_middle_dragging: bool = false
-var is_right_dragging: bool = false
 var zoom_anchor_mouse_pos: Vector2 = Vector2.ZERO
-var is_box_select_mode: bool = false # Khi bật chế độ quét quân, vô hiệu hóa pan camera bằng chuột trái
 
 # Quản lý cảm ứng đa điểm cho Mobile / Web Mobile
 var touch_points: Dictionary = {}
@@ -145,10 +143,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				# Vừa buông 1 ngón sau khi pinch: triệt tiêu sự kiện, khóa cứng camera không cho giật văng
 				get_viewport().set_input_as_handled()
 				return
-			
-			# Vô hiệu hóa pan camera bằng 1 ngón tay / chuột trái khi đang bật chế độ quét quân
-			if is_box_select_mode:
-				return
 
 			var start_pos: Vector2 = touch_start_positions.get(event.index, event.position)
 			var total_dist: float = start_pos.distance_to(event.position)
@@ -195,9 +189,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			is_dragging = is_middle_dragging
 			if is_middle_dragging:
 				get_viewport().set_input_as_handled()
-		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			is_right_dragging = event.pressed
-			is_dragging = is_middle_dragging or is_right_dragging
 		elif event.is_pressed():
 			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 				_start_zoom(zoom_factor, event.position)

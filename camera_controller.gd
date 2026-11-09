@@ -13,6 +13,7 @@ extends Camera2D
 var target_zoom: Vector2 = Vector2.ONE
 var is_dragging: bool = false
 var is_middle_dragging: bool = false
+var is_right_dragging: bool = false
 var zoom_anchor_mouse_pos: Vector2 = Vector2.ZERO
 var is_box_select_mode: bool = false # Khi bật chế độ quét quân, vô hiệu hóa pan camera bằng chuột trái
 
@@ -195,8 +196,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			if is_middle_dragging:
 				get_viewport().set_input_as_handled()
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			# Chuột phải dành riêng cho ra lệnh di chuyển/tấn công RTS (main.gd xử lý trực tiếp)
-			pass
+			is_right_dragging = event.pressed
+			is_dragging = is_middle_dragging or is_right_dragging
 		elif event.is_pressed():
 			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 				_start_zoom(zoom_factor, event.position)
